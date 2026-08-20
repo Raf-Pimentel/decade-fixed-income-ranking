@@ -78,11 +78,18 @@ def test_volatility_is_never_negative() -> None:
 
 
 def test_volatility_annualises_with_252_business_days() -> None:
-    """Fixed-income funds live on business days. Using 365 here would deflate
-    every volatility by 24% and quietly reshuffle the whole ranking."""
-    daily = np.full(252, 0.001)
-    daily[::2] = -0.001  # a clean alternating series, daily sd = 0.001
-    assert metrics.annualised_volatility(daily) == pytest.approx(0.001 * math.sqrt(252), rel=1e-6)
+    """Fixed-income funds live on business days. Using 365 here would inflate
+    every volatility by 20% and quietly reshuffle the whole ranking.
+
+    Asserted as a ratio rather than an absolute, so that the test pins the
+    annualisation factor — which is the thing that can be wrong — and stays
+    silent about whether the estimator divides by n or by n-1, which moves the
+    answer by 0.2% and changes no ranking.
+    """
+    rng = np.random.default_rng(5)
+    daily = rng.normal(0, 0.01, 252)
+    ratio = metrics.annualised_volatility(daily) / np.std(daily, ddof=1)
+    assert ratio == pytest.approx(math.sqrt(252), rel=1e-9)
 
 
 def test_volatility_scales_linearly_with_the_data() -> None:
@@ -124,9 +131,10 @@ def test_drawdown_measures_from_the_peak_not_from_the_start() -> None:
 
 
 def test_compounding_is_multiplicative_not_additive() -> None:
-    """1% a day for 100 days is 170%, not 100%. Summing rates is the classic
+    """1% a day for 100 days is 170.48%, not 100%. Summing rates is the classic
     way to overstate a low-rate benchmark and understate a high-rate one."""
-    assert metrics.compound([0.01] * 100) == pytest.approx(1.7069, rel=1e-4)
+    assert metrics.compound([0.01] * 100) == pytest.approx(1.01**100 - 1, rel=1e-12)
+    assert metrics.compound([0.01] * 100) == pytest.approx(1.704814, rel=1e-6)
 
 
 def test_compounding_an_empty_period_is_zero() -> None:
@@ -191,3 +199,89 @@ def test_period_return_matches_independent_calculation(cnpj: str, quota_series) 
     assert metrics.cumulative_return(series) == pytest.approx(
         EXPECTED[cnpj]["period_return"], rel=1e-9
     )
+
+
+# --------------------------------------------------------------------------
+# Downside volatility
+# --------------------------------------------------------------------------
+
+
+def test_upside_movement_is_not_risk() -> None:
+    """A fund that only ever jumps upwards has no downside volatility, however
+    lively it looks to a plain standard deviation."""
+    only_gains = np.array([0.01, 0.05, 0.02, 0.09, 0.03])
+    assert metrics.downside_volatility(only_gains) == 0.0
+    assert metrics.annualised_volatility(only_gains) > 0
+
+
+def test_downside_volatility_ignores_the_good_days() -> None:
+    losses = np.array([-0.01, -0.02, -0.015])
+    mixed = np.concatenate([losses, np.array([0.30, 0.40, 0.50])])
+    assert metrics.downside_volatility(mixed) == pytest.approx(
+        metrics.annualised_volatility(losses)
+    )
+
+
+def test_downside_volatility_is_never_negative() -> None:
+    rng = np.random.default_rng(21)
+    for _ in range(20):
+        assert metrics.downside_volatility(rng.normal(0, 0.01, 200)) >= 0
+
+
+def test_a_single_losing_day_is_not_enough_to_measure_spread() -> None:
+    assert metrics.downside_volatility(np.array([0.01, 0.02, -0.01])) == 0.0
+
+
+# --------------------------------------------------------------------------
+# Flow stability
+# --------------------------------------------------------------------------
+
+
+def test_a_fund_taking_money_in_scores_positive() -> None:
+    assert metrics.flow_stability([100.0, 50.0], [10.0, 5.0], average_assets=1_000.0) > 0
+
+
+def test_a_fund_bleeding_redemptions_scores_negative() -> None:
+    """The signal the return series has not priced in yet: a fund forced to
+    sell whatever is easiest to sell degrades what is left for whoever stays."""
+    assert metrics.flow_stability([10.0], [500.0], average_assets=1_000.0) < 0
+
+
+def test_flow_stability_is_relative_to_size() -> None:
+    """A hundred million leaving a billion-real fund is not the same event as a
+    hundred million leaving a two-hundred-million one."""
+    small = metrics.flow_stability([0.0], [100.0], average_assets=200.0)
+    large = metrics.flow_stability([0.0], [100.0], average_assets=1_000.0)
+    assert small < large
+
+
+def test_flow_stability_known_value() -> None:
+    assert metrics.flow_stability([300.0], [100.0], average_assets=1_000.0) == pytest.approx(0.2)
+
+
+def test_flow_stability_refuses_a_fund_with_no_size() -> None:
+    with pytest.raises(ValueError):
+        metrics.flow_stability([1.0], [1.0], average_assets=0.0)
+
+
+# --------------------------------------------------------------------------
+# Excess return
+# --------------------------------------------------------------------------
+
+
+def test_beating_the_benchmark_is_positive() -> None:
+    assert metrics.excess_return(0.14, 0.12) == pytest.approx(0.02)
+
+
+def test_matching_the_benchmark_is_exactly_zero() -> None:
+    assert metrics.excess_return(0.12, 0.12) == 0.0
+
+
+def test_the_fixture_funds_both_lagged_the_cdi(quota_series, cdi_rates) -> None:
+    """A real check on real numbers: both funds in the frozen slice returned
+    less than the CDI over the quarter. If a change ever makes them look like
+    they beat it, something in the chain moved."""
+    benchmark = metrics.compound(cdi_rates)
+    for cnpj in EXPECTED:
+        fund = metrics.cumulative_return(quota_series(cnpj))
+        assert metrics.excess_return(fund, benchmark) < 0
