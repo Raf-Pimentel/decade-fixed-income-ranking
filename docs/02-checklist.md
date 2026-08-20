@@ -9,20 +9,24 @@ Ao final de cada fase, apresento ao Rafael e espero o "ok" antes de seguir.
 
 **Entregável:** projeto que instala do zero e roda uma suíte de testes **vermelha**.
 
-- [ ] `uv init` + `pyproject.toml` com a stack aprovada, nada além
-- [ ] Estrutura de pastas criada, cada uma com `__init__.py` e docstring de uma linha
-- [ ] `.gitignore` cobrindo `dados/`, `saida/`, `.venv`, `__pycache__`
-- [ ] `.pre-commit-config.yaml` com ruff + mypy rodando de verdade
-- [ ] `Dockerfile` que builda e roda `pytest`
-- [ ] `configs/universo.yaml`, `configs/perfis.yaml`, `configs/fontes.yaml` escritos
-- [ ] Fixtures reais e pequenas em `tests/fixtures/` (20 fundos × 60 dias, congeladas)
-- [ ] **Testes escritos e falhando** para: as 8 armadilhas, as invariantes financeiras,
+- [x] `uv init` + `pyproject.toml` com a stack aprovada, nada além
+- [x] Estrutura de pastas criada, cada uma com `__init__.py` e docstring de uma linha
+- [x] `.gitignore` cobrindo `dados/`, `saida/`, `.venv`, `__pycache__`
+- [ ] ~~`.pre-commit-config.yaml`~~ — **não feito, de propósito.** A CI aplica
+      exatamente os mesmos portões (ruff, format, mypy, pytest) a cada push.
+      Um hook local que ninguém instalou é teatro, não guardrail.
+- [x] `Dockerfile` — **desvio declarado:** a imagem é de execução, não de teste
+      (`tests/` fica fora via `.dockerignore`). A CI builda a imagem e roda a CLI
+      dentro dela; os testes rodam no job de qualidade, que é onde fazem sentido.
+- [x] `configs/universo.yaml`, `configs/perfis.yaml`, `configs/fontes.yaml` escritos
+- [x] Fixtures reais e pequenas em `tests/fixtures/` (20 fundos × 60 dias, congeladas)
+- [x] **Testes escritos e falhando** para: as 8 armadilhas, as invariantes financeiras,
       os contratos de cada etapa, o pipeline ponta a ponta
-- [ ] `README.md` esqueleto com o comando de execução
-- [ ] Repositório Git iniciado, primeiro commit, branch `main` protegida mentalmente
+- [x] `README.md` esqueleto com o comando de execução
+- [x] Repositório Git iniciado, primeiro commit, branch `main` protegida mentalmente
       (trabalho em `feat/*` e faço merge)
-- [ ] **GitHub Actions**: workflow que instala do zero e roda a suíte a cada push
-- [ ] **Comando `/fim-de-fase`** em `.claude/commands/` — testes, funil, diário, trade-offs
+- [x] **GitHub Actions**: workflow que instala do zero e roda a suíte a cada push
+- [x] **Comando `/fim-de-fase`** em `.claude/commands/` — testes, funil, diário, trade-offs
 
 **Verificação:** `uv run pytest` roda e falha com mensagens claras, não com `ImportError`.
 

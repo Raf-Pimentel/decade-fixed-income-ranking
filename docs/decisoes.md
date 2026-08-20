@@ -34,6 +34,11 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-016](#d-016) | 20/08 | 1 | Disjuntor restaurado na extração | 🔄 |
 | [D-017](#d-017) | 20/08 | 1 | Fase 5.5: testar o método no passado, com critério declarado antes | 🎥 |
 | [D-018](#d-018) | 20/08 | 1 | Automação real, aprovação por etapa, e o repo tem que ser defensável | 🎥 |
+| [D-019](#d-019) | 20/08 | 2 | Python 3.12 isolado pelo uv; Docker validado pela CI, não localmente | |
+| [D-020](#d-020) | 20/08 | 2 | Código em inglês, documentos de trabalho em português | |
+| [D-021](#d-021) | 20/08 | 2 | Valores esperados dos testes calculados fora do código | 🎥 |
+| [D-022](#d-022) | 20/08 | 2 | CI vermelha de propósito até a Fase 5 | 🎥 |
+| [D-023](#d-023) | 20/08 | 2 | Sem pre-commit: a CI já aplica os mesmos portões | |
 
 ---
 
@@ -366,6 +371,91 @@ comum é descrever a saída em vez de mostrá-la.
 
 ---
 
+## D-019 — Python 3.12 isolado pelo uv; Docker validado pela CI
+**Quando:** 20/08, Fase 2 · **Situação:** a máquina do Rafael tem Python 3.14 e não tem Docker
+
+O 3.14 é recente demais: Polars e Pandera podem não ter pacote pronto, e descobrir isso na
+Fase 4 custaria caro.
+
+**Decisão:** o `uv` baixa e fixa o **3.12.14** só para este projeto, sem tocar no Python do
+sistema. O `.python-version` e o `uv.lock` garantem que a CI use exatamente o mesmo.
+
+**Obstáculo real encontrado:** o `uv` falhou ao criar um atalho de versão no Windows (exige
+permissão de symlink). Contornado apontando o caminho do interpretador direto. Não acontece
+no Linux da CI.
+
+**Sobre o Docker:** em vez de pedir a instalação do Docker Desktop, o `Dockerfile` é
+**construído e executado pela CI**. É evidência melhor que um teste local: prova que a imagem
+funciona numa máquina que nunca viu o projeto — que é exatamente o que o enunciado pede.
+
+---
+
+## D-020 — Código em inglês, documentos de trabalho em português
+**Quando:** 20/08, Fase 2 · **Situação:** em que idioma escrever o repositório
+
+**Decisão:** código, comentários, `README.md` e `ranking.md` em inglês. O desenho
+(`01-solution-design.md`) e este diário em português.
+
+**Por quê:** o case veio em inglês e um dos critérios de avaliação é "outro time consegue
+consumir sem você". Já o desenho e o diário são material de apresentação do Rafael, que vai
+defendê-los em português.
+
+**Custo aceito:** o repositório é bilíngue, o que é levemente estranho. A alternativa —
+tudo em português — tornaria o código menos consumível por quem avalia.
+
+---
+
+## D-021 — Os valores esperados dos testes são calculados fora do código 🎥
+**Quando:** 20/08, Fase 2 · **Situação:** contra o que comparar o resultado das fórmulas
+
+**Decisão:** os números de referência foram calculados por um script independente, direto do
+CSV congelado, e escritos à mão no `conftest.py`:
+
+```
+00068305000135  -> 64 observações, retorno 0.031724441185
+42592315000115  -> 64 observações, retorno 0.027386613839
+CDI acumulado   -> 0.035903629100
+```
+
+**Por quê:** se eu gerasse esses números com a própria implementação, o teste provaria apenas
+que o código concorda consigo mesmo. Verificação precisa de uma testemunha independente.
+
+**Efeito colateral interessante:** os dois fundos renderam **menos que o CDI** no trimestre
+(3,17% e 2,74% contra 3,59%). É exatamente o tipo de coisa que o ranking existe para capturar,
+e já apareceu na fixture.
+
+---
+
+## D-022 — A CI fica vermelha de propósito até a Fase 5 🎥
+**Quando:** 20/08, Fase 2 · **Situação:** teste antes do código significa suíte falhando
+
+**Decisão:** a CI roda desde o primeiro push e **falha**, porque os 92 testes referenciam
+módulos que ainda não existem. O `README.md` explica isso na primeira tela.
+
+**Por quê:** a alternativa seria marcar tudo como "esperado falhar" ou não ligar a CI ainda —
+as duas escondem o estado real. Uma suíte vermelha por ausência de implementação é o estado
+correto de um projeto escrito com teste primeiro.
+
+**O que aceito perder:** quem olhar o repositório antes da Fase 5 vê um X vermelho. Mitigado
+por dizer, em vez de esconder.
+
+---
+
+## D-023 — Sem pre-commit
+**Quando:** 20/08, Fase 2 · **Situação:** o checklist previa `.pre-commit-config.yaml`
+
+**Decisão:** não criar. A CI aplica exatamente os mesmos portões — ruff, format, mypy,
+pytest — a cada push.
+
+**Por quê:** um hook local que ninguém instalou não protege nada; só parece que protege.
+Duplicar a configuração em dois lugares cria a chance de eles divergirem.
+
+**Consequência assumida:** com o Rafael tendo recusado também o gancho automático de testes
+(D-018), **rodar a suíte antes de declarar algo pronto é responsabilidade manual minha**. A
+CI pega no push o que eu deixar passar, mas o ciclo de retorno fica mais lento.
+
+---
+
 # Material para a apresentação
 
 *Seção viva — vou alimentando conforme o projeto anda.*
@@ -376,6 +466,8 @@ comum é descrever a saída em vez de mostrá-la.
 2. A data de início do fundo no registro é mentira — diz 2025 para fundos de 1994.
 3. A quebra de layout do informe diário é em jan/2024, não em nov/2024 como eu supunha.
 4. A ANBIMA não é fechada: os índices baixam sem credencial. Eu tinha desistido cedo demais.
+6. Escrever o teste primeiro pegou um erro de desenho antes de virar código: dois testes
+   especificavam leitura de arquivo dentro do módulo de cálculo. Corrigido de graça.
 5. A falta de dado de taxa não é aleatória — segue a regulação. Varejo é obrigado a divulgar
    lâmina; qualificado não. Por isso a cobertura cai de 64% para 28%.
 
@@ -388,6 +480,8 @@ comum é descrever a saída em vez de mostrá-la.
 | 10,3% e 0% | cobertura e preenchimento de taxa do `cad_fi.csv` |
 | 66% vs 5,3% | fundos "com menos de 1 ano" pelo campo errado vs pelo certo |
 | 7,4 anos | idade real mediana dos fundos |
+| 92 testes vermelhos | escritos antes de existir uma linha de implementação |
+| 3,17% e 2,74% vs 3,59% | dois fundos da amostra renderam **menos que o CDI** no 4º tri de 2025 |
 | ±1,5 | incerteza sobre a medida de retorno ajustado ao risco com 12 meses |
 | 93% → 61% | cobertura do universo conforme a janela vai de 12 para 60 meses |
 
