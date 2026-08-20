@@ -1,0 +1,58 @@
+name: Weekly ranking
+
+# The case asks that the path to an unattended run be "clear and feasible".
+# Rather than describing that path in a paragraph, this workflow walks it:
+# it downloads the real CVM data from scratch and publishes a fresh ranking,
+# with nobody watching.
+#
+# The schedule is deliberately commented out until the pipeline exists
+# (Phase 5). Turning it on is one line, and that happens in Phase 6.
+
+on:
+  workflow_dispatch:
+    inputs:
+      reference_date:
+        description: "Reference date (YYYY-MM-DD)"
+        required: false
+        default: "2025-12-31"
+  # schedule:
+  #   - cron: "0 9 * * MON"   # Mondays, 09:00 UTC
+
+permissions:
+  contents: write
+
+jobs:
+  rank:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - run: uv sync --locked
+
+      - name: Run the pipeline against live CVM data
+        run: uv run ranking --reference-date "${{ inputs.reference_date || '2025-12-31' }}"
+
+      # The quality report is the evidence that the run can be trusted.
+      # If the funnel drifted from the baseline, the pipeline has already
+      # failed by this point and nothing gets published.
+      - name: Publish the results
+        run: |
+          mkdir -p published
+          cp saida/ranking.json saida/ranking.md saida/relatorio_qualidade.md published/
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add published
+          git diff --staged --quiet || git commit -m "chore: ranking for $(date -u +%F)"
+          git push
+
+      - name: Keep the run's artefacts even if publishing is skipped
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ranking-${{ github.run_number }}
+          path: saida/

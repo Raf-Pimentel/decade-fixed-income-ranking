@@ -3,10 +3,14 @@
 Ranks Brazilian fixed-income funds and returns the top 5 for each client profile,
 from public CVM and ANBIMA data, for a given reference date.
 
-> **Status: under construction.** Phase 2 of 6 — project skeleton and test suite.
+> **Status: under construction — phase 2 of 6.**
+> The test suite is deliberately **red**: it was written before the code, and the
+> modules it imports do not exist yet. CI will stay red until phase 5 closes.
+> That is the intended state of a test-first build, not a broken build.
+>
 > The design document is [`docs/01-solution-design.md`](docs/01-solution-design.md)
-> (in Portuguese), and every decision taken is logged in
-> [`docs/decisoes.md`](docs/decisoes.md).
+> (in Portuguese), and every decision taken — including the four that were later
+> reversed — is logged in [`docs/decisoes.md`](docs/decisoes.md).
 
 ## What it does
 
@@ -35,13 +39,33 @@ Outputs land in `saida/`:
 | `ranking.md` | a person |
 | `relatorio_qualidade.md` | whoever needs to trust the data |
 
+Or without installing anything but Docker:
+
+```bash
+docker build -t fixed-income-ranking .
+docker run --rm -v "$PWD/saida:/app/saida" fixed-income-ranking --reference-date 2025-12-31
+```
+
 ## Development
 
 ```bash
 uv run pytest                     # tests
-uv run pytest --cov=src           # with coverage
+uv run pytest --cov=src/ranking   # with coverage
+uv run pytest -m trap             # only the CVM data-trap regressions
+uv run pytest -m invariant        # only the financial invariants
 uv run ruff check . && uv run mypy src
 ```
+
+Every push runs lint, type checks, the suite and a Docker build on a blank
+runner — which is what actually backs the "reproducible from a clean
+environment" claim.
+
+## Running it unattended
+
+[`.github/workflows/weekly-ranking.yml`](.github/workflows/weekly-ranking.yml)
+runs the whole pipeline from scratch against live CVM data and publishes a fresh
+ranking, with nobody watching. The schedule is switched on once the pipeline is
+complete; until then the workflow can be triggered by hand.
 
 ## Data sources
 

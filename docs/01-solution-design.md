@@ -176,12 +176,12 @@ Cada tabela tem um **schema declarado em um arquivo**, não checagens espalhadas
 
 ```python
 InformeDiario = Schema(
-    cnpj_classe    = Coluna(str,   regex=r"^\d{14}$"),
-    data           = Coluna(date,  menor_igual="data_ref"),
-    valor_cota     = Coluna(float, maior_que=0),
-    patrimonio     = Coluna(float, maior_igual=0),
-    cotistas       = Coluna(int,   maior_igual=0),
-    chave_unica    = ["cnpj_classe", "data"],
+    cnpj_classe=Coluna(str, regex=r"^\d{14}$"),
+    data=Coluna(date, menor_igual="data_ref"),
+    valor_cota=Coluna(float, maior_que=0),
+    patrimonio=Coluna(float, maior_igual=0),
+    cotistas=Coluna(int, maior_igual=0),
+    chave_unica=["cnpj_classe", "data"],
 )
 ```
 
