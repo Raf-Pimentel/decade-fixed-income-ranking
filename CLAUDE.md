@@ -90,10 +90,10 @@ Se o pipeline produzir números diferentes, ou a CVM mudou algo ou eu quebrei al
 | Com série de cotas | 3.270 | ±3% |
 | ≥ 200 observações | 2.924 | ±3% |
 | PL ≥ R$ 10 mi | 2.690 | ±3% |
-| ≥ 10 cotistas | 1.714 | ±3% |
-| Com taxa e prazo publicados | **975** | ±3% |
-| — dos quais Público Geral | 854 | ±3% |
-| — dos quais Qualificado | 69 | ±5% |
+| ≥ 500 cotistas | 787 | ±3% |
+| Com taxa e prazo publicados | **520** | ±3% |
+| — dos quais Público Geral | 502 | ±3% |
+| — dos quais Qualificado | 16 | ±5% |
 
 Reproduzido em 20/08/2026 pelo pipeline contra os arquivos completos, com desvio
 **0,00% em todas as etapas**. Os números da Fase 1 que divergiam foram corrigidos:

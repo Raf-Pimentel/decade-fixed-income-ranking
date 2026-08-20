@@ -123,8 +123,8 @@ def test_expected_funnel_is_monotonically_decreasing(universe) -> None:
 def test_expected_funnel_matches_what_was_measured(universe) -> None:
     steps = universe.expected_funnel.steps
     assert steps["registered_classes"] == 36_594  # distinct, after collapsing 4 duplicates
-    assert steps["above_min_shareholders"] == 1_714
-    assert steps["with_fee_and_redemption"] == 975
+    assert steps["above_min_shareholders"] == 787
+    assert steps["with_fee_and_redemption"] == 520
 
 
 def test_lookback_window_is_configurable_not_hard_coded(universe) -> None:

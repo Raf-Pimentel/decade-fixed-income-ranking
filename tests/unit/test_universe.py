@@ -367,3 +367,35 @@ def test_combining_never_multiplies_a_fund() -> None:
     )
     merged = readers.combine_terms(statement, factsheet)
     assert len(merged) == 1
+
+
+# --------------------------------------------------------------------------
+# A declared fee of zero is not a free fund
+# --------------------------------------------------------------------------
+
+
+def test_a_declared_zero_fee_is_treated_as_unknown() -> None:
+    """Roughly a fifth of funds with fewer than a hundred shareholders declare
+    an admin fee of exactly zero, against six per cent everywhere else. The fee
+    is charged at the feeder or the distributor, not waived — and cost is the
+    heaviest weight in both profiles, so letting a zero take the top percentile
+    hands the best score to whoever disclosed least.
+    """
+    frame = pl.DataFrame({"cnpj_classe": ["a", "b", "c"], "taxa_adm": [0.0, 0.002, None]})
+    cleaned = universe.blank_undisclosed_fees(frame)
+    assert cleaned["taxa_adm"].to_list() == [None, 0.002, None]
+
+
+def test_the_declared_value_is_kept_for_reporting() -> None:
+    """We stop scoring on it; we do not pretend it was never filed."""
+    frame = pl.DataFrame({"cnpj_classe": ["a"], "taxa_adm": [0.0]})
+    cleaned = universe.blank_undisclosed_fees(frame)
+    assert cleaned["taxa_adm_declarada"][0] == 0.0
+    assert cleaned["taxa_zero_declarada"][0] is True
+
+
+def test_an_ordinary_fee_is_left_alone() -> None:
+    frame = pl.DataFrame({"cnpj_classe": ["a"], "taxa_adm": [0.005]})
+    cleaned = universe.blank_undisclosed_fees(frame)
+    assert cleaned["taxa_adm"][0] == pytest.approx(0.005)
+    assert cleaned["taxa_zero_declarada"][0] is False

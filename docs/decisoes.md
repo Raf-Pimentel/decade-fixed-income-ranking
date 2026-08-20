@@ -48,6 +48,8 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-030](#d-030) | 20/08 | 4 | **IMA-B não entra: CDI para todos, com a limitação declarada** | 🔄📊 |
 | [D-031](#d-031) | 20/08 | 4 | A Decade delegou universo e janela: foco em varejo acionável | 🎥 |
 | [D-032](#d-032) | 20/08 | 5 | **Dois perfis de varejo por horizonte; o qualificado sai** | 🔄🎥📊 |
+| [D-033](#d-033) | 20/08 | 5 | Só ligar a simulação de verdade mostrou que ela não estava ligada | 🎥 |
+| [D-034](#d-034) | 20/08 | 5 | **O primeiro Top 5 continha fundos institucionais. Dois defeitos meus** | 🎥📊 |
 
 ---
 
@@ -741,6 +743,87 @@ dado de que só 37% dos fundos bateram o CDI em 2025.
 
 O ranking do investidor qualificado não é entregue. Se a Decade quiser depois, é uma linha de
 configuração — a elegibilidade já é parametrizada e o universo de 69 fundos existe no pipeline.
+
+---
+
+## D-033 — Só ligar a simulação de verdade mostrou que ela não estava ligada 🎥
+**Quando:** 20/08, Fase 5
+
+O primeiro ranking real saiu com **taxa de aparição de 100% em quase todos os fundos**. Um
+número desses não é um resultado forte, é um sintoma: significa que nada estava variando.
+
+E não estava. A reamostragem em blocos existia no código, com teste, e **nunca era chamada** —
+o `metric_draws` não era passado pelo pipeline. A simulação estava variando apenas os pesos,
+que é metade do que a D-011 promete.
+
+Publicar 100% teria sido exatamente a falsa precisão que este projeto existe para evitar,
+com o agravante de vir do módulo criado para combatê-la.
+
+**Decisão:** ligar a reamostragem sobre as séries diárias reais, com uma escolha de desenho
+que aproveitei para corrigir uma limitação já declarada: **todos os fundos são reamostrados
+com os mesmos índices de bloco dentro de cada simulação**. Fundos não vivem histórias
+independentes — vivem as mesmas semanas. Reamostrá-los separadamente assumiria que eles caem
+em momentos diferentes, que é justamente o contrário do que acontece numa crise.
+
+**Resultado:** as taxas de aparição passaram de "100% para todos" para **100%, 97%, 93%, 45%,
+42%** — números que finalmente informam alguma coisa. E a ordem publicada deixou de ser a
+ordem da nota: o 2º colocado do perfil de prazo tem nota maior que o 1º, e mesmo assim vem
+depois, porque sobrevive menos.
+
+**Custo medido:** 1,3 s para 975 fundos × 200 simulações. A execução completa vai de 24 s
+para 36 s.
+
+---
+
+## D-034 — O primeiro Top 5 continha fundos institucionais 🎥📊
+**Quando:** 20/08, Fase 5 · **Situação:** olhar o resultado real antes de entregá-lo
+
+O primeiro ranking com a simulação funcionando trouxe fundos com **17, 31 e 70 cotistas** e
+dezenas de bilhões de patrimônio. Um fundo com 31 cotistas e R$ 63 bilhões não é produto de
+varejo: é veículo institucional ou master rotulado "Público Geral".
+
+Investigando, achei **dois defeitos de especificação meus** — nenhum deles no código, ambos
+nos critérios.
+
+**Defeito 1 — o corte de cotistas era decorativo.** Estava em 10, escolhido na Fase 1 para
+"excluir exclusivos de fato". Medi a distribuição do varejo: o percentil 10 tem **31 cotistas**
+e a mediana **924**. Um corte em 10 não exclui nada.
+
+**Defeito 2 — taxa zero declarada estava ganhando o percentil máximo.** 19,7% dos fundos
+declaram taxa exatamente zero, e a distribuição não é aleatória:
+
+| Cotistas | Fundos | Com taxa zero |
+|---|---:|---:|
+| < 100 | 200 | **22%** |
+| 100 a 1.000 | 245 | 6% |
+| > 1.000 | 409 | 6% |
+
+A anomalia mora nos mesmos veículos institucionais. O zero não significa fundo gratuito —
+significa que a taxa é cobrada no fundo investidor ou pelo distribuidor. Como custo é o
+**maior peso dos dois perfis**, um zero aceito ao pé da letra entregava a melhor nota possível
+a quem divulgou menos.
+
+**Decisões:**
+
+1. Corte de cotistas de 10 para **500**. Fica acima da faixa onde os dois artefatos vivem e
+   mantém 59% do universo de varejo. É julgamento, está em configuração, e a medição que o
+   sustenta está no YAML ao lado do número.
+2. Taxa declarada como exatamente zero passa a ser tratada como **desconhecida** — pontua
+   neutro, não máximo. O valor declarado continua sendo reportado, com um sinalizador,
+   porque a entrega deve dizer o que o fundo de fato informou.
+
+**Efeito no funil:** 1.714 → **787** com o corte de cotistas; 975 → **520** no universo final;
+varejo de 854 para **502**.
+
+**Efeito no resultado:** os recomendados passaram a ter entre 743 e 141.715 cotistas, e taxas
+reais de 0,02% a 0,15%. Nenhum fundo com taxa zero sobrou no Top 5.
+
+**Sobre a regra 11, que proíbe ajustar critério depois de ver resultado:** ela vale a partir do
+**teste no passado**, que ainda não rodou. O que aconteceu aqui é diferente e é a razão de
+existir a etapa de revisão: o critério estava especificado errado, e o erro só ficou visível
+quando o resultado saiu. Afrouxar um corte para um fundo entrar seria fraude; apertar um corte
+porque ele estava deixando entrar quem o próprio critério dizia excluir é conserto. A distinção
+está na direção da mudança e na justificativa — e as duas ficaram registradas antes do backtest.
 
 ---
 

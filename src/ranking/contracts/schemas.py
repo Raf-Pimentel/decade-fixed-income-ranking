@@ -204,3 +204,4 @@ class RankingOutput(BaseModel):
     profiles: list[ProfileRanking]
     generated_at: dt.datetime = Field(default_factory=lambda: dt.datetime.now(dt.UTC))
     benchmark_by_group: dict[str, str] = Field(default_factory=dict)
+    benchmark_label: str = "CDI"

@@ -58,6 +58,32 @@ def summarise_series(series: pl.DataFrame, reference_date: dt.date) -> pl.DataFr
     )
 
 
+def blank_undisclosed_fees(funds: pl.DataFrame) -> pl.DataFrame:
+    """Stop scoring on an admin fee of exactly zero.
+
+    A fifth of the funds with fewer than a hundred shareholders declare a fee
+    of exactly zero, against six per cent everywhere else. These are master and
+    institutional vehicles whose fee is charged at the feeder or by the
+    distributor — the money is taken, just not at this level.
+
+    Cost carries the heaviest weight in both profiles, so a zero taken at face
+    value hands the best possible percentile to whoever disclosed the least.
+    Blanking it scores those funds neutrally instead: we do not know what they
+    cost, and saying so is more honest than pretending they are free.
+
+    The filed value is kept alongside, because the delivery should report what
+    the fund actually declared.
+    """
+    if "taxa_adm" not in funds.columns:
+        return funds
+    return funds.with_columns(
+        pl.col("taxa_adm").alias("taxa_adm_declarada"),
+        (pl.col("taxa_adm") == 0).fill_null(False).alias("taxa_zero_declarada"),
+    ).with_columns(
+        pl.when(pl.col("taxa_adm") == 0).then(None).otherwise(pl.col("taxa_adm")).alias("taxa_adm")
+    )
+
+
 def build(
     registry: pl.DataFrame,
     series: pl.DataFrame,
@@ -115,4 +141,4 @@ def build(
         frame = frame.join(unique_terms, on="cnpj_classe", how="left")
     counts["with_fee_and_redemption"] = len(frame)
 
-    return UniverseResult(funds=frame, counts=counts)
+    return UniverseResult(funds=blank_undisclosed_fees(frame), counts=counts)

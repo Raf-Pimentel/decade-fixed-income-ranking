@@ -16,7 +16,18 @@ filters:
   condominium: ["Aberto"]          # closed funds accept no new money
   exclude_exclusive: true          # single-owner funds
   min_net_assets_brl: 10_000_000
-  min_shareholders: 10             # cuts funds that are exclusive in practice
+  # Raised from 10 to 500 after the first real ranking came back holding funds
+  # with 17, 31 and 70 shareholders and tens of billions in assets. Those are
+  # master and institutional vehicles labelled "Público Geral", not products a
+  # retail investor can buy — and Decade asked for recommendations that are
+  # actionable for retail.
+  #
+  # Measured across the retail universe: the 10th percentile holds 31
+  # shareholders and the median 924. Funds with fewer than a hundred declare a
+  # zero admin fee 22% of the time, against 6% everywhere else — the same
+  # institutional vehicles, disclosing least. A cut at 500 keeps 59% of the
+  # universe and sits above the band where those two artefacts live.
+  min_shareholders: 500
   min_observations: 200            # business days of quota in the window
   require_fee_and_redemption: true # decision D-013: no recommendation without a price tag
 
@@ -61,8 +72,8 @@ expected_funnel:
     # Steps restated because the definition changed, not the data:
     with_enough_observations: 2_924     # new step: the 200-day floor, never measured before
     above_min_assets: 2_690             # was 2_944, measured before the 200-day floor
-    above_min_shareholders: 1_714       # was 1_801, same reason
-    with_fee_and_redemption: 975        # was 1_003, now point-in-time at the reference date
+    above_min_shareholders: 787         # was 1_714 at a 10-shareholder cut; see min_shareholders
+    with_fee_and_redemption: 520        # was 975 before the shareholder cut was raised
   by_target_investor:
-    retail: 854      # was 871, before the 200-day floor and point-in-time terms
-    qualified: 69    # was 79, same reason
+    retail: 502      # was 854 before the shareholder cut was raised to 500
+    qualified: 16    # was 69, same reason

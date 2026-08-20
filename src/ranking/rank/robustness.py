@@ -47,6 +47,75 @@ def block_bootstrap(returns: np.ndarray, block_size: int, rng: np.random.Generat
     return np.concatenate([returns[start : start + size] for start in starts])[:length]
 
 
+def resample_metrics(
+    series: pl.DataFrame,
+    order: Sequence[str],
+    benchmark_rate: float,
+    simulations: int,
+    block_size: int,
+    seed: int,
+) -> dict[str, np.ndarray]:
+    """Rebuild the return-based metrics from resampled histories.
+
+    Every fund is resampled with the **same** block indices within a given
+    simulation. That is deliberate: funds do not experience independent
+    histories, they live through the same weeks, and resampling them
+    independently would quietly assume away the fact that they fall together.
+    It also happens to be far cheaper, because one index vector serves the
+    whole matrix.
+
+    Funds are aligned on their most recent common number of observations. A
+    fund that started mid-year contributes what it has, and every fund
+    contributes the same count, so a single index vector is meaningful across
+    the matrix.
+    """
+    grouped = series.sort("cnpj_classe", "data").group_by("cnpj_classe", maintain_order=True)
+    quotas = {cnpj: group["valor_cota"].to_numpy() for (cnpj,), group in grouped}
+    usable = [cnpj for cnpj in order if quotas.get(cnpj) is not None and quotas[cnpj].size > 2]
+    if not usable:
+        return {}
+
+    length = min(quotas[cnpj].size for cnpj in usable) - 1
+    returns = np.vstack([(quotas[cnpj][1:] / quotas[cnpj][:-1] - 1)[-length:] for cnpj in usable])
+    # Precomputed once. Looking the position up inside the simulation loop
+    # would be a thousand linear scans over a thousand funds.
+    slot_of = {cnpj: index for index, cnpj in enumerate(order)}
+    columns = np.array([slot_of[cnpj] for cnpj in usable])
+
+    rng = np.random.default_rng(seed)
+    size = max(1, min(block_size, length))
+    blocks = int(np.ceil(length / size))
+
+    total = np.full((simulations, len(order)), np.nan)
+    volatility = np.full((simulations, len(order)), np.nan)
+    drawdown = np.full((simulations, len(order)), np.nan)
+
+    for step in range(simulations):
+        starts = rng.integers(0, length - size + 1, size=blocks)
+        index = np.concatenate([np.arange(start, start + size) for start in starts])[:length]
+        drawn = returns[:, index]
+
+        path = np.cumprod(1.0 + drawn, axis=1)
+        peak = np.maximum.accumulate(path, axis=1)
+        row_total = path[:, -1] - 1.0
+        row_vol = drawn.std(axis=1, ddof=1) * np.sqrt(252)
+        row_fall = (path / peak - 1.0).min(axis=1)
+
+        total[step, columns] = row_total
+        volatility[step, columns] = row_vol
+        drawdown[step, columns] = row_fall
+
+    with np.errstate(divide="ignore", invalid="ignore"):
+        per_risk = np.where(volatility > 0, (total - benchmark_rate) / volatility, np.nan)
+
+    return {
+        "excess_return": total - benchmark_rate,
+        "volatility": volatility,
+        "max_drawdown": drawdown,
+        "return_per_risk": per_risk,
+    }
+
+
 def jitter_weights(
     weights: dict[str, int], ranges: dict[str, int], rng: np.random.Generator
 ) -> dict[str, float]:

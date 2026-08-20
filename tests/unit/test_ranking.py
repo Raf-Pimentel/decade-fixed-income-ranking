@@ -7,6 +7,7 @@ retail fund against a universe it cannot buy from.
 
 from __future__ import annotations
 
+import numpy as np
 import polars as pl
 import pytest
 
@@ -239,3 +240,49 @@ def test_report_separates_metrics_that_move_from_metrics_that_do_not(funds) -> N
         funds, weights={"excess_return": 50, "admin_fee": 50}, seed=1, simulations=50
     )
     assert "appearance_rate_variable_only" in result.columns
+
+
+# --------------------------------------------------------------------------
+# Resampling the data, not just the opinion
+# --------------------------------------------------------------------------
+
+
+def test_block_bootstrap_keeps_the_series_length() -> None:
+    rng = np.random.default_rng(1)
+    returns = np.arange(100, dtype=float)
+    assert robustness.block_bootstrap(returns, block_size=21, rng=rng).size == 100
+
+
+def test_block_bootstrap_draws_contiguous_runs() -> None:
+    """Drawing single days independently would destroy the persistence that
+    matters here: credit funds post long runs of small positive returns, and
+    shuffling them day by day makes every fund look better behaved than it is."""
+    rng = np.random.default_rng(2)
+    returns = np.arange(60, dtype=float)
+    drawn = robustness.block_bootstrap(returns, block_size=20, rng=rng)
+    steps = np.diff(drawn)
+    # inside a block the original series increases by exactly one
+    assert np.mean(steps == 1) > 0.8
+
+
+def test_resampled_metrics_move_the_appearance_rate(funds) -> None:
+    """The point of the whole exercise. With the data held fixed, a fund at the
+    top stays at the top and every appearance rate is 100% — which says nothing.
+    Once the returns are resampled, the number starts meaning something."""
+    weights = {"excess_return": 100}
+    draws = np.array(
+        [
+            np.random.default_rng(seed).permutation(funds["excess_return"].to_numpy())
+            for seed in range(50)
+        ]
+    )
+    without = robustness.simulate(funds, weights=weights, seed=1, simulations=50)
+    with_draws = robustness.simulate(
+        funds,
+        weights=weights,
+        seed=1,
+        simulations=50,
+        metric_draws={"excess_return": draws},
+    )
+    assert set(without["appearance_rate"].to_list()) <= {0.0, 1.0}
+    assert any(0.0 < rate < 1.0 for rate in with_draws["appearance_rate"].to_list())
