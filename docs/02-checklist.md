@@ -1,7 +1,7 @@
 # Checklist executável por fase
 
 Cada item é verificável — ou passa, ou não passa. Marco conforme avanço.
-Ao final de cada fase, apresento ao Rafael e espero o "ok" antes de seguir.
+Ao final de cada fase, apresento o resultado e espero aprovação antes de seguir.
 
 ---
 

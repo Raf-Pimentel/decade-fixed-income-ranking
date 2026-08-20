@@ -43,7 +43,7 @@ Em `docs/decisoes.md`:
   situação, decisão, motivo, alternativa descartada e o que se aceita perder.
 - Se alguma decisão anterior foi revertida, **não apague a original**: nova
   entrada marcada com 🔄, ligada à antiga. As reversões são o material mais
-  valioso da apresentação do Rafael.
+  valioso da apresentação final.
 - Atualize a tabela "Linha do tempo" no topo.
 - Alimente as seções vivas: **Surpresas**, **Números que valem citar** e o
   **Esqueleto do vídeo**.
@@ -54,14 +54,14 @@ Mensagem no formato `tipo(escopo): descrição`, corpo explicando o porquê e n�
 o quê. Confira o que está sendo commitado antes (`git status`), e garanta que
 nada de `dados/` ou `saida/` entrou.
 
-## 6. Apresente ao Rafael
+## 6. Apresente o resultado
 
 Em português, sem jargão, nesta ordem:
 
 1. **O que ficou pronto** — com números reais, não descrições.
 2. **O que encontrei de inesperado** — se algo contrariou o plano, diga.
 3. **Trade-offs desta fase** — tabela: decisão, ganho, custo aceito.
-4. **O que isso significa para o vídeo** — que trecho novo ele pode contar.
+4. **O que isso significa para o vídeo** — que trecho novo passa a existir.
 5. **O que vem na próxima fase** e o pedido explícito de autorização.
 
 Termine perguntando se pode avançar. **Não emende a fase seguinte.**
@@ -69,5 +69,5 @@ Termine perguntando se pode avançar. **Não emende a fase seguinte.**
 ## Lembrete
 
 Se em algum momento você descrever um resultado em vez de mostrá-lo, pare e
-rode o comando. A pergunta de controle do Rafael é *"rodou? cola o número"* —
+rode o comando. A pergunta de controle é *"rodou? cola o número"* —
 antecipe-a.

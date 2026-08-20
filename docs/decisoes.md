@@ -1,7 +1,7 @@
 # Diário de decisões
 
 Registro corrido de cada decisão do projeto, escrita **no momento em que foi tomada**.
-Serve para dois fins: me impedir de refazer discussão já encerrada, e dar ao Rafael o
+Serve para dois fins: impedir que se refaça discussão já encerrada, e deixar pronto o
 material pronto para a apresentação final sem precisar reconstruir a trajetória de memória.
 
 **Como uso:** toda decisão não óbvia vira uma entrada, na hora. Se eu reverter uma decisão,
@@ -160,7 +160,7 @@ menos de 20 fundos ao grupo pai.
 ## D-009 — Cortar a infraestrutura 🔄
 **Quando:** 20/08, Fase 1 · **Reverte:** D-005
 
-O Rafael apontou overengineering. Reavaliei e concordei.
+A revisão apontou overengineering. Reavaliei e concordei.
 
 **Decisão:** fora DuckDB, camadas de data lake, orquestrador, logging estruturado. Ficam
 Polars, Parquet e uma pasta de saída.
@@ -189,7 +189,7 @@ trabalho de redação por ganho marginal.
 ## D-011 — Simulação de robustez no ranking 🎥
 **Quando:** 20/08, Fase 1 · **Situação:** o ranking é confiável o suficiente para ser publicado como lista ordenada?
 
-O Rafael perguntou por que eu não tinha considerado simulação. Foi ponto cego real: eu havia
+A revisão perguntou por que a simulação não tinha sido considerada. Foi ponto cego real: eu havia
 escrito que a maior fraqueza do método era estimar qualidade com 12 meses de dados, e não
 propus nenhuma ferramenta para **medir** essa incerteza.
 
@@ -291,7 +291,7 @@ código, mas grita num relatório que diz "esperado 1.003, obtido 412".
 ## D-016 — Disjuntor restaurado na extração 🔄
 **Quando:** 20/08, Fase 1 · **Reverte:** parte de D-009
 
-Ao revisar o pedido original do Rafael, encontrei "tolerância a falhas (circuit breakers/retries)"
+Ao revisar o pedido original, encontrei "tolerância a falhas (circuit breakers/retries)"
 como requisito explícito. Eu tinha cortado o disjuntor junto com a infraestrutura.
 
 **Decisão:** volta, na versão mínima — após 5 falhas seguidas no mesmo servidor, para de insistir
@@ -355,9 +355,9 @@ Vamos **rodar**: uma automação do GitHub executa o pipeline do zero semanalmen
 espero o ok antes de seguir.
 
 **Por quê, e essa é a razão de verdade:** o maior risco do projeto não é entregar pouco. É chegar
-em 27/08 com um repositório grande que o Rafael não consegue defender no vídeo. A Decade vai
+em 27/08 com um repositório grande que não se consegue defender no vídeo. A Decade vai
 perguntar por que tal escolha foi feita; se a resposta for "o assistente sugeriu", o projeto morre
-ali, independente da qualidade do código. **Regra adotada: módulo que ele não consegue explicar
+ali, independente da qualidade do código. **Regra adotada: módulo que não se consegue explicar
 em duas frases é módulo para simplificar ou apagar.**
 
 **Decisão 3 — página visual do ranking** para a apresentação, feita na Fase 6.
@@ -366,13 +366,13 @@ em duas frases é módulo para simplificar ou apagar.**
 dependia da minha disciplina; sem ele, rodar a suíte volta a ser responsabilidade manual minha.
 Registrado no `CLAUDE.md` para eu não esquecer que essa rede de segurança não existe.
 
-**Verificação que o Rafael vai usar contra mim:** *"rodou? cola o número."* Meu modo de falha mais
+**Verificação de controle:** *"rodou? cola o número."* O modo de falha mais
 comum é descrever a saída em vez de mostrá-la.
 
 ---
 
 ## D-019 — Python 3.12 isolado pelo uv; Docker validado pela CI
-**Quando:** 20/08, Fase 2 · **Situação:** a máquina do Rafael tem Python 3.14 e não tem Docker
+**Quando:** 20/08, Fase 2 · **Situação:** a máquina de desenvolvimento tem Python 3.14 e não tem Docker
 
 O 3.14 é recente demais: Polars e Pandera podem não ter pacote pronto, e descobrir isso na
 Fase 4 custaria caro.
@@ -397,7 +397,7 @@ funciona numa máquina que nunca viu o projeto — que é exatamente o que o enu
 (`01-solution-design.md`) e este diário em português.
 
 **Por quê:** o case veio em inglês e um dos critérios de avaliação é "outro time consegue
-consumir sem você". Já o desenho e o diário são material de apresentação do Rafael, que vai
+consumir sem você". Já o desenho e o diário são material da apresentação final, que será
 defendê-los em português.
 
 **Custo aceito:** o repositório é bilíngue, o que é levemente estranho. A alternativa —
@@ -450,7 +450,7 @@ pytest — a cada push.
 **Por quê:** um hook local que ninguém instalou não protege nada; só parece que protege.
 Duplicar a configuração em dois lugares cria a chance de eles divergirem.
 
-**Consequência assumida:** com o Rafael tendo recusado também o gancho automático de testes
+**Consequência assumida:** com a recusa também do gancho automático de testes
 (D-018), **rodar a suíte antes de declarar algo pronto é responsabilidade manual minha**. A
 CI pega no push o que eu deixar passar, mas o ciclo de retorno fica mais lento.
 

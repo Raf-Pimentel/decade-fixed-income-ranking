@@ -47,8 +47,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Rafael has no Docker locally, so this job is what actually verifies
-      # that the image is real rather than decorative.
+      # Docker is not installed on the development machine, so this job is
+      # what actually verifies the image is real rather than decorative.
       - name: Build
         run: docker build -t fixed-income-ranking:ci .
 

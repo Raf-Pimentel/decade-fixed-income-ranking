@@ -3,7 +3,7 @@
 > Leia este arquivo antes de escrever qualquer linha de código. Ele existe para me
 > impedir de derivar do plano, de reintroduzir complexidade cortada, e de esquecer
 > armadilhas já descobertas. Se algo aqui conflitar com uma ideia nova, **este arquivo ganha**
-> — a menos que o Rafael decida o contrário explicitamente.
+> — a menos que haja decisão explícita em contrário.
 
 ## O que é o projeto
 
@@ -33,7 +33,7 @@ métricas · 5 ranking e saída · **5.5 teste no passado** · 6 documentação.
 5. **Toda decisão não óbvia vira uma entrada em `docs/decisoes.md` no momento em que é
    tomada** — nunca no final do projeto. Se eu reverter uma decisão, **não apago a original**:
    abro entrada nova marcada como reversão. As reversões são o material mais valioso da
-   apresentação do Rafael. Ao fim de cada fase, alimento também as seções "Surpresas",
+   apresentação final. Ao fim de cada fase, alimento também as seções "Surpresas",
    "Números que valem citar" e "Esqueleto do vídeo" do mesmo arquivo.
 6. **Nenhuma dependência nova sem justificativa escrita.** A lista aprovada está abaixo.
 7. **Números mágicos moram em YAML**, nunca no código. Universo, pesos, janelas, cortes.
@@ -41,10 +41,10 @@ métricas · 5 ranking e saída · **5.5 teste no passado** · 6 documentação.
    o pipeline para e eu investigo antes de seguir.
 9. **Commit só com a suíte verde.** Sem `--no-verify`, sem teste comentado, sem `skip`
    que não tenha um motivo escrito ao lado.
-10. **Parar e apresentar ao Rafael a cada etapa, não só a cada fase.** Ele escolheu ritmo
+10. **Parar e apresentar a cada etapa, não só a cada fase.** O ritmo definido é
     de aprovação por etapa (ex.: dentro da Fase 3, apresento a extração, espero o ok, depois
-    a validação). Objetivo: ele precisa dominar o código para defendê-lo no vídeo — repositório
-    que ele não consegue explicar em duas frases é repositório para simplificar ou apagar.
+    a validação). Objetivo: dominar o código o suficiente para defendê-lo no vídeo — módulo
+    que não se consegue explicar em duas frases é módulo para simplificar ou apagar.
 11. **Proibido ajustar pesos, cortes ou métricas depois de ver o resultado do teste no passado
     (Fase 5.5).** Se eu mexer até passar, não validei nada — decorei o segundo semestre de 2025.
     O critério de sucesso está congelado na seção 8.1 do desenho. Resultado ruim se reporta,
@@ -148,9 +148,9 @@ Uma fase só está pronta quando **todas** forem verdadeiras:
 - [ ] Funil de qualidade dentro da tolerância do baseline
 - [ ] Decisões novas registradas em `docs/decisoes.md`
 - [ ] Roda do zero: `docker build` + `docker run` funciona
-- [ ] Apresentado ao Rafael, com trade-offs listados
+- [ ] Apresentado para revisão, com trade-offs listados
 
-## Extras aprovados pelo Rafael (20/08)
+## Extras aprovados (20/08)
 
 | Extra | Quando | O que é |
 |---|---|---|
