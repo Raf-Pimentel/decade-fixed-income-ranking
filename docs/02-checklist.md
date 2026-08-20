@@ -5,6 +5,44 @@ Ao final de cada fase, apresento o resultado e espero aprovação antes de segui
 
 ---
 
+## Onde estamos — checkpoint de 20/08/2026
+
+**Fases 2, 3 e 4 concluídas.** Faltam a 5, a 5.5 e a 6.
+
+| | |
+|---|---|
+| Commits | 9, todos no GitHub (repositório privado) |
+| Suíte | **169 testes verdes**; 26 ainda vermelhos por desenho (Fase 5) |
+| Cobertura nos módulos de cálculo | **93%** (meta: 90%) |
+| `ruff`, `ruff format`, `mypy` | limpos |
+| Funil de qualidade | **0,00% de desvio** nas 10 etapas |
+| Universo final | **975 fundos** — 854 varejo, 69 qualificado, 52 profissional |
+| Tempo de execução | 6,3M linhas lidas, validadas e reduzidas a painel em **~4s** |
+
+**Números já apurados sobre os dados reais:** CDI 2025 = 14,3242% em 252 dias úteis ·
+apenas **37% dos fundos bateram o CDI** · mediana do excesso = **−0,22%**.
+
+### Decisão aberta, aguardando o Rafael
+
+Depois da resposta da Decade (*"foque no que for mais acionável para o varejo"*), medi que
+**58% do universo de varejo é D+0**. Um ranking único de varejo entregaria os mesmos cinco
+fundos para quem precisa do dinheiro amanhã e para quem investe por três anos.
+
+Proposta: reabrir a D-010 e passar de dois perfis (varejo / qualificado) para **dois perfis de
+varejo por horizonte** — liquidez (D+0/D+1, 492 fundos) e prazo (D+2 a D+30, 232 fundos) —
+mantendo o qualificado como apêndice declarado como amostra enviesada (69 fundos, 28% de
+divulgação). **Não implementar até haver decisão.**
+
+### O que depende do Rafael, não de mim
+
+- [ ] **Conferir 3 fundos na planilha.** Pegar a cota de 02/01/2025 e 30/12/2025 de três fundos,
+      calcular o retorno e comparar com o `ranking.json`. É a verificação independente mais
+      valiosa do projeto: eu não sou testemunha confiável do meu próprio cálculo.
+- [ ] Decidir a questão dos perfis acima.
+- [ ] Olhar o Top 5 quando sair e dizer se algum fundo parece estranho.
+
+---
+
 ## Fase 2 — Setup e esqueleto de testes (D1 · 20/08)
 
 **Entregável:** projeto que instala do zero e roda uma suíte de testes **vermelha**.
@@ -36,16 +74,20 @@ Ao final de cada fase, apresento o resultado e espero aprovação antes de segui
 
 **Entregável:** dados brutos baixados, validados e materializados.
 
-- [ ] `baixar()` com retry (3 tentativas, espera crescente) e timeout explícito
-- [ ] Disjuntor: após 5 falhas seguidas no mesmo host, para de tentar e falha claro
-- [ ] Cache por hash — arquivo já baixado e íntegro não baixa de novo
-- [ ] `manifesto.json` com nome, tamanho, SHA-256 e horário de cada arquivo
-- [ ] Validação de que o download é mesmo um ZIP/CSV (a CVM devolve HTML de erro com HTTP 200)
-- [ ] Leitores para os 3 layouts do informe diário (L1/L2/L3) — L3 obrigatório, L2 se der tempo
-- [ ] Schemas Pandera para: informe diário, registro classe, registro fundo, extrato, lâmina, CDI, IMA
-- [ ] Quarentena: linhas rejeitadas vão para arquivo separado com o motivo
-- [ ] Freio de 5%: mais que isso rejeitado ⇒ pipeline para
-- [ ] `saida/relatorio_qualidade.md` com o funil comparado ao baseline
+- [x] `baixar()` com retry (3 tentativas, espera crescente) e timeout explícito
+- [x] Disjuntor: após 5 falhas seguidas no mesmo host, para de tentar e falha claro
+- [x] Cache por hash — arquivo já baixado e íntegro não baixa de novo
+- [x] `manifesto.json` com nome, tamanho, SHA-256 e horário de cada arquivo
+- [x] Validação de que o download é mesmo um ZIP/CSV (a CVM devolve HTML de erro com HTTP 200)
+- [ ] **Só o layout L3** (2024 em diante). L2 e L1 não foram escritos: a janela de 12 meses
+      não os alcança. Ficam para quem quiser estender o histórico — o adapter L2→L3 é um
+      rename de coluna, conforme medido na D-004
+- [ ] **Schema Pandera declarado só para o informe diário**, que é a fronteira onde o dado ruim
+      entra. As demais fontes são validadas pelos leitores (tipos explícitos, chave única,
+      quarentena) mas sem modelo declarado. O IMA não entra — ver D-030
+- [x] Quarentena: linhas rejeitadas vão para arquivo separado com o motivo
+- [x] Freio de 5%: mais que isso rejeitado ⇒ pipeline para
+- [x] `saida/relatorio_qualidade.md` com o funil comparado ao baseline
 
 **Verificação:** o funil bate com o baseline do `CLAUDE.md` dentro da tolerância.
 
@@ -55,19 +97,26 @@ Ao final de cada fase, apresento o resultado e espero aprovação antes de segui
 
 **Entregável:** uma linha por fundo com os dez números.
 
-- [ ] Junção classe ⨝ fundo ⨝ extrato/lâmina ⨝ série ⨝ CDI ⨝ IMA
-- [ ] **Teste de junção:** contagem antes e depois bate; nenhum fundo duplicado
-- [ ] Calendário de dias úteis explícito (não inferir dos dados)
-- [ ] Escolha point-in-time do registro de extrato vigente em `data_ref`
-- [ ] Métricas implementadas: rentabilidade, ganho sobre benchmark, oscilação,
+- [x] Junção classe ⨝ fundo ⨝ extrato/lâmina ⨝ série ⨝ CDI ⨝ IMA
+- [x] **Teste de junção:** contagem antes e depois bate; nenhum fundo duplicado
+- [ ] **Calendário de dias úteis não é explícito.** O conjunto de dias vem da própria série do
+      CDI publicada pelo Banco Central, que só tem dia útil. Funcionou — deu exatamente 252
+      dias em 2025 — mas é inferência, não declaração. Um feriado que a fonte publique por
+      engano passaria
+- [x] Escolha point-in-time do registro de extrato vigente em `data_ref`
+- [x] Métricas implementadas: rentabilidade, ganho sobre benchmark, oscilação,
       retorno por unidade de risco, pior queda, dias no vermelho, taxa, prazo,
       tamanho, estabilidade do passivo
-- [ ] **Benchmark por grupo:** CDI para pós-fixado, IMA-B para indexado a inflação,
-      IRF-M para prefixado — comparar tudo com CDI seria errado
-- [ ] Invariantes testadas (lista no `CLAUDE.md`)
-- [ ] Teste contra cálculo independente: 3 fundos conferidos à mão em planilha
+- [ ] **Benchmark por grupo não entrou.** CDI para todos. Medido antes de decidir: 91,8% do
+      varejo é servido por CDI, 8,2% seria IMA-B, prefixado puro é zero. O arquivo do IMA é
+      Excel binário e a alternativa em texto é foto do dia, não série. Ver D-030
+- [x] Invariantes testadas (lista no `CLAUDE.md`)
+- [~] **Dois** fundos conferidos contra cálculo independente (`tests/conftest.py`), mas o
+      cálculo é meu. A conferência em planilha, por outra pessoa, continua pendente e está
+      na lista do Rafael acima
 
-**Verificação:** rentabilidade de 3 fundos bate com cálculo manual até a 4ª casa.
+**Verificação:** rentabilidade de 2 fundos bate até a 9ª casa decimal com um cálculo feito
+fora do código. Falta a conferência humana independente.
 
 ---
 

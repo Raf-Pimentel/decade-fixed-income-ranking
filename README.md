@@ -3,14 +3,17 @@
 Ranks Brazilian fixed-income funds and returns the top 5 for each client profile,
 from public CVM and ANBIMA data, for a given reference date.
 
-> **Status: under construction — phase 2 of 6.**
-> The test suite is deliberately **red**: it was written before the code, and the
-> modules it imports do not exist yet. CI will stay red until phase 5 closes.
-> That is the intended state of a test-first build, not a broken build.
+> **Status: under construction — phase 5 of 6.**
+>
+> Extraction, validation and metrics are done and exercised against the real CVM files:
+> 6.3M rows read, validated and reduced to one row per fund in about four seconds, with the
+> eligibility funnel reproducing its baseline at 0.00% deviation across all ten steps.
+> The scoring and output layers are next, so 26 of the 195 tests are still red by design.
 >
 > The design document is [`docs/01-solution-design.md`](docs/01-solution-design.md)
-> (in Portuguese), and every decision taken — including the four that were later
-> reversed — is logged in [`docs/decisoes.md`](docs/decisoes.md).
+> (in Portuguese), every decision — including the five that were later reversed — is logged in
+> [`docs/decisoes.md`](docs/decisoes.md), and the current state is at the top of
+> [`docs/02-checklist.md`](docs/02-checklist.md).
 
 ## What it does
 

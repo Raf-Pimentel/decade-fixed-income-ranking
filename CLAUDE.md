@@ -15,8 +15,10 @@ Prazo: **28/08/2026, 20h**.
 Desenho completo: `docs/01-solution-design.md`. Checklist executável: `docs/02-checklist.md`.
 Diário de decisões: `docs/decisoes.md`.
 
-**Fases:** 1 planejamento (feita) · 2 setup e TDD · 3 extração e validação · 4 junção e
-métricas · 5 ranking e saída · **5.5 teste no passado** · 6 documentação.
+**Fases:** 1 planejamento ✓ · 2 setup e TDD ✓ · 3 extração e validação ✓ · 4 junção e
+métricas ✓ · **5 ranking e saída ← aqui** · 5.5 teste no passado · 6 documentação.
+
+Estado detalhado e decisão pendente: topo de `docs/02-checklist.md`.
 
 ---
 
@@ -53,6 +55,8 @@ métricas · 5 ranking e saída · **5.5 teste no passado** · 6 documentação.
 ---
 
 ## Armadilhas dos dados — já custaram investigação, não redescobrir
+
+Cada linha tem teste de regressão em `tests/unit/test_traps.py` ou `test_readers.py`.
 
 | # | Armadilha | Defesa obrigatória |
 |---|---|---|
@@ -122,7 +126,7 @@ Para cada unidade de trabalho, nesta ordem, sem pular:
 |---|---|---|
 | **Invariante financeira** | toda função de `metricas/` | cota constante ⇒ retorno 0 · cota que dobra ⇒ 100% · retorno diário composto = retorno ponta a ponta · drawdown ≤ 0 · vol ≥ 0 |
 | **Contrato** | toda fronteira de etapa | schema, tipos, obrigatoriedade, faixas, unicidade |
-| **Armadilha** | uma por linha da tabela acima | regressão das 8 armadilhas conhecidas |
+| **Armadilha** | uma por linha da tabela acima | regressão das 12 armadilhas conhecidas |
 | **Integração** | pipeline completo | roda ponta a ponta em fixture pequena e produz o JSON válido |
 | **Golden file** | saída final | o `ranking.json` de uma fixture congelada não muda sem eu querer |
 

@@ -662,45 +662,78 @@ amanhã e para quem investe por três anos. Com 58% do universo em D+0, o corte 
 
 ## Surpresas (o que eu não esperava encontrar)
 
-1. O arquivo de cadastro que todo tutorial usa está obsoleto: 10% de cobertura, zero taxas.
+**Nos dados**
+
+1. O arquivo de cadastro que todo tutorial usa está obsoleto: 10,3% de cobertura, zero taxas.
 2. A data de início do fundo no registro é mentira — diz 2025 para fundos de 1994.
 3. A quebra de layout do informe diário é em jan/2024, não em nov/2024 como eu supunha.
 4. A ANBIMA não é fechada: os índices baixam sem credencial. Eu tinha desistido cedo demais.
-6. Escrever o teste primeiro pegou um erro de desenho antes de virar código: dois testes
-   especificavam leitura de arquivo dentro do módulo de cálculo. Corrigido de graça.
-5. A falta de dado de taxa não é aleatória — segue a regulação. Varejo é obrigado a divulgar
+   *(E depois: baixam, mas só a foto do dia — não serve para uma data passada.)*
+5. A falta de dado de taxa não é aleatória, segue a regulação. Varejo é obrigado a publicar
    lâmina; qualificado não. Por isso a cobertura cai de 64% para 28%.
+6. O registro de fundos **repete 1.046 chaves**, com linhas idênticas.
+7. O extrato tem **194 aspas duplas soltas** em texto livre, que quebravam a leitura inteira.
+8. Extrato e lâmina nomeiam as mesmas colunas de formas diferentes.
+9. Prazo de resgate vem em dias úteis **ou** corridos, misturados na mesma base.
+10. O Banco Central recusa a série do CDI inteira com HTTP 406 — 11 anos é recusado,
+    14 meses é servido.
+11. **Só 37% dos fundos bateram o CDI em 2025.** A mediana ficou 0,22% abaixo. O fundo mediano
+    de renda fixa brasileiro perdeu do CDI — o custo come o prêmio.
+
+**No próprio processo**
+
+12. Escrever o teste primeiro pegou um erro de desenho antes de virar código: dois testes
+    especificavam leitura de arquivo dentro do módulo de cálculo.
+13. **Dois testes meus estavam errados e o código certo** — um fixava o estimador de desvio
+    padrão por acidente, outro esperava 1,7069 onde a resposta é 1,704814.
+14. O guardrail do funil **não pegou** um erro de 2% que cabia na tolerância (D-024), e
+    **pegou** três desvios reais depois (D-029). Saber quando cada coisa acontece vale mais
+    que dizer que ele funciona.
+15. Uma substituição de texto num script meu falhou em silêncio porque o formatador tinha
+    reformatado o bloco — o mesmo tipo de falha silenciosa que o projeto inteiro combate.
 
 ## Números que valem citar
 
 | Número | |
 |---|---|
-| 36.598 → 1.003 | o funil inteiro, de todas as classes registradas ao universo investável |
+| 36.594 → 975 | o funil inteiro, de todas as classes registradas ao universo investável |
 | R$ 4,4 trilhões | patrimônio do universo antes do corte de divulgação |
 | 10,3% e 0% | cobertura e preenchimento de taxa do `cad_fi.csv` |
 | 66% vs 5,3% | fundos "com menos de 1 ano" pelo campo errado vs pelo certo |
 | 7,4 anos | idade real mediana dos fundos |
-| 89.749 linhas / 88.617 ids | o registro de fundos da CVM repete 1.046 fundos — o join inflava o universo em 2% |
-| 31 MB em 2,7 s | as cinco fontes baixadas do zero, com repetição, disjuntor e verificação de conteúdo |
-| 6,3 milhões de linhas em 4,2 s | um ano inteiro de informe diário lido e validado num notebook |
-| 0,55% em quarentena | de 6,3 milhões de linhas; 35.070 por cota não positiva, 12 por PL negativo |
-| 194 aspas soltas | quebravam a leitura de um arquivo de 12 MB da CVM |
-| CDI 2025 = 14,32% | em exatamente 252 dias úteis — bate com a constante de anualização |
-| **37%** | dos 975 fundos elegíveis bateram o CDI em 2025. A mediana ficou 0,22% **abaixo** |
-| 58% do varejo é D+0 | por isso um ranking único de varejo não serve |
-| 92 testes vermelhos | escritos antes de existir uma linha de implementação |
-| 3,17% e 2,74% vs 3,59% | dois fundos da amostra renderam **menos que o CDI** no 4º tri de 2025 |
 | ±1,5 | incerteza sobre a medida de retorno ajustado ao risco com 12 meses |
 | 93% → 61% | cobertura do universo conforme a janela vai de 12 para 60 meses |
+| 89.749 linhas / 88.617 ids | o registro repete 1.046 fundos — o join inflava o universo em 2% |
+| 194 aspas soltas | quebravam a leitura de um arquivo de 12 MB |
+| 31 MB em 2,7 s | as cinco fontes baixadas do zero, com repetição e disjuntor |
+| 6,3 milhões de linhas em ~4 s | um ano de informe diário lido, validado e reduzido a painel |
+| 0,55% em quarentena | 35.070 por cota não positiva, 12 por PL negativo |
+| CDI 2025 = 14,3242% | em exatamente 252 dias úteis — bate com a constante de anualização |
+| **37%** | dos 975 fundos elegíveis bateram o CDI. A mediana ficou **0,22% abaixo** |
+| 58% do varejo é D+0 | por isso um ranking único de varejo não serve |
+| 169 testes verdes | cobertura de 93% nos módulos de cálculo |
 
 ## Esqueleto do vídeo (5 min)
 
 | Tempo | Assunto | Apoio |
 |---|---|---|
-| 0:00–0:40 | O problema e o que entreguei | funil 36.598 → 1.003 |
-| 0:40–1:40 | Fui olhar o dado antes de codar — as três armadilhas | D-001, D-002, D-003 |
-| 1:40–2:40 | Como decido o que é "melhor" — grupo, perfil, e por que a taxa pesa mais | D-008, D-012 |
-| 2:40–3:20 | **Funciona?** O teste no passado e o percentil contra carteiras aleatórias | D-017, `saida/validacao.md` |
-| 3:20–4:00 | **A decisão que menos me convence** | D-011 e a seção "o que fica em aberto" |
-| 4:00–4:30 | O que o projeto não vê: a carteira | CDA como próximo passo |
-| 4:30–5:00 | Caminho para produção | um comando, uma função, um agendador |
+| 0:00–0:35 | O problema, e o funil de 36.594 para 975 | `relatorio_qualidade.md` |
+| 0:35–1:35 | **Fui olhar o dado antes de codar.** As armadilhas que não geram erro nenhum | D-001, D-002, D-003 |
+| 1:35–2:15 | Como decido o que é "melhor": grupo de pares, perfil, e por que a **taxa pesa mais que a rentabilidade** — com o dado de que só 37% bateram o CDI | D-008, D-012 |
+| 2:15–2:55 | **Funciona?** O teste no passado e o percentil contra carteiras aleatórias | D-017, `validacao.md` |
+| 2:55–3:35 | **A decisão que menos me convence** e o que a simulação não vê | D-011 |
+| 3:35–4:05 | Onde meu próprio guardrail falhou — e onde acertou | D-024 vs D-029 |
+| 4:05–4:30 | O que o projeto não vê: a carteira | seção 13 do desenho |
+| 4:30–5:00 | Caminho para produção: um comando, uma função, um agendador | workflow semanal |
+
+### Frases que já estão prontas para usar
+
+- *"Criei um guardrail para pegar junção quebrada. Ele não pegou a minha, porque 2% cabia na
+  tolerância de 3%. Verificação por percentual não substitui invariante exata."*
+- *"Escrevi um teste que dizia 1.7069. O código disse 1.704814. O código estava certo."*
+- *"Só 37% dos fundos de renda fixa bateram o CDI em 2025. É por isso que a taxa pesa mais que
+  a rentabilidade passada no meu ranking — e isso não é teoria, é o dado."*
+- *"Um fundo cuja cota não se move não é um fundo sem risco. É um fundo que parou de ser
+  precificado. Por isso ele é excluído, não premiado."*
+- *"Os cinco primeiros não são distinguíveis entre si. Eu digo isso na entrega em vez de
+  fingir precisão que os dados não têm."*
