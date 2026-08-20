@@ -39,6 +39,7 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-021](#d-021) | 20/08 | 2 | Valores esperados dos testes calculados fora do código | 🎥 |
 | [D-022](#d-022) | 20/08 | 2 | CI vermelha de propósito até a Fase 5 | 🎥 |
 | [D-023](#d-023) | 20/08 | 2 | Sem pre-commit: a CI já aplica os mesmos portões | |
+| [D-024](#d-024) | 20/08 | 3 | O registro da CVM tem linhas repetidas e o join inflava o universo | 🎥📊 |
 
 ---
 
@@ -456,6 +457,37 @@ CI pega no push o que eu deixar passar, mas o ciclo de retorno fica mais lento.
 
 ---
 
+## D-024 — O registro da CVM tem linhas repetidas, e o join inflava o universo 🎥📊
+**Quando:** 20/08, Fase 3 · **Situação:** rodar os leitores contra os arquivos completos
+
+Ao validar os leitores nos 36.598 registros reais, o funil reproduziu o baseline **com um
+desvio consistente de +2% em todas as etapas**. Dois por cento não é ruído: é sinal.
+
+Causa: `registro_fundo.csv` tem **89.749 linhas para 88.617 ids únicos** — 1.046 fundos
+aparecem repetidos, com linhas idênticas. `registro_classe.csv` repete outros 4. Um `left
+join` comum multiplica cada classe pertencente a um fundo duplicado.
+
+**Decisão:** os leitores de registro colapsam chaves repetidas antes de qualquer junção
+(última ocorrência vence, assumindo que correções são anexadas ao fim), e `read_registry`
+**falha explicitamente** se a junção mudar a contagem de linhas.
+
+**O que isso ensina, e é o ponto para o vídeo:** o funil de qualidade *passou*. Os 2% de
+inflação couberam dentro da tolerância de 3%, então o guardrail que eu tinha criado
+justamente para pegar erro de junção **não pegou este**. Um universo 2% maior sobreviveria
+até a entrega sem ninguém notar.
+
+Correção adicionada: junção que muda a contagem de linhas agora levanta erro, independente
+de tolerância. Verificação de percentual não substitui invariante exata.
+
+**Resultado depois da correção:** seis das oito etapas do funil batem exatamente (0,00%),
+maior desvio 1,09%.
+
+**Efeito colateral:** o baseline de `registered_classes` passou de 36.598 para **36.594** —
+o número correto de classes distintas. Não é ajuste para fazer passar; é correção de um erro
+de medição meu na Fase 1, onde contei linhas em vez de chaves.
+
+---
+
 # Material para a apresentação
 
 *Seção viva — vou alimentando conforme o projeto anda.*
@@ -480,6 +512,7 @@ CI pega no push o que eu deixar passar, mas o ciclo de retorno fica mais lento.
 | 10,3% e 0% | cobertura e preenchimento de taxa do `cad_fi.csv` |
 | 66% vs 5,3% | fundos "com menos de 1 ano" pelo campo errado vs pelo certo |
 | 7,4 anos | idade real mediana dos fundos |
+| 89.749 linhas / 88.617 ids | o registro de fundos da CVM repete 1.046 fundos — o join inflava o universo em 2% |
 | 92 testes vermelhos | escritos antes de existir uma linha de implementação |
 | 3,17% e 2,74% vs 3,59% | dois fundos da amostra renderam **menos que o CDI** no 4º tri de 2025 |
 | ±1,5 | incerteza sobre a medida de retorno ajustado ao risco com 12 meses |

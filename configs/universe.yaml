@@ -40,7 +40,12 @@ peer_groups:
 expected_funnel:
   tolerance: 0.03
   steps:
-    registered_classes: 36_598
+    # 36,598 rows, but 4 class ids are repeated in the file. The count here is
+    # of distinct classes, which is what the pipeline produces after collapsing
+    # duplicate keys. Same reason `registro_fundo.csv` needs collapsing: 1,046
+    # fund ids appear more than once there, and joining without deduplicating
+    # inflated the whole universe by ~2%.
+    registered_classes: 36_594
     fixed_income: 7_759
     operating: 7_337
     open_ended: 6_580
