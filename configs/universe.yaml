@@ -1,0 +1,54 @@
+# Which funds compete.
+#
+# Every number here was measured against the real CVM files on 2026-08-19,
+# not assumed. See docs/01-solution-design.md section 3.
+#
+# Decade has not yet confirmed the exact definition of "fixed income".
+# When they answer, this file is the only thing that changes.
+
+reference_date: 2025-12-31
+lookback_months: 12          # scoring window. See decision D-004.
+report_windows: [3, 6, 12, 24]   # also reported, for transparency
+
+filters:
+  classification: ["Renda Fixa"]   # CVM field `Classificacao`
+  status: ["Em Funcionamento Normal"]
+  condominium: ["Aberto"]          # closed funds accept no new money
+  exclude_exclusive: true          # single-owner funds
+  min_net_assets_brl: 10_000_000
+  min_shareholders: 10             # cuts funds that are exclusive in practice
+  min_observations: 200            # business days of quota in the window
+  require_fee_and_redemption: true # decision D-013: no recommendation without a price tag
+
+data_quality:
+  max_quarantined_share: 0.05      # above this the pipeline stops
+  stale_quota_days: 10             # same quota for longer than this => out
+  implausible_daily_move: 0.20     # flagged, NOT dropped: may be amortisation
+
+# Peer groups. Funds are compared only against similar funds, so that the
+# ranking does not automatically reward whoever took the most credit risk.
+peer_groups:
+  field: Classificacao_Anbima
+  min_size: 20                     # smaller groups merge into the parent
+  benchmarks:                      # decision D-014: the right benchmark per group
+    default: CDI
+    inflation_linked: IMA-B
+    fixed_rate: IRF-M
+
+# Expected funnel — this is the data regression test (decision D-015).
+# A run that deviates beyond the tolerance stops and asks for investigation.
+expected_funnel:
+  tolerance: 0.03
+  steps:
+    registered_classes: 36_598
+    fixed_income: 7_759
+    operating: 7_337
+    open_ended: 6_580
+    non_exclusive: 3_498
+    with_quota_series: 3_268
+    above_min_assets: 2_944
+    above_min_shareholders: 1_801
+    with_fee_and_redemption: 1_003
+  by_target_investor:
+    retail: 871
+    qualified: 79

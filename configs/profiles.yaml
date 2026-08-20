@@ -1,0 +1,97 @@
+# What "best" means, per client profile.
+#
+# The split follows the CVM's own `Publico_Alvo` field, because that is what
+# legally determines which funds a client may buy. See decision D-010.
+#
+# Weights are judgement, not derived. That is exactly why the robustness
+# simulation exists: `jitter` below is how much each weight is allowed to move
+# when we test whether the Top 5 survives a different opinion. See D-011.
+
+metrics:
+  # direction: "high" = higher is better, "low" = lower is better
+  excess_return:      {direction: high, label: "Gain over the benchmark"}
+  return_per_risk:    {direction: high, label: "Return per unit of risk"}
+  volatility:         {direction: low,  label: "Day-to-day swing"}
+  max_drawdown:       {direction: low,  label: "Worst fall"}
+  negative_days:      {direction: low,  label: "Share of losing days"}
+  admin_fee:          {direction: low,  label: "Annual cost"}
+  redemption_days:    {direction: low,  label: "Days until the money arrives"}
+  size:               {direction: high, label: "Assets and shareholders"}
+  flow_stability:     {direction: high, label: "Not bleeding redemptions"}
+
+profiles:
+
+  retail:
+    label: "Retail investor"
+    description: >
+      Anyone. Cannot access qualified-only funds. Cares most about not
+      overpaying and about being able to get the money back.
+    eligibility:
+      target_investor: ["Público Geral"]
+      max_minimum_investment_brl: 50_000
+      max_redemption_days: 30
+    weights:            # must sum to 100
+      admin_fee:        25    # D-012: the only number we know for sure about 2026
+      redemption_days:  20
+      excess_return:    15
+      return_per_risk:  15
+      max_drawdown:     10
+      volatility:        5
+      size:             10
+    jitter:             # +/- range explored in the robustness simulation
+      admin_fee:        5
+      redemption_days:  5
+      excess_return:    5
+      return_per_risk:  5
+      max_drawdown:     3
+      volatility:       3
+      size:             3
+
+  qualified:
+    label: "Qualified investor"
+    description: >
+      More than R$ 1 million invested. Can access restricted funds, accepts
+      longer redemption terms and private credit exposure.
+      WARNING: only 79 of 278 qualified-only funds publish fee and redemption
+      terms, because their disclosure duties are lighter. This ranking runs on
+      a biased sample and the delivery says so. See decision D-013.
+    eligibility:
+      target_investor: ["Público Geral", "Qualificado", "Profissional"]
+      max_minimum_investment_brl: null
+      max_redemption_days: 90
+    weights:
+      excess_return:    25
+      admin_fee:        20
+      return_per_risk:  20
+      max_drawdown:     15
+      redemption_days:  10
+      size:             10
+    jitter:
+      excess_return:    5
+      admin_fee:        5
+      return_per_risk:  5
+      max_drawdown:     3
+      redemption_days:  3
+      size:             3
+
+# How we test whether the ranking is real or noise (decision D-011).
+robustness:
+  simulations: 1000
+  seed: 20250101          # fixed, so runs are reproducible
+  block_size_days: 21     # resample returns in ~monthly blocks
+  top_n: 5
+  # Fees and redemption terms do not vary between simulations. That inflates
+  # apparent stability, so the report separates metrics that move from metrics
+  # that do not. Do not remove this note.
+  report_split_by_variability: true
+
+# The past test (Phase 5.5, decision D-017).
+# FROZEN BEFORE RUNNING. Rule 11 in CLAUDE.md forbids changing any of this
+# after seeing the result.
+backtest:
+  cut_dates: ["2025-03-31", "2025-06-30", "2025-09-30"]
+  random_portfolios: 1000
+  seed: 20250630
+  success_percentile: 60      # must beat this share of random portfolios
+  success_min_dates: 2        # in at least 2 of the 3 cut dates
+  discontinued_fund_policy: carry_last_value   # and flag it in the report

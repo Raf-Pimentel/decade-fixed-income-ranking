@@ -1,0 +1,29 @@
+# Dados baixados e resultados gerados — nunca versionados.
+# São reconstruíveis a partir do código: `python -m ranking --data-ref 2025-12-31`
+dados/
+saida/
+
+# O enunciado do case é documento da Decade, não do projeto
+*.pdf
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Editor / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# OneDrive
+*.tmp
+~$*

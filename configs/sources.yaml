@@ -1,0 +1,77 @@
+# Where the data comes from. All public, no credentials.
+# Every URL verified working on 2026-08-19.
+
+download:
+  timeout_seconds: 120
+  max_attempts: 3            # retry with growing wait
+  backoff_seconds: 2         # 2s, 4s, 8s
+  circuit_breaker_failures: 5  # consecutive failures on one host => give up loudly
+  user_agent: "decade-fixed-income-ranking/0.1 (case study)"
+  # The CVM answers errors with an HTML page and HTTP 200. Never trust the
+  # status code alone: check that the payload is really a ZIP or a CSV.
+  verify_content_type: true
+
+cache:
+  directory: dados/raw
+  # A file already downloaded whose hash matches is not downloaded again.
+  # Makes reruns fast and keeps the pipeline idempotent.
+  reuse_if_hash_matches: true
+  manifest: dados/raw/manifest.json
+
+sources:
+
+  daily_report:
+    label: "CVM daily fund report (quota, assets, shareholders)"
+    url: "https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{yyyymm}.zip"
+    granularity: monthly
+    encoding: latin-1
+    separator: ";"
+    # Three layouts exist. L3 is what we use; L2 is one column rename away.
+    layouts:
+      L3: {from: "2024-01", key: CNPJ_FUNDO_CLASSE, has_subclass: true}
+      L2: {from: "2021-01", to: "2023-12", key: CNPJ_FUNDO, has_subclass: false}
+      L1: {from: "2000-01", to: "2020-12", key: CNPJ_FUNDO, has_subclass: false, path: HIST}
+
+  registry:
+    label: "CVM fund / class / subclass registry (RCVM 175)"
+    url: "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/registro_fundo_classe.zip"
+    granularity: snapshot     # no history: we only know today's registry
+    encoding: latin-1
+    separator: ";"
+    members: [registro_fundo.csv, registro_classe.csv, registro_subclasse.csv]
+
+  statement:
+    label: "CVM statement (fees, redemption terms, minimum investment)"
+    url: "https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/extrato_fi_{yyyy}.csv"
+    granularity: yearly
+    encoding: latin-1
+    separator: ";"
+
+  factsheet:
+    label: "CVM factsheet (fees and terms for retail funds)"
+    url: "https://dados.cvm.gov.br/dados/FI/DOC/LAMINA/DADOS/lamina_fi_{yyyymm}.zip"
+    granularity: monthly
+    encoding: latin-1
+    separator: ";"
+
+  cdi:
+    label: "Central Bank CDI daily rate (series 12)"
+    url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados?formato=json"
+    granularity: daily
+    note: "Percent per day. Compounds on business days only."
+
+  anbima_indices:
+    label: "ANBIMA IMA indices (IMA-B, IRF-M, IMA-S)"
+    url: "https://www.anbima.com.br/informacoes/ima/arqs/ima_completo.xls"
+    granularity: snapshot
+    note: >
+      Public, no credentials. The ANBIMA fund database does require a key, but
+      these indices do not — and they are what we actually need, so that an
+      inflation-linked fund is judged against IMA-B rather than against CDI.
+
+# Deliberately not used, and why:
+#   cad_fi.csv  - obsolete under RCVM 175: covers 10.3% of fixed-income classes
+#                 and has 0% of admin fees filled in. See decision D-002.
+#   data.anbima.com.br - requires client_id/secret. Not needed: the ANBIMA
+#                 classification already ships inside the CVM registry.
+#   CDA (portfolio holdings) - the known gap. See section 13 of the design doc.
