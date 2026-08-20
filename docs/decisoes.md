@@ -45,6 +45,8 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-027](#d-027) | 20/08 | 3 | Aspas soltas quebravam a leitura do extrato | 📊 |
 | [D-028](#d-028) | 20/08 | 3 | Prazo de resgate em dias úteis vira dias corridos | 🎥 |
 | [D-029](#d-029) | 20/08 | 3 | Baseline restabelecido: definição diferente, não dado diferente | 🎥📊 |
+| [D-030](#d-030) | 20/08 | 4 | **IMA-B não entra: CDI para todos, com a limitação declarada** | 🔄📊 |
+| [D-031](#d-031) | 20/08 | 4 | A Decade delegou universo e janela: foco em varejo acionável | 🎥 |
 
 ---
 
@@ -589,6 +591,71 @@ até o resultado passar, que é o que a regra 11 proíbe.
 
 ---
 
+## D-030 — IMA-B não entra: CDI para todos, com a limitação declarada 🔄📊
+**Quando:** 20/08, Fase 4 · **Reverte parcialmente:** D-014
+
+Na Fase 1 eu descobri que os índices IMA da ANBIMA baixam sem credencial e usei isso para
+reincorporar a ANBIMA (D-014), prometendo benchmark por grupo: CDI para pós-fixado, IMA-B para
+indexado à inflação, IRF-M para prefixado. Fui implementar e medi duas coisas:
+
+**Primeira — quantos fundos isso afeta.** No universo de varejo (854 fundos):
+
+| Grupo | Fundos | Benchmark correto |
+|---|---:|---|
+| Pós-fixado, soberano, crédito | 784 (91,8%) | CDI |
+| Renda Fixa Indexados | 70 (8,2%) | IMA-B |
+| Prefixado puro | **0** | IRF-M |
+
+**Segunda — o arquivo não serve.** O `ima_completo.xls` é Excel binário de verdade (assinatura
+OLE `D0 CF 11 E0`), e lê-lo exigiria uma dependência nova. Achei um `ima_completo.txt`, delimitado
+por `@`, que responde 200 — mas é a **foto do dia de hoje**, não a série histórica. Para um
+ranking datado de 31/12/2025 ele não serve: não dá para reconstruir a variação de 12 meses
+terminando naquela data.
+
+**Decisão:** CDI como benchmark de todos os fundos, com a limitação escrita na entrega. IMA-B
+volta para o backlog.
+
+**O que isso custa, com precisão — e a parte que eu quase deixei passar:** como a comparação é
+feita **dentro do grupo de pares**, um deslocamento constante no benchmark não muda a ordem por
+`excesso` — todos os 70 fundos indexados se deslocam igual. Cheguei a concluir que era inócuo.
+**Está errado:** `retorno_por_risco` é `(retorno − benchmark) / volatilidade`, e dividir um
+numerador deslocado por volatilidades diferentes **muda a ordem**. Então o efeito não é nulo,
+é limitado a 8,2% do universo e a uma das duas métricas de desempenho.
+
+**Por que aceito:** 8,2% do universo, uma métrica de duas, contra uma dependência nova e um
+parser de Excel binário a quatro dias da entrega. E o número reportado para esses 70 fundos sai
+etiquetado com o benchmark usado, para ninguém ler "-8% contra o benchmark" achando que é IMA-B.
+
+---
+
+## D-031 — A Decade delegou universo e janela: o critério é varejo acionável 🎥
+**Quando:** 20/08, Fase 4 · **Situação:** chegou a resposta às perguntas enviadas
+
+A resposta foi: *"ambos os pontos ficam a seu critério. Provavelmente faz sentido focar no que
+for mais relevante para produzir recomendações acionáveis para investidores de varejo
+brasileiros."*
+
+Isso não é uma resposta vaga — é um critério. E ele confirma as escolhas de universo já feitas
+(fora multimercado, FIDC, exclusivos e fechados; dentro só quem publica taxa e prazo) porque
+todas seguem do mesmo princípio: não se recomenda a um investidor de varejo o que ele não pode
+comprar ou o que não se consegue precificar.
+
+Onde ele **muda** alguma coisa é na segmentação. Medi o universo de varejo:
+
+| Corte de liquidez | Fundos |
+|---|---:|
+| D+0 ou D+1 — reserva de emergência | **492 (58%)** |
+| D+2 a D+30 | 232 |
+| acima de D+30 | 130 |
+
+Um ranking único de varejo entregaria os mesmos cinco fundos para quem precisa do dinheiro
+amanhã e para quem investe por três anos. Com 58% do universo em D+0, o corte por horizonte
+é a divisão que o investidor de varejo de fato faz.
+
+**Janela:** mantida em 12 meses, agora por escolha registrada e não por falta de resposta.
+
+---
+
 # Material para a apresentação
 
 *Seção viva — vou alimentando conforme o projeto anda.*
@@ -618,6 +685,9 @@ até o resultado passar, que é o que a regra 11 proíbe.
 | 6,3 milhões de linhas em 4,2 s | um ano inteiro de informe diário lido e validado num notebook |
 | 0,55% em quarentena | de 6,3 milhões de linhas; 35.070 por cota não positiva, 12 por PL negativo |
 | 194 aspas soltas | quebravam a leitura de um arquivo de 12 MB da CVM |
+| CDI 2025 = 14,32% | em exatamente 252 dias úteis — bate com a constante de anualização |
+| **37%** | dos 975 fundos elegíveis bateram o CDI em 2025. A mediana ficou 0,22% **abaixo** |
+| 58% do varejo é D+0 | por isso um ranking único de varejo não serve |
 | 92 testes vermelhos | escritos antes de existir uma linha de implementação |
 | 3,17% e 2,74% vs 3,59% | dois fundos da amostra renderam **menos que o CDI** no 4º tri de 2025 |
 | ±1,5 | incerteza sobre a medida de retorno ajustado ao risco com 12 meses |

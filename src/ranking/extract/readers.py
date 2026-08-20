@@ -393,3 +393,26 @@ def statement_in_force(frame: pl.DataFrame, reference_date: dt.date) -> pl.DataF
         .group_by("cnpj_classe", maintain_order=True)
         .last()
     )
+
+
+def read_cdi(path: Path) -> pl.DataFrame:
+    """The Central Bank's daily CDI series, as fractions.
+
+    Two conversions, both silent if wrong. The file publishes percent per day,
+    so 0.055 means 0.055% — carrying it through as 5.5% compounds to something
+    absurd over a year. And the dates are day-first: `05/12/2025` is the fifth
+    of December, and reading it month-first would fetch a real but wrong
+    window.
+    """
+    import json
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    frame = pl.DataFrame(payload, schema={"data": pl.String, "valor": pl.String})
+    return (
+        frame.with_columns(
+            pl.col("data").str.to_date("%d/%m/%Y", strict=False),
+            (pl.col("valor").cast(pl.Float64, strict=False) / 100).alias("taxa"),
+        )
+        .drop("valor")
+        .sort("data")
+    )
