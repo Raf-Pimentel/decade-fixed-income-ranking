@@ -21,58 +21,71 @@ metrics:
 
 profiles:
 
-  retail:
-    label: "Retail investor"
+  # Two profiles, both retail, separated by when the client needs the money
+  # back. See decision D-032: 58% of the retail universe redeems at D+0, so a
+  # single retail ranking would hand the same five funds to someone who needs
+  # the money tomorrow and to someone investing for three years.
+  #
+  # The universes overlap on purpose. Someone with a long horizon can happily
+  # buy a same-day fund — spare liquidity is not a defect — so the horizon
+  # profile is the wider one. The same fund appearing in both lists is the
+  # right answer, not a duplication.
+
+  varejo_liquidez:
+    label: "Retail — emergency reserve"
     description: >
-      Anyone. Cannot access qualified-only funds. Cares most about not
-      overpaying and about being able to get the money back.
+      Money that may be needed at any moment. Capital preservation and cost
+      dominate; return is a secondary criterion. 492 funds qualify.
+    eligibility:
+      target_investor: ["Público Geral"]
+      max_minimum_investment_brl: 5_000
+      max_redemption_days: 1
+    weights:            # must sum to 100
+      admin_fee:        30    # D-012: the only number we know for sure about 2026
+      volatility:       20
+      max_drawdown:     15
+      size:             15
+      excess_return:    10
+      redemption_days:  10
+    jitter:             # +/- range explored in the robustness simulation
+      admin_fee:        5
+      volatility:       5
+      max_drawdown:     3
+      size:             3
+      excess_return:    3
+      redemption_days:  3
+
+  varejo_prazo:
+    label: "Retail — two years or more"
+    description: >
+      Money with a horizon. Risk-adjusted return matters properly here, but
+      cost still carries the single largest weight. 724 funds qualify — every
+      fund the liquidity profile can reach, plus everything up to D+30.
     eligibility:
       target_investor: ["Público Geral"]
       max_minimum_investment_brl: 50_000
       max_redemption_days: 30
-    weights:            # must sum to 100
-      admin_fee:        25    # D-012: the only number we know for sure about 2026
-      redemption_days:  20
-      excess_return:    15
-      return_per_risk:  15
-      max_drawdown:     10
-      volatility:        5
-      size:             10
-    jitter:             # +/- range explored in the robustness simulation
-      admin_fee:        5
-      redemption_days:  5
-      excess_return:    5
-      return_per_risk:  5
-      max_drawdown:     3
-      volatility:       3
-      size:             3
-
-  qualified:
-    label: "Qualified investor"
-    description: >
-      More than R$ 1 million invested. Can access restricted funds, accepts
-      longer redemption terms and private credit exposure.
-      WARNING: only 79 of 278 qualified-only funds publish fee and redemption
-      terms, because their disclosure duties are lighter. This ranking runs on
-      a biased sample and the delivery says so. See decision D-013.
-    eligibility:
-      target_investor: ["Público Geral", "Qualificado", "Profissional"]
-      max_minimum_investment_brl: null
-      max_redemption_days: 90
     weights:
-      excess_return:    25
-      admin_fee:        20
+      admin_fee:        25
+      excess_return:    20
       return_per_risk:  20
       max_drawdown:     15
-      redemption_days:  10
-      size:             10
+      size:             15
+      redemption_days:   5
     jitter:
-      excess_return:    5
       admin_fee:        5
+      excess_return:    5
       return_per_risk:  5
       max_drawdown:     3
-      redemption_days:  3
       size:             3
+      redemption_days:  3
+
+  # Not delivered: funds restricted to qualified investors. Only 79 of the 278
+  # eligible ones publish fees and redemption terms — 28%, against 64% for
+  # retail — because the duty to publish a factsheet reaches retail funds and
+  # not restricted ones. Ranking that sample would produce a list biased by
+  # regulation rather than by quality. See D-032. Re-enabling it is a matter of
+  # adding a profile block here; the eligibility machinery already supports it.
 
 # How we test whether the ranking is real or noise (decision D-011).
 robustness:

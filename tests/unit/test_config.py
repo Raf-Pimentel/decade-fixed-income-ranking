@@ -28,21 +28,22 @@ def universe(config_dir):
 
 
 def test_both_profiles_exist(profiles) -> None:
-    assert set(profiles.profiles) == {"retail", "qualified"}
+    """Two retail profiles, split by horizon. See decision D-032."""
+    assert set(profiles.profiles) == {"varejo_liquidez", "varejo_prazo"}
 
 
-@pytest.mark.parametrize("profile_id", ["retail", "qualified"])
+@pytest.mark.parametrize("profile_id", ["varejo_liquidez", "varejo_prazo"])
 def test_weights_sum_to_one_hundred(profiles, profile_id: str) -> None:
     assert sum(profiles.profiles[profile_id].weights.values()) == 100
 
 
-@pytest.mark.parametrize("profile_id", ["retail", "qualified"])
+@pytest.mark.parametrize("profile_id", ["varejo_liquidez", "varejo_prazo"])
 def test_every_weight_refers_to_a_declared_metric(profiles, profile_id: str) -> None:
     unknown = set(profiles.profiles[profile_id].weights) - set(profiles.metrics)
     assert not unknown, f"weights refer to undeclared metrics: {unknown}"
 
 
-@pytest.mark.parametrize("profile_id", ["retail", "qualified"])
+@pytest.mark.parametrize("profile_id", ["varejo_liquidez", "varejo_prazo"])
 def test_jitter_only_covers_weights_that_exist(profiles, profile_id: str) -> None:
     profile = profiles.profiles[profile_id]
     assert set(profile.jitter) <= set(profile.weights)
@@ -55,11 +56,27 @@ def test_every_metric_declares_a_direction(profiles) -> None:
         assert metric.direction in {"high", "low"}, name
 
 
-def test_retail_weights_cost_above_past_return(profiles) -> None:
-    """Decision D-012, encoded so that it cannot be quietly reversed: the fee
-    is the only number we actually know about next year."""
-    retail = profiles.profiles["retail"].weights
-    assert retail["admin_fee"] > retail["excess_return"]
+@pytest.mark.parametrize("profile_id", ["varejo_liquidez", "varejo_prazo"])
+def test_cost_outweighs_past_return_in_both_profiles(profiles, profile_id: str) -> None:
+    """Decision D-012, encoded so that it cannot be quietly reversed: the fee is
+    the only number we actually know about next year, and only 37% of funds beat
+    the CDI in 2025."""
+    weights = profiles.profiles[profile_id].weights
+    assert weights["admin_fee"] > weights["excess_return"]
+
+
+def test_the_fee_is_the_single_largest_weight(profiles) -> None:
+    for profile in profiles.profiles.values():
+        heaviest = max(profile.weights, key=lambda name: profile.weights[name])
+        assert heaviest == "admin_fee", profile.label
+
+
+def test_the_liquidity_profile_is_the_stricter_one(profiles) -> None:
+    """The horizon profile can buy everything the liquidity one can, and more.
+    Spare liquidity is not a defect."""
+    liquidez = profiles.profiles["varejo_liquidez"].eligibility
+    prazo = profiles.profiles["varejo_prazo"].eligibility
+    assert liquidez.max_redemption_days < prazo.max_redemption_days
 
 
 # --------------------------------------------------------------------------

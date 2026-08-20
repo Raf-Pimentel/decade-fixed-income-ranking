@@ -22,9 +22,9 @@ def funds() -> pl.DataFrame:
             "peer_group": ["Soberano"] * 5 + ["Credito"] * 4,
             "excess_return": [0.001, 0.002, 0.003, 0.004, 0.005, 0.02, 0.03, 0.04, 0.05],
             "admin_fee": [0.005, 0.004, 0.003, 0.002, 0.001, 0.02, 0.015, 0.01, 0.005],
-            "redemption_days": [0, 1, 1, 30, 30, 30, 60, 90, 90],
-            "target_investor": ["Público Geral"] * 6 + ["Qualificado"] * 3,
-            "minimum_investment": [
+            "dias_resgate": [0, 1, 1, 30, 30, 30, 60, 90, 90],
+            "publico_alvo": ["Público Geral"] * 6 + ["Qualificado"] * 3,
+            "aplicacao_minima": [
                 100.0,
                 100.0,
                 1_000.0,
@@ -51,7 +51,7 @@ def test_retail_cannot_reach_qualified_only_funds(funds) -> None:
         max_minimum_investment_brl=50_000,
         max_redemption_days=30,
     )
-    assert set(eligible["target_investor"].unique()) == {"Público Geral"}
+    assert set(eligible["publico_alvo"].unique()) == {"Público Geral"}
 
 
 def test_redemption_limit_is_applied(funds) -> None:
@@ -61,7 +61,7 @@ def test_redemption_limit_is_applied(funds) -> None:
         max_minimum_investment_brl=50_000,
         max_redemption_days=30,
     )
-    assert eligible["redemption_days"].max() <= 30
+    assert eligible["dias_resgate"].max() <= 30
 
 
 def test_null_minimum_investment_means_no_limit(funds) -> None:
@@ -114,11 +114,38 @@ def test_percentiles_stay_between_zero_and_one(funds) -> None:
     assert values.min() >= 0.0 and values.max() <= 1.0
 
 
-def test_small_groups_merge_into_the_parent(funds) -> None:
-    """A percentile inside a group of four funds is noise, not information."""
+def test_a_small_group_is_not_scored_against_itself(funds) -> None:
+    """A percentile inside a group of four funds is noise, not information.
+
+    Those funds fall back to being compared against the whole eligible
+    universe, and the output says so — which is honest, where inventing a
+    peer group out of four names would not be.
+    """
     merged = scoring.merge_small_groups(funds, group="peer_group", min_size=5)
-    sizes = merged.group_by("peer_group_effective").len()
-    assert sizes["len"].min() >= 5
+    credito = merged.filter(pl.col("peer_group") == "Credito")
+    assert credito["peer_group_effective"].unique().to_list() == [scoring.GLOBAL_PEER_GROUP]
+
+
+def test_a_group_that_is_big_enough_keeps_its_identity(funds) -> None:
+    merged = scoring.merge_small_groups(funds, group="peer_group", min_size=5)
+    soberano = merged.filter(pl.col("peer_group") == "Soberano")
+    assert soberano["peer_group_effective"].unique().to_list() == ["Soberano"]
+
+
+def test_a_pooled_fund_is_ranked_against_everyone(funds) -> None:
+    """Falling back must mean "compared against all of them", not "compared
+    against the other four strays"."""
+    merged = scoring.merge_small_groups(funds, group="peer_group", min_size=5)
+    scored = scoring.peer_percentile(
+        merged, metric="excess_return", group="peer_group_effective", direction="high"
+    )
+    best_overall = scored.filter(pl.col("cnpj_classe") == "00000000000009")
+    # fund 9 has the highest excess return in the whole frame
+    assert best_overall["excess_return_pct"].item() == pytest.approx(1.0)
+    worst_pooled = scored.filter(pl.col("cnpj_classe") == "00000000000006")
+    # fund 6 is the weakest of the pooled ones but still beats all five
+    # sovereign funds, so against the whole universe it is mid-table, not last
+    assert 0.0 < worst_pooled["excess_return_pct"].item() < 1.0
 
 
 def test_winsorising_limits_the_effect_of_one_outlier() -> None:
@@ -163,9 +190,21 @@ def test_same_seed_gives_the_same_answer(funds) -> None:
     assert first["appearance_rate"].to_list() == second["appearance_rate"].to_list()
 
 
-def test_different_seeds_give_different_draws(funds) -> None:
-    first = robustness.simulate(funds, weights={"excess_return": 100}, seed=1, simulations=50)
-    second = robustness.simulate(funds, weights={"excess_return": 100}, seed=2, simulations=50)
+def test_without_jitter_the_answer_does_not_depend_on_the_seed(funds) -> None:
+    """Nothing is varying, so every simulation is the same simulation. That is
+    correct behaviour, not a broken seed — and it is why a run with no jitter
+    configured proves nothing about robustness."""
+    weights = {"excess_return": 50, "admin_fee": 50}
+    first = robustness.simulate(funds, weights=weights, seed=1, simulations=50)
+    second = robustness.simulate(funds, weights=weights, seed=2, simulations=50)
+    assert first["appearance_rate"].to_list() == second["appearance_rate"].to_list()
+
+
+def test_with_jitter_the_seed_changes_the_draws(funds) -> None:
+    weights = {"excess_return": 50, "admin_fee": 50}
+    ranges = {"excess_return": 20, "admin_fee": 20}
+    first = robustness.simulate(funds, weights=weights, jitter=ranges, seed=1, simulations=200)
+    second = robustness.simulate(funds, weights=weights, jitter=ranges, seed=2, simulations=200)
     assert first["appearance_rate"].to_list() != second["appearance_rate"].to_list()
 
 

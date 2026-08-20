@@ -47,6 +47,7 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-029](#d-029) | 20/08 | 3 | Baseline restabelecido: definição diferente, não dado diferente | 🎥📊 |
 | [D-030](#d-030) | 20/08 | 4 | **IMA-B não entra: CDI para todos, com a limitação declarada** | 🔄📊 |
 | [D-031](#d-031) | 20/08 | 4 | A Decade delegou universo e janela: foco em varejo acionável | 🎥 |
+| [D-032](#d-032) | 20/08 | 5 | **Dois perfis de varejo por horizonte; o qualificado sai** | 🔄🎥📊 |
 
 ---
 
@@ -653,6 +654,93 @@ amanhã e para quem investe por três anos. Com 58% do universo em D+0, o corte 
 é a divisão que o investidor de varejo de fato faz.
 
 **Janela:** mantida em 12 meses, agora por escolha registrada e não por falta de resposta.
+
+---
+
+## D-032 — Dois perfis de varejo por horizonte; o qualificado sai 🔄🎥📊
+**Quando:** 20/08, Fase 5 · **Reverte:** D-010 · **Segue de:** D-031
+
+Esta é a segunda vez que a segmentação muda. Vale seguir a trajetória inteira, porque ela é o
+argumento — não o resultado.
+
+| Momento | Perfis | Por quê |
+|---|---|---|
+| D-006 (Fase 1) | Varejo Liquidez · Varejo Rendimento · Qualificado | Intuição minha, sem dado |
+| D-010 (Fase 1) | Varejo · Qualificado | Corte por overengineering: o terceiro perfil era invenção, e a linha varejo/qualificado ao menos é regulatória |
+| **D-032 (Fase 5)** | **Varejo Liquidez · Varejo Prazo** | Resposta do cliente + medição |
+
+**Decisão:** dois perfis, ambos de varejo, separados por **quando o cliente precisa do dinheiro**.
+O perfil qualificado não é entregue.
+
+### Os quatro argumentos, em ordem de força
+
+**1. A medição.** No universo de varejo de 854 fundos, o prazo de resgate se distribui assim:
+
+| Prazo | Fundos |
+|---|---:|
+| D+0 ou D+1 | **492 (58%)** |
+| D+2 a D+30 | 232 |
+| acima de D+30 | 130 |
+
+Com 58% concentrado em D+0, um ranking único de varejo entregaria **os mesmos cinco fundos**
+para quem precisa do dinheiro amanhã e para quem investe por três anos. Isso é o oposto de
+acionável. O corte por horizonte não é uma persona inventada — é a única divisão que o dado
+sustenta, e é a pergunta que o investidor de varejo de fato se faz.
+
+**2. O cliente pediu.** A Decade respondeu que universo e janela ficam a critério, sugerindo
+focar no que for *"mais relevante para produzir recomendações acionáveis para investidores de
+varejo brasileiros"*. Um perfil dedicado ao investidor qualificado serve aproximadamente
+ninguém na base deles.
+
+**3. A amostra do qualificado não sustenta uma recomendação.** Dos 278 fundos restritos a
+qualificado, apenas **79 publicam taxa e prazo — 28%**, contra 64% no varejo. E a lacuna não é
+aleatória: a obrigação de publicar lâmina alcança fundos de varejo, não os restritos. Ranquear
+sobre essa amostra produziria uma lista **enviesada pela regulação, não pela qualidade** — e eu
+teria que desqualificá-la em três parágrafos logo abaixo do título.
+
+> Uma exclusão explicada com número é mais defensável que uma lista fraca publicada com
+> ressalvas.
+
+**4. O orçamento vai para onde muda a nota.** O custo de um terceiro perfil não é escrever mais
+uma lista: é a Fase 5.5. Três perfis × três datas de corte = **nove backtests** em vez de seis,
+com quatro dias restantes. E o backtest é a única coisa no projeto que transforma *"meu método é
+defensável"* em *"meu método funcionou"*. Entre uma terceira lista e uma validação mais sólida,
+a validação vale mais.
+
+### Um detalhe de desenho que parece erro e não é
+
+Os dois universos **se sobrepõem de propósito**:
+
+| Perfil | Elegibilidade | Fundos |
+|---|---|---:|
+| Varejo Liquidez | resgate ≤ D+1 | 492 |
+| Varejo Prazo | resgate ≤ D+30 | **724** |
+
+Um investidor com horizonte de três anos pode perfeitamente comprar um fundo D+0 — liquidez
+sobrando não é defeito. Quem é restrito é o perfil de liquidez, não o de prazo. Então o mesmo
+fundo pode aparecer nas duas listas, e isso é a resposta certa, não uma duplicação.
+
+### O que muda entre os perfis não é só o peso
+
+| Métrica | Liquidez | Prazo |
+|---|---:|---:|
+| Taxa de administração | **30** | **25** |
+| Oscilação | 20 | — |
+| Pior queda | 15 | 15 |
+| Tamanho e estabilidade | 15 | 15 |
+| Ganho sobre o CDI | 10 | 20 |
+| Retorno por unidade de risco | — | 20 |
+| Prazo de resgate | 10 | 5 |
+
+Para a reserva de emergência, **preservar o capital e não pagar caro** dominam; retorno é
+critério secundário. Para o horizonte longo, retorno ajustado ao risco entra de verdade. A taxa
+segue como o **maior peso individual nos dois** — coerente com D-012, e agora sustentada pelo
+dado de que só 37% dos fundos bateram o CDI em 2025.
+
+### O que aceito perder
+
+O ranking do investidor qualificado não é entregue. Se a Decade quiser depois, é uma linha de
+configuração — a elegibilidade já é parametrizada e o universo de 69 fundos existe no pipeline.
 
 ---
 
