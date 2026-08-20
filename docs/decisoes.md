@@ -40,6 +40,8 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-022](#d-022) | 20/08 | 2 | CI vermelha de propósito até a Fase 5 | 🎥 |
 | [D-023](#d-023) | 20/08 | 2 | Sem pre-commit: a CI já aplica os mesmos portões | |
 | [D-024](#d-024) | 20/08 | 3 | O registro da CVM tem linhas repetidas e o join inflava o universo | 🎥📊 |
+| [D-025](#d-025) | 20/08 | 3 | O disjuntor conta requisições, não arquivos | |
+| [D-026](#d-026) | 20/08 | 3 | O Banco Central recusa janelas longas: a URL do CDI precisa de datas | 📊 |
 
 ---
 
@@ -488,6 +490,42 @@ de medição meu na Fase 1, onde contei linhas em vez de chaves.
 
 ---
 
+## D-025 — O disjuntor conta requisições, não arquivos
+**Quando:** 20/08, Fase 3 · **Situação:** um teste falhou e expôs ambiguidade no desenho
+
+Escrevi "para depois de 5 falhas seguidas no mesmo servidor" sem definir o que é uma falha.
+Um teste falhou por causa disso, e a falha estava no teste — mas revelou que a decisão nunca
+tinha sido tomada de verdade.
+
+**Decisão:** conta **requisições** falhas, não downloads falhos.
+
+**Por quê:** o servidor experimenta requisições. Contando arquivos, uma política de 3 tentativas
+dispararia 15 requisições contra um servidor morto antes do disjuntor perceber. O objetivo do
+disjuntor é parar de martelar — então a unidade tem que ser aquilo que o servidor vê.
+
+---
+
+## D-026 — O Banco Central recusa janelas longas 📊
+**Quando:** 20/08, Fase 3 · **Situação:** o primeiro download real falhou com HTTP 406
+
+A URL do CDI na configuração pedia a série inteira, sem intervalo. O Banco Central respondeu
+**406 Not Acceptable**. Medido: 11 anos é recusado, 14 meses é servido, série inteira sempre falha.
+
+**Decisão:** a URL do CDI passa a carregar `{start}` e `{end}`, preenchidos a partir da data de
+referência e da janela. As datas vão em formato dia-primeiro, que é o que o Banco Central espera —
+enviá-las mês-primeiro buscaria uma janela diferente **com sucesso**, que é pior que falhar.
+
+**Limitação registrada:** um backfill de mais de ~10 anos precisa ser fatiado em várias chamadas.
+
+**Como apareceu:** só rodando de verdade. Nenhum teste com transporte simulado pegaria isso, e é
+por isso que rodar contra os servidores reais no fim de cada bloco não é opcional.
+
+**Segundo defeito na mesma rodada:** o CDI foi salvo em disco com o nome `2025`, porque eu derivava
+o nome do arquivo da URL e essa é uma API com query string. Cada fonte agora **declara** seu nome
+de arquivo na configuração.
+
+---
+
 # Material para a apresentação
 
 *Seção viva — vou alimentando conforme o projeto anda.*
@@ -513,6 +551,7 @@ de medição meu na Fase 1, onde contei linhas em vez de chaves.
 | 66% vs 5,3% | fundos "com menos de 1 ano" pelo campo errado vs pelo certo |
 | 7,4 anos | idade real mediana dos fundos |
 | 89.749 linhas / 88.617 ids | o registro de fundos da CVM repete 1.046 fundos — o join inflava o universo em 2% |
+| 31 MB em 2,7 s | as cinco fontes baixadas do zero, com repetição, disjuntor e verificação de conteúdo |
 | 92 testes vermelhos | escritos antes de existir uma linha de implementação |
 | 3,17% e 2,74% vs 3,59% | dois fundos da amostra renderam **menos que o CDI** no 4º tri de 2025 |
 | ±1,5 | incerteza sobre a medida de retorno ajustado ao risco com 12 meses |

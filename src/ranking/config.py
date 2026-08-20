@@ -148,6 +148,10 @@ class ProfilesConfig(_Strict):
 class Source(_Strict):
     label: str
     url: str
+    # Declared, not derived from the URL: the Central Bank's URL ends in a
+    # query string, so the last path segment is the end date rather than a
+    # file name.
+    filename: str
     granularity: Literal["daily", "monthly", "yearly", "snapshot"]
     encoding: str = "latin-1"
     separator: str = ";"

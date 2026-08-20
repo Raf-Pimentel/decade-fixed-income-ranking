@@ -5,7 +5,10 @@ download:
   timeout_seconds: 120
   max_attempts: 3            # retry with growing wait
   backoff_seconds: 2         # 2s, 4s, 8s
-  circuit_breaker_failures: 5  # consecutive failures on one host => give up loudly
+  # Counted per failed *request*, not per failed file: the server experiences
+  # requests, and counting whole files would let a three-attempt retry policy
+  # fire fifteen requests at a dead host before the breaker noticed.
+  circuit_breaker_failures: 5
   user_agent: "decade-fixed-income-ranking/0.1 (case study)"
   # The CVM answers errors with an HTML page and HTTP 200. Never trust the
   # status code alone: check that the payload is really a ZIP or a CSV.
@@ -23,6 +26,7 @@ sources:
   daily_report:
     label: "CVM daily fund report (quota, assets, shareholders)"
     url: "https://dados.cvm.gov.br/dados/FI/DOC/INF_DIARIO/DADOS/inf_diario_fi_{yyyymm}.zip"
+    filename: "inf_diario_fi_{yyyymm}.zip"
     granularity: monthly
     encoding: latin-1
     separator: ";"
@@ -35,6 +39,7 @@ sources:
   registry:
     label: "CVM fund / class / subclass registry (RCVM 175)"
     url: "https://dados.cvm.gov.br/dados/FI/CAD/DADOS/registro_fundo_classe.zip"
+    filename: "registro_fundo_classe.zip"
     granularity: snapshot     # no history: we only know today's registry
     encoding: latin-1
     separator: ";"
@@ -43,6 +48,7 @@ sources:
   statement:
     label: "CVM statement (fees, redemption terms, minimum investment)"
     url: "https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/extrato_fi_{yyyy}.csv"
+    filename: "extrato_fi_{yyyy}.csv"
     granularity: yearly
     encoding: latin-1
     separator: ";"
@@ -50,19 +56,27 @@ sources:
   factsheet:
     label: "CVM factsheet (fees and terms for retail funds)"
     url: "https://dados.cvm.gov.br/dados/FI/DOC/LAMINA/DADOS/lamina_fi_{yyyymm}.zip"
+    filename: "lamina_fi_{yyyymm}.zip"
     granularity: monthly
     encoding: latin-1
     separator: ";"
 
   cdi:
     label: "Central Bank CDI daily rate (series 12)"
-    url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados?formato=json"
+    url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados?formato=json&dataInicial={start}&dataFinal={end}"
+    filename: "cdi_{yyyy}.json"
     granularity: daily
-    note: "Percent per day. Compounds on business days only."
+    note: >
+      Percent per day, business days only, so it compounds rather than sums.
+      The date range is mandatory: the API answers 406 Not Acceptable when the
+      window is too wide. Measured — eleven years is refused, fourteen months
+      is served. An unbounded URL asks for everything since 1986 and always
+      fails. A backfill longer than about ten years has to be chunked.
 
   anbima_indices:
     label: "ANBIMA IMA indices (IMA-B, IRF-M, IMA-S)"
     url: "https://www.anbima.com.br/informacoes/ima/arqs/ima_completo.xls"
+    filename: "ima_completo.xls"
     granularity: snapshot
     note: >
       Public, no credentials. The ANBIMA fund database does require a key, but
