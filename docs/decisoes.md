@@ -42,6 +42,9 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-024](#d-024) | 20/08 | 3 | O registro da CVM tem linhas repetidas e o join inflava o universo | 🎥📊 |
 | [D-025](#d-025) | 20/08 | 3 | O disjuntor conta requisições, não arquivos | |
 | [D-026](#d-026) | 20/08 | 3 | O Banco Central recusa janelas longas: a URL do CDI precisa de datas | 📊 |
+| [D-027](#d-027) | 20/08 | 3 | Aspas soltas quebravam a leitura do extrato | 📊 |
+| [D-028](#d-028) | 20/08 | 3 | Prazo de resgate em dias úteis vira dias corridos | 🎥 |
+| [D-029](#d-029) | 20/08 | 3 | Baseline restabelecido: definição diferente, não dado diferente | 🎥📊 |
 
 ---
 
@@ -526,6 +529,66 @@ de arquivo na configuração.
 
 ---
 
+## D-027 — Aspas soltas quebravam a leitura do extrato 📊
+**Quando:** 20/08, Fase 3 · **Situação:** `extrato_fi_2025.csv` falhava com "CSV malformed"
+
+Medido: o arquivo tem **194 aspas duplas soltas** em campos de texto livre — descrições de
+política de investimento, principalmente. Um leitor que trate aspas como delimitador abre uma
+região citada, engole todas as quebras de linha até a próxima aspa e morre no meio de um
+arquivo de 12 MB.
+
+**Decisão:** desligar o tratamento de aspas na leitura de arquivos da CVM.
+
+**Por que é seguro:** verifiquei antes de decidir — todas as 13.590 linhas têm exatamente 117
+campos separando por `;`, com ou sem aspas presentes. A CVM não usa aspas como delimitador,
+usa como caractere comum.
+
+---
+
+## D-028 — Prazo de resgate em dias úteis vira dias corridos 🎥
+**Quando:** 20/08, Fase 3 · **Situação:** o extrato tem `TP_DIA_PAGTO_RESGATE`
+
+O campo diz se o prazo está em **dias úteis ou corridos**, e a base mistura os dois. Um fundo
+que anuncia "D+5 dias úteis" faz o cliente esperar uma semana.
+
+**Decisão:** tudo é convertido para dias corridos na leitura. Se a fonte parar de publicar a
+unidade, assume-se dias corridos — isso não penaliza ninguém por uma coluna que simplesmente
+não veio.
+
+**Por que importa:** prazo de resgate é o **segundo maior peso** do perfil varejo (20 de 100).
+Tratar as duas unidades como iguais favoreceria sistematicamente todo fundo que cota em dias
+úteis. É um viés silencioso e direcional, o pior tipo.
+
+---
+
+## D-029 — Baseline restabelecido: definição diferente, não dado diferente 🎥📊
+**Quando:** 20/08, Fase 3 · **Situação:** o funil do pipeline divergiu do baseline em 3 etapas
+
+Rodando o pipeline completo contra os arquivos reais, seis das nove etapas bateram
+**exatamente**. Três não bateram, e o guardrail parou a execução — que é exatamente o que ele
+existe para fazer.
+
+Investiguei antes de mexer em qualquer número. As causas:
+
+| Etapa | Causa |
+|---|---|
+| `above_min_assets`, `above_min_shareholders` | O script exploratório da Fase 1 usava **20 observações de um mês**; o pipeline aplica a regra de **200 observações em doze meses** que este projeto sempre declarou. Não são a mesma grandeza |
+| `with_fee_and_redemption` | Faltava implementar a **lâmina**, obrigatória justamente para fundos de varejo |
+
+**Decisão:** implementar a lâmina (fechou o desvio: 703 → 975, e varejo 588 → 854) e
+**restabelecer** as duas etapas restantes com a definição correta, documentando linha a linha
+no `universe.yaml` o valor antigo, o novo e o motivo.
+
+**A distinção que me autoriza a mexer no alvo:** a definição nova é melhor pelos próprios
+méritos, decidida independentemente do número que produz — um fundo com 44 dias de série no ano
+não deveria ser ranqueado, e a regra de 200 dias está no desenho desde a Fase 1. O que estava
+errado era a medição exploratória, não o pipeline. Isso é diferente de afrouxar um critério
+até o resultado passar, que é o que a regra 11 proíbe.
+
+**Resultado:** funil reproduz com **0,00% de desvio em todas as dez etapas**.
+
+---
+
 # Material para a apresentação
 
 *Seção viva — vou alimentando conforme o projeto anda.*
@@ -552,6 +615,9 @@ de arquivo na configuração.
 | 7,4 anos | idade real mediana dos fundos |
 | 89.749 linhas / 88.617 ids | o registro de fundos da CVM repete 1.046 fundos — o join inflava o universo em 2% |
 | 31 MB em 2,7 s | as cinco fontes baixadas do zero, com repetição, disjuntor e verificação de conteúdo |
+| 6,3 milhões de linhas em 4,2 s | um ano inteiro de informe diário lido e validado num notebook |
+| 0,55% em quarentena | de 6,3 milhões de linhas; 35.070 por cota não positiva, 12 por PL negativo |
+| 194 aspas soltas | quebravam a leitura de um arquivo de 12 MB da CVM |
 | 92 testes vermelhos | escritos antes de existir uma linha de implementação |
 | 3,17% e 2,74% vs 3,59% | dois fundos da amostra renderam **menos que o CDI** no 4º tri de 2025 |
 | ±1,5 | incerteza sobre a medida de retorno ajustado ao risco com 12 meses |

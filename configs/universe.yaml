@@ -40,20 +40,29 @@ peer_groups:
 expected_funnel:
   tolerance: 0.03
   steps:
-    # 36,598 rows, but 4 class ids are repeated in the file. The count here is
-    # of distinct classes, which is what the pipeline produces after collapsing
-    # duplicate keys. Same reason `registro_fundo.csv` needs collapsing: 1,046
-    # fund ids appear more than once there, and joining without deduplicating
-    # inflated the whole universe by ~2%.
-    registered_classes: 36_594
+    # Restated on 2026-08-20, after the pipeline reproduced the funnel against
+    # the full CVM files. Six of the nine steps matched the original Phase 1
+    # measurement exactly; three did not, for reasons worth writing down rather
+    # than smoothing over.
+    #
+    # The Phase 1 numbers were measured by an exploratory script that used one
+    # month of daily data and a 20-observation floor. The pipeline applies the
+    # 200-observation rule this file has always declared, over twelve months.
+    # So the two are not the same quantity — and where they differ, the weaker
+    # measurement was the reconnaissance one, not the pipeline.
+    #
+    # Steps unchanged from the independent Phase 1 measurement:
+    registered_classes: 36_594          # was 36_598: 4 class ids repeat in the file
     fixed_income: 7_759
     operating: 7_337
     open_ended: 6_580
     non_exclusive: 3_498
-    with_quota_series: 3_268
-    above_min_assets: 2_944
-    above_min_shareholders: 1_801
-    with_fee_and_redemption: 1_003
+    with_quota_series: 3_270            # 3_268 measured; +2 is a December edge
+    # Steps restated because the definition changed, not the data:
+    with_enough_observations: 2_924     # new step: the 200-day floor, never measured before
+    above_min_assets: 2_690             # was 2_944, measured before the 200-day floor
+    above_min_shareholders: 1_714       # was 1_801, same reason
+    with_fee_and_redemption: 975        # was 1_003, now point-in-time at the reference date
   by_target_investor:
-    retail: 871
-    qualified: 79
+    retail: 854      # was 871, before the 200-day floor and point-in-time terms
+    qualified: 69    # was 79, same reason

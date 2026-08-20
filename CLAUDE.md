@@ -20,7 +20,7 @@ métricas · 5 ranking e saída · **5.5 teste no passado** · 6 documentação.
 
 ---
 
-## As 10 regras inegociáveis
+## As 11 regras inegociáveis
 
 1. **Teste antes do código.** Nenhuma função nasce sem um teste que falha primeiro.
    Se eu me pegar escrevendo implementação sem teste vermelho, paro e escrevo o teste.
@@ -64,6 +64,10 @@ métricas · 5 ranking e saída · **5.5 teste no passado** · 6 documentação.
 | 6 | **A CVM sobrescreve arquivos** em retificação, sem versionar | `manifesto.json` com SHA-256 de cada arquivo baixado |
 | 7 | **Encoding é `latin-1`, separador `;`** | Fixado no leitor, com teste de regressão |
 | 8 | **Amortização derruba a cota sem prejuízo real** | Variação diária > 20% é marcada, **não descartada** |
+| 9 | **`registro_fundo.csv` repete chaves.** 89.749 linhas para 88.617 ids; o join inflava o universo em 2% e a tolerância do funil **não pegou** | Colapsar chave antes de juntar; `read_registry` falha se a junção mudar a contagem |
+| 10 | **Aspas duplas soltas em texto livre.** 194 no `extrato_fi_2025.csv`; o leitor engolia quebras de linha e morria com "CSV malformed" | `quote_char=None`: a CVM não usa aspas como delimitador |
+| 11 | **Prazo de resgate vem em dias úteis ou corridos**, misturados (`TP_DIA_PAGTO_RESGATE`) | Converter tudo para dias corridos na leitura. É o 2º maior peso do varejo |
+| 12 | **Extrato e lâmina nomeiam as mesmas colunas de forma diferente** (`QT_DIA_CONVERSAO_COTA` vs `QT_DIA_CONVERSAO_COTA_RESGATE`) | Dois mapeamentos separados; nunca reaproveitar um nome do outro arquivo |
 
 ---
 
@@ -74,17 +78,23 @@ Se o pipeline produzir números diferentes, ou a CVM mudou algo ou eu quebrei al
 
 | Etapa | Esperado | Tolerância |
 |---|---:|---|
-| Classes no registro | 36.598 | ±2% |
-| Classificação = Renda Fixa | 7.759 | ±2% |
-| Em funcionamento normal | 7.337 | ±2% |
-| Condomínio aberto | 6.580 | ±2% |
-| Não exclusivo | 3.498 | ±2% |
-| Com série em dez/25 | 3.268 | ±2% |
-| PL ≥ R$ 10 mi | 2.944 | ±3% |
-| ≥ 10 cotistas | **1.801** | ±3% |
-| Com taxa e prazo publicados | **1.003** | ±3% |
-| — dos quais Público Geral | 871 | ±3% |
-| — dos quais Qualificado | 79 | ±5% |
+| Classes no registro | 36.594 | ±3% |
+| Classificação = Renda Fixa | 7.759 | ±3% |
+| Em funcionamento normal | 7.337 | ±3% |
+| Condomínio aberto | 6.580 | ±3% |
+| Não exclusivo | 3.498 | ±3% |
+| Com série de cotas | 3.270 | ±3% |
+| ≥ 200 observações | 2.924 | ±3% |
+| PL ≥ R$ 10 mi | 2.690 | ±3% |
+| ≥ 10 cotistas | 1.714 | ±3% |
+| Com taxa e prazo publicados | **975** | ±3% |
+| — dos quais Público Geral | 854 | ±3% |
+| — dos quais Qualificado | 69 | ±5% |
+
+Reproduzido em 20/08/2026 pelo pipeline contra os arquivos completos, com desvio
+**0,00% em todas as etapas**. Os números da Fase 1 que divergiam foram corrigidos:
+o script exploratório usava 20 observações de um mês, o pipeline usa 200 de doze.
+A fonte da verdade é o pipeline. Ver D-029 em `docs/decisoes.md`.
 
 Cobertura histórica esperada: 12m = 1.675 (93%) · 24m = 1.481 (82%) · 36m = 1.326 (74%).
 

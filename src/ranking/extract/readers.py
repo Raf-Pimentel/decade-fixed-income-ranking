@@ -12,6 +12,7 @@ Two conventions worth stating once:
 
 from __future__ import annotations
 
+import datetime as dt
 import io
 from pathlib import Path
 
@@ -65,6 +66,35 @@ _REGISTRY_CLASS: dict[str, str] = {
     "Patrimonio_Liquido": "patrimonio_liquido_registro",
 }
 
+_STATEMENT: dict[str, str] = {
+    "CNPJ_FUNDO_CLASSE": "cnpj_classe",
+    "DT_COMPTC": "data",
+    "TAXA_ADM": "taxa_adm",
+    "TAXA_PERFM": "taxa_performance",
+    "QT_DIA_CONVERSAO_COTA": "dias_conversao",
+    "QT_DIA_PAGTO_RESGATE": "dias_pagamento",
+    "TP_DIA_PAGTO_RESGATE": "tipo_dia_prazo",
+    "APLIC_MIN": "aplicacao_minima",
+    "PUBLICO_ALVO": "publico_alvo_extrato",
+    "CLASSE_ANBIMA": "classe_anbima_extrato",
+}
+
+_FACTSHEET: dict[str, str] = {
+    "CNPJ_FUNDO_CLASSE": "cnpj_classe",
+    "ID_SUBCLASSE": "id_subclasse",
+    "DT_COMPTC": "data",
+    "TAXA_ADM": "taxa_adm",
+    "TAXA_PERFM": "taxa_performance",
+    # The factsheet spells the redemption columns differently from the
+    # statement. Same idea, different names — a reminder that these are two
+    # separate filings, not two copies of one.
+    "QT_DIA_CONVERSAO_COTA_RESGATE": "dias_conversao",
+    "QT_DIA_PAGTO_RESGATE": "dias_pagamento",
+    "TP_DIA_PAGTO_RESGATE": "tipo_dia_prazo",
+    "INVEST_INICIAL_MIN": "aplicacao_minima",
+    "PUBLICO_ALVO": "publico_alvo_lamina",
+}
+
 _REGISTRY_FUND: dict[str, str] = {
     "ID_Registro_Fundo": "id_registro_fundo",
     "CNPJ_Fundo": "cnpj_fundo",
@@ -82,11 +112,19 @@ def read_latin1_csv(path: Path, separator: str = ";") -> pl.DataFrame:
     The files are latin-1 with a semicolon separator, and neither is declared
     anywhere machine-readable. Reading them as UTF-8 mangles every accented
     fund name, which is most of them.
+
+    Quoting is disabled on purpose. The CVM never quotes fields — every line
+    carries the same number of semicolons either way — but its free-text
+    columns do contain loose double quotes: `extrato_fi_2025.csv` has 194 of
+    them, in investment-policy prose. A parser that reads them as delimiters
+    opens a quoted region, swallows every newline until the next quote, and
+    dies with "CSV malformed" a third of the way through a 12 MB file.
     """
     decoded = path.read_bytes().decode("latin-1").encode("utf-8")
     return pl.read_csv(
         io.BytesIO(decoded),
         separator=separator,
+        quote_char=None,
         infer_schema_length=0,  # everything as text; casting is explicit below
         truncate_ragged_lines=True,
     )
@@ -220,4 +258,138 @@ def fund_age_years(frame: pl.DataFrame, as_of: object) -> pl.DataFrame:
             (pl.lit(as_of).cast(pl.Date) - pl.col("data_constituicao")).dt.total_days()
             / normalize.DAYS_IN_YEAR
         ).alias("idade_anos")
+    )
+
+
+def read_statement(path: Path) -> pl.DataFrame:
+    """Fees, redemption terms and minimum investment, from the CVM statement.
+
+    Percentages are converted to fractions on the way in. The file says `0.20`
+    meaning a fifth of a percent a year; carrying that through as `0.20` would
+    make the cheapest funds in the country look like they charge twenty
+    percent, and the cost weight is the largest one in the retail profile.
+    """
+    frame = _select_and_rename(read_latin1_csv(path), _STATEMENT)
+    frame = _cast_present(
+        frame,
+        {
+            "cnpj_classe": _clean_cnpj("cnpj_classe"),
+            "data": pl.col("data").str.to_date("%Y-%m-%d", strict=False),
+            "taxa_adm": pl.col("taxa_adm").cast(pl.Float64, strict=False) / 100,
+            "taxa_performance": pl.col("taxa_performance").cast(pl.Float64, strict=False) / 100,
+            "dias_conversao": pl.col("dias_conversao").cast(pl.Int64, strict=False),
+            "dias_pagamento": pl.col("dias_pagamento").cast(pl.Int64, strict=False),
+            "aplicacao_minima": pl.col("aplicacao_minima").cast(pl.Float64, strict=False),
+        },
+    )
+    # What the client waits for is the whole thing: days until the quota is
+    # struck, plus days until the money arrives.
+    #
+    # And the two are not always quoted in the same unit. `TP_DIA_PAGTO_RESGATE`
+    # says whether the term is in business days or calendar days, and a fund
+    # quoting "5 business days" makes the client wait a week. Treating the two
+    # as interchangeable would flatter every fund that quotes business days —
+    # which matters, because redemption speed carries the second-heaviest
+    # weight in the retail profile.
+    return _with_redemption_days(frame)
+
+
+def _with_redemption_days(frame: pl.DataFrame) -> pl.DataFrame:
+    """Total calendar days between asking for the money and receiving it.
+
+    Two filings, one meaning. And the unit is not always the same:
+    `TP_DIA_PAGTO_RESGATE` says whether the term is quoted in business days or
+    calendar days, and a fund quoting "5 business days" makes the client wait a
+    week. Treating the two as interchangeable would flatter every fund that
+    quotes business days — which matters, because redemption speed carries the
+    second-heaviest weight in the retail profile.
+    """
+    raw_days = pl.col("dias_conversao").fill_null(0) + pl.col("dias_pagamento").fill_null(0)
+    business = (
+        pl.col("tipo_dia_prazo").str.to_uppercase().str.contains("TEIS").fill_null(False)
+        if "tipo_dia_prazo" in frame.columns
+        # If the source stops publishing the unit, assume calendar days: that
+        # under-states nobody's liquidity, whereas assuming business days would
+        # penalise every fund for a column we simply did not receive.
+        else pl.lit(False)
+    )
+    return frame.with_columns(
+        pl.when(business)
+        .then((raw_days * 7 / 5).ceil())
+        .otherwise(raw_days)
+        .cast(pl.Int64)
+        .alias("dias_resgate")
+    )
+
+
+def read_factsheet(path: Path) -> pl.DataFrame:
+    """Fees and terms from the factsheet, which retail funds must publish.
+
+    This is what lifts fee coverage from roughly seventy percent of the
+    rankable universe to nearly all of the retail half of it.
+    """
+    frame = _select_and_rename(read_latin1_csv(path), _FACTSHEET)
+    if "id_subclasse" in frame.columns:
+        # Same trap as the daily report: a subclass row repeats its class.
+        frame = frame.filter(
+            pl.col("id_subclasse").is_null() | (pl.col("id_subclasse").str.strip_chars() == "")
+        ).drop("id_subclasse")
+    frame = _cast_present(
+        frame,
+        {
+            "cnpj_classe": _clean_cnpj("cnpj_classe"),
+            "data": pl.col("data").str.to_date("%Y-%m-%d", strict=False),
+            "taxa_adm": pl.col("taxa_adm").cast(pl.Float64, strict=False) / 100,
+            "taxa_performance": pl.col("taxa_performance").cast(pl.Float64, strict=False) / 100,
+            "dias_conversao": pl.col("dias_conversao").cast(pl.Int64, strict=False),
+            "dias_pagamento": pl.col("dias_pagamento").cast(pl.Int64, strict=False),
+            "aplicacao_minima": pl.col("aplicacao_minima").cast(pl.Float64, strict=False),
+        },
+    )
+    return _with_redemption_days(frame)
+
+
+TERM_COLUMNS = ["cnpj_classe", "taxa_adm", "dias_resgate", "aplicacao_minima"]
+
+
+def combine_terms(statement: pl.DataFrame, factsheet: pl.DataFrame) -> pl.DataFrame:
+    """One set of terms per fund, with the source recorded.
+
+    The statement wins where both filings exist: it is the more formal one. The
+    factsheet fills the gaps, which is most of retail.
+
+    `fonte_taxa` is not bookkeeping. The delivery tells a client what a fund
+    costs, and whoever reads it is entitled to know which filing that number
+    came from.
+    """
+
+    def _prepare(frame: pl.DataFrame, source: str) -> pl.DataFrame:
+        if frame.is_empty():
+            return frame.select(TERM_COLUMNS).with_columns(pl.lit(source).alias("fonte_taxa"))
+        return (
+            frame.select(TERM_COLUMNS)
+            .filter(pl.col("taxa_adm").is_not_null() & pl.col("dias_resgate").is_not_null())
+            .unique(subset=["cnpj_classe"], keep="last", maintain_order=True)
+            .with_columns(pl.lit(source).alias("fonte_taxa"))
+        )
+
+    primary = _prepare(statement, "EXTRATO")
+    fallback = _prepare(factsheet, "LAMINA").join(
+        primary.select("cnpj_classe"), on="cnpj_classe", how="anti"
+    )
+    return pl.concat([primary, fallback])
+
+
+def statement_in_force(frame: pl.DataFrame, reference_date: dt.date) -> pl.DataFrame:
+    """The statement that was in force on the reference date — one per fund.
+
+    Taking the most recent statement instead would describe a December 2025
+    fund with terms filed in 2026, which is exactly the kind of leak that makes
+    a backtest look better than the method really is.
+    """
+    return (
+        frame.filter(pl.col("data").is_not_null() & (pl.col("data") <= reference_date))
+        .sort("cnpj_classe", "data")
+        .group_by("cnpj_classe", maintain_order=True)
+        .last()
     )

@@ -102,3 +102,38 @@ def test_cnpj_is_stripped_but_not_judged_at_read_time(dirty_daily_report_path) -
     frame = readers.read_daily_report(dirty_daily_report_path)
     assert "123" in frame["cnpj_classe"].to_list()
     assert not any("." in value for value in frame["cnpj_classe"].to_list())
+
+
+# --------------------------------------------------------------------------
+# The CVM uses the double quote as an ordinary character
+# --------------------------------------------------------------------------
+
+
+def test_a_stray_double_quote_does_not_swallow_the_next_rows(tmp_path) -> None:
+    """`extrato_fi_2025.csv` contains 194 loose double quotes in free-text
+    fields — investment policy prose, mostly. A reader that treats them as
+    field delimiters starts a quoted region, eats every following newline
+    until the next quote, and fails with "CSV malformed" halfway through a
+    12 MB file. The CVM never quotes fields: every line has exactly the same
+    number of semicolons whether quotes are present or not.
+    """
+    path = tmp_path / "extrato.csv"
+    path.write_text(
+        "CNPJ_FUNDO_CLASSE;DT_COMPTC;POLIT_INVEST\n"
+        '00017024000153;2025-12-01;aplica em titulos de 5" de duracao\n'
+        "00068305000135;2025-12-02;politica normal\n"
+        "00071477000168;2025-12-03;outra politica\n",
+        encoding="latin-1",
+    )
+    frame = readers.read_latin1_csv(path)
+    assert len(frame) == 3
+    assert frame["CNPJ_FUNDO_CLASSE"].to_list()[-1] == "00071477000168"
+
+
+def test_an_odd_number_of_quotes_still_parses(tmp_path) -> None:
+    path = tmp_path / "extrato.csv"
+    path.write_text(
+        'A;B\n1;abertura " sem fechamento\n2;normal\n',
+        encoding="latin-1",
+    )
+    assert len(readers.read_latin1_csv(path)) == 2

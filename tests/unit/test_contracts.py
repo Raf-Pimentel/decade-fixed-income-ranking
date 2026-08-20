@@ -10,6 +10,7 @@ from __future__ import annotations
 import datetime as dt
 
 import pytest
+from pandera import errors as pa_errors
 
 from ranking.contracts import quality, schemas
 from ranking.extract import readers
@@ -150,3 +151,51 @@ def test_output_rejects_a_top_list_longer_than_configured() -> None:
             top=[schemas.RankedFund.model_construct() for _ in range(6)],
             top_n=5,
         )
+
+
+# --------------------------------------------------------------------------
+# The second lock: what leaves the stage is checked against the declaration
+# --------------------------------------------------------------------------
+
+
+def test_the_clean_set_satisfies_the_declared_schema(daily_report_path, reference_date) -> None:
+    """Triage decides who passes; the schema asserts that whoever passed is
+    actually sound. If this ever fails, the fault is in the rules, not the data."""
+    frame = readers.read_daily_report(daily_report_path)
+    result = schemas.validate_daily_report(frame, reference_date=reference_date)
+    schemas.assert_matches_contract(result.clean)  # must not raise
+
+
+def test_the_clean_set_from_dirty_input_also_satisfies_it(dirty, reference_date) -> None:
+    result = schemas.validate_daily_report(dirty, reference_date=reference_date)
+    schemas.assert_matches_contract(result.clean)
+
+
+def test_the_declared_schema_would_catch_a_bad_row(reference_date) -> None:
+    """Proof the second lock is closed, not just present."""
+    import datetime as dt
+
+    import polars as pl
+
+    smuggled = pl.DataFrame(
+        {
+            "cnpj_classe": ["00017024000153"],
+            "data": [dt.date(2025, 12, 1)],
+            "valor_cota": [-1.0],
+            "patrimonio_liquido": [1.0],
+            "cotistas": [1],
+        }
+    )
+    with pytest.raises(pa_errors.SchemaErrors):
+        schemas.assert_matches_contract(smuggled)
+
+
+def test_the_row_count_always_adds_up(dirty, reference_date) -> None:
+    result = schemas.validate_daily_report(dirty, reference_date=reference_date)
+    assert result.received == len(dirty)
+
+
+def test_the_quarantine_share_is_reported(dirty, reference_date) -> None:
+    """The pipeline needs this number to decide whether to carry on."""
+    result = schemas.validate_daily_report(dirty, reference_date=reference_date)
+    assert 0.0 < result.quarantined_share < 1.0
