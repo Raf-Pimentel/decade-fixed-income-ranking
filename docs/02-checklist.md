@@ -5,41 +5,49 @@ Ao final de cada fase, apresento o resultado e espero aprovação antes de segui
 
 ---
 
-## Onde estamos — checkpoint de 20/08/2026
+## Onde estamos — checkpoint de 20/08/2026 (segundo)
 
-**Fases 2, 3 e 4 concluídas.** Faltam a 5, a 5.5 e a 6.
+**Fases 2, 3, 4 e 5 concluídas.** Faltam a 5.5 (teste no passado) e a 6 (documentação).
 
 | | |
 |---|---|
-| Commits | 9, todos no GitHub (repositório privado) |
-| Suíte | **169 testes verdes**; 26 ainda vermelhos por desenho (Fase 5) |
-| Cobertura nos módulos de cálculo | **93%** (meta: 90%) |
+| Commits | 12, todos no GitHub (repositório privado) |
+| Suíte | **207 testes verdes**, incluindo os 9 de integração |
+| Cobertura nos módulos de cálculo | 93% (meta: 90%) |
 | `ruff`, `ruff format`, `mypy` | limpos |
-| Funil de qualidade | **0,00% de desvio** nas 10 etapas |
-| Universo final | **975 fundos** — 854 varejo, 69 qualificado, 52 profissional |
-| Tempo de execução | 6,3M linhas lidas, validadas e reduzidas a painel em **~4s** |
+| Funil de qualidade | dentro do baseline |
+| Universo final | **520 fundos** — 502 varejo · R$ 1,51 trilhão |
+| Execução completa | ~36 s, um comando |
 
-**Números já apurados sobre os dados reais:** CDI 2025 = 14,3242% em 252 dias úteis ·
-apenas **37% dos fundos bateram o CDI** · mediana do excesso = **−0,22%**.
+**Números apurados sobre os dados reais:** CDI 2025 = 14,3242% em 252 dias úteis ·
+**40% dos 520 fundos bateram o CDI** · excesso mediano **−0,19%** · taxa mediana 0,50% ·
+mediana de 3.616 cotistas.
 
-### Decisão aberta, aguardando o Rafael
+### Revisão do primeiro resultado — ver D-035
 
-Depois da resposta da Decade (*"foque no que for mais acionável para o varejo"*), medi que
-**58% do universo de varejo é D+0**. Um ranking único de varejo entregaria os mesmos cinco
-fundos para quem precisa do dinheiro amanhã e para quem investe por três anos.
+Seis conclusões registradas, **nenhuma implementada nesta fase**, por decisão. A quatro dias
+da entrega, o teste no passado e a documentação valem mais que otimizar pesos às pressas.
 
-Proposta: reabrir a D-010 e passar de dois perfis (varejo / qualificado) para **dois perfis de
-varejo por horizonte** — liquidez (D+0/D+1, 492 fundos) e prazo (D+2 a D+30, 232 fundos) —
-mantendo o qualificado como apêndice declarado como amostra enviesada (69 fundos, 28% de
-divulgação). **Não implementar até haver decisão.**
+Duas viram trabalho na Fase 6:
+
+- [ ] **`ranking.md` volta a ser lista simples.** A taxa de aparição sai da vitrine e fica no
+      `ranking.json` e na seção técnica. Ela continua determinando a ordem — é validação, não
+      produto.
+- [ ] **Destacar duas limitações acima das outras** no `ranking.md` e no vídeo: risco de
+      crédito escondido, e doze meses não preverem 2026. Uma lista de dez itens dilui as duas
+      que importam.
+- [ ] Declarar a concentração em uma gestora e explicá-la (taxas de casa muito baixas + custo
+      é o maior peso).
+- [ ] Nomear **a arbitrariedade dos pesos** como limitação de primeira ordem, com o argumento
+      da D-035: o projeto não encontra os pesos ótimos, mas garante que o pipeline produz o
+      ranking certo a partir dos pesos que receber.
 
 ### O que depende do Rafael, não de mim
 
-- [ ] **Conferir 3 fundos na planilha.** Pegar a cota de 02/01/2025 e 30/12/2025 de três fundos,
-      calcular o retorno e comparar com o `ranking.json`. É a verificação independente mais
-      valiosa do projeto: eu não sou testemunha confiável do meu próprio cálculo.
-- [ ] Decidir a questão dos perfis acima.
-- [ ] Olhar o Top 5 quando sair e dizer se algum fundo parece estranho.
+- [ ] **Conferir 3 fundos na planilha.** Cota de 02/01/2025 e 30/12/2025, retorno, comparar com
+      o `ranking.json`. É a verificação independente mais valiosa do projeto.
+- [x] ~~Decidir a questão dos perfis~~ — decidido: dois perfis de varejo (D-032).
+- [x] ~~Olhar o Top 5 e dizer se algo parece estranho~~ — feito, gerou a D-035.
 
 ---
 

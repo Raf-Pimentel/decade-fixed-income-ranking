@@ -494,16 +494,53 @@ Escolhi o mínimo que resolve. Cada dependência precisa justificar por que exis
 
 ## 12. Limitações
 
-Sendo direto sobre o que este projeto **não** faz:
+Em ordem de gravidade, não de conveniência. As três primeiras são as que eu levaria ao vídeo.
 
-1. **Mede o passado.** Doze meses de histórico não dizem o que vai acontecer em 2026. O teste da seção 8 mede a incerteza, mas não a elimina.
-2. **Só vê fundos que sobreviveram.** Fundos que quebraram em 2025 não estão na base. O universo é, por construção, otimista.
-3. **A oscilação de fundos de crédito é subestimada.** Títulos de dívida privada no Brasil não são remarcados todo dia como uma ação. Isso faz o fundo parecer mais tranquilo do que é — e melhora artificialmente a nota de quem carrega mais risco. Compenso comparando só dentro do grupo, mas não resolvo.
-4. **Ignora imposto.** Comparo todos os fundos antes do imposto de renda. Como quase todos os fundos de renda fixa seguem a mesma tabela, a comparação relativa continua justa — mas o número absoluto não é o que o cliente leva para casa.
-5. **Perde 44% do universo por falta de divulgação de taxa.** Especialmente no perfil qualificado, onde sobram 79 fundos.
-6. **O cadastro é uma foto de hoje.** A CVM não guarda versões antigas do registro. Sei a classificação atual do fundo, não a de dezembro de 2025.
+**1. Os pesos são arbitrários.** Não existe demonstração de que 30/20/15/15/10/10 seja melhor
+que outro conjunto qualquer. A escolha tem argumento — a taxa é o único número que se sabe
+sobre 2026, e apenas 40% dos fundos bateram o CDI em 2025 — mas argumento não é prova.
+Encontrar pesos ótimos é um problema quantitativamente difícil que este projeto **não resolve**.
+O que ele garante é outra coisa: se os pesos certos existirem e forem informados, o pipeline
+produz o ranking correto a partir deles. Os pesos vivem em YAML, a simulação mede o quanto o
+resultado depende deles, e trocá-los não exige tocar em uma linha de código.
 
----
+**2. O método não olha a carteira.** Mede resultado, não conteúdo. Dois fundos com números
+idênticos podem carregar riscos de crédito completamente diferentes. Crédito privado no Brasil
+paga um spread pequeno e constante por muitos meses e devolve tudo de uma vez quando o emissor
+quebra — e nada na série de cotas antecipa isso.
+
+**3. Doze meses não dizem o que acontece em 2026.** A simulação mede a incerteza da amostra,
+não o risco de cauda: reamostrar 2025 nunca produzirá uma crise de crédito que 2025 não teve.
+
+**4. Viés de sobrevivência.** Fundos que quebraram em 2025 não estão na base. O universo é,
+por construção, otimista.
+
+**5. A volatilidade de fundos de crédito é subestimada.** Dívida privada não é remarcada
+diariamente, o que faz esses fundos parecerem mais tranquilos do que são e melhora
+artificialmente a nota de quem carrega mais risco.
+
+**6. Parte da estabilidade medida é mecânica.** Taxas e prazos não variam entre simulações,
+então um fundo bem ranqueado por custo aparenta mais robustez do que a evidência sustenta.
+
+**7. Fundos indexados à inflação são medidos contra o CDI**, não contra o IMA-B. Afeta 8,2% do
+universo. A série histórica do IMA não é publicada em formato utilizável.
+
+**8. Ignora imposto de renda.** A comparação é pré-tributação. Como quase todos os fundos de
+renda fixa seguem a mesma tabela, a comparação relativa continua justa; o número absoluto não
+é o que o cliente leva para casa.
+
+**9. Cada fundo é avaliado isoladamente.** Não há restrição de diversificação, então o Top 5
+pode conter cinco fundos parecidos — e de fato concentra em uma gestora, pelo motivo explicado
+na seção 12.1.
+
+**10. O cadastro é uma foto de hoje.** A CVM não guarda versões antigas do registro.
+
+### 12.1 Sobre a concentração em uma gestora
+
+Oito dos dez recomendados são do mesmo grupo. Isso é consequência coerente do critério, não
+sintoma de erro: essa gestora pratica taxas muito baixas nos fundos de casa, e custo é o maior
+peso dos dois perfis. Fica declarado na entrega porque quem lê precisa saber que a lista
+concentra, e por quê.
 
 ## 13. O que fica em aberto
 

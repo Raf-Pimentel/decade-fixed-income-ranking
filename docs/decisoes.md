@@ -50,6 +50,7 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-032](#d-032) | 20/08 | 5 | **Dois perfis de varejo por horizonte; o qualificado sai** | 🔄🎥📊 |
 | [D-033](#d-033) | 20/08 | 5 | Só ligar a simulação de verdade mostrou que ela não estava ligada | 🎥 |
 | [D-034](#d-034) | 20/08 | 5 | **O primeiro Top 5 continha fundos institucionais. Dois defeitos meus** | 🎥📊 |
+| [D-035](#d-035) | 20/08 | 5 | **Revisão do primeiro resultado: seis conclusões, nenhuma implementada agora** | 🎥 |
 
 ---
 
@@ -824,6 +825,69 @@ existir a etapa de revisão: o critério estava especificado errado, e o erro s�
 quando o resultado saiu. Afrouxar um corte para um fundo entrar seria fraude; apertar um corte
 porque ele estava deixando entrar quem o próprio critério dizia excluir é conserto. A distinção
 está na direção da mudança e na justificativa — e as duas ficaram registradas antes do backtest.
+
+---
+
+## D-035 — Revisão do primeiro resultado: seis conclusões 🎥
+**Quando:** 20/08, Fase 5, com o primeiro ranking pronto
+
+O primeiro Top 5 foi revisado com olhar externo, sem contexto do projeto. Seis conclusões.
+**Nenhuma implementada nesta fase**, por decisão: o objetivo aqui é registrar o que se aprendeu
+e reconhecer limitação, não sair consertando tudo a quatro dias da entrega.
+
+### 1. Os pesos são a limitação mais séria — e são arbitrários
+
+Não há como demonstrar que 30/20/15/15/10/10 é melhor que qualquer outro conjunto. A escolha
+tem argumento (a taxa é o único número conhecido sobre 2026, e só 40% dos fundos bateram o CDI
+em 2025), mas argumento não é prova.
+
+**O que fica registrado como a postura defensável:** encontrar pesos ótimos é um problema
+quantitativamente muito difícil, e este projeto não o resolve. O que ele garante é outra coisa
+— que **se os pesos certos existirem e forem informados, o pipeline inteiro é robusto o
+suficiente para produzir o ranking correto a partir deles.** Os pesos vivem em YAML, a
+simulação de robustez mede quanto o resultado depende deles, e trocá-los não exige tocar em
+uma linha de código.
+
+Isso **promove a arbitrariedade dos pesos a limitação declarada de primeira ordem**, ao lado
+da performance passada como proxy do futuro. As duas passam a ser nomeadas na entrega.
+
+### 2. A concentração em Itaú é esperada, não é defeito
+
+Oito dos dez recomendados são Itaú. A leitura: o Itaú pratica taxas artificialmente baixas nos
+fundos de casa, e como custo é o maior peso, ele naturalmente se destaca. É consequência
+coerente do critério, não sintoma de erro. Continua valendo declarar na entrega — quem lê
+precisa saber que a lista concentra em uma gestora e por quê.
+
+### 3. O corte de 500 cotistas está razoável, e poderia ser maior
+
+Mantido em 500 por ora. Registrado que subir é uma direção legítima, não um risco.
+
+### 4. A taxa de aparição fica no motor, não na vitrine
+
+Como validação estatística contra sobreajuste a um ano específico, ela é útil e fica. Como
+produto para o investidor de varejo, **gera ruído**: uma lista com "apareceu em 42% das
+simulações" ao lado do quinto colocado confunde mais do que informa.
+
+**Decisão de produto:** a simulação continua rodando e continua determinando a ordem; a taxa
+de aparição continua no `ranking.json` e na seção técnica. O `ranking.md` volta a apresentar
+uma **lista simples**. A ser implementado na Fase 6.
+
+### 5. As duas limitações mais graves
+
+De toda a lista declarada, duas se destacam:
+
+- **risco de crédito escondido** — o método não olha a carteira, e crédito privado no Brasil
+  paga spread pequeno e constante até o dia em que não paga;
+- **12 meses não dizem o que acontece em 2026.**
+
+São as duas que devem aparecer com destaque no `ranking.md` e no vídeo, e não diluídas numa
+lista de nove itens.
+
+### 6. Reconhecer e seguir, em vez de consertar tudo
+
+A decisão de processo: nada disso vira mudança de método agora. Vira limitação declarada e
+backlog. A quatro dias da entrega, o que falta — o teste no passado e a documentação — vale
+mais que uma tentativa apressada de otimizar pesos.
 
 ---
 
