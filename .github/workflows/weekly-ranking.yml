@@ -5,8 +5,7 @@ name: Weekly ranking
 # it downloads the real CVM data from scratch and publishes a fresh ranking,
 # with nobody watching.
 #
-# The schedule is deliberately commented out until the pipeline exists
-# (Phase 5). Turning it on is one line, and that happens in Phase 6.
+# Switched on in phase 6, once the pipeline was complete and validated.
 
 on:
   workflow_dispatch:
@@ -15,8 +14,8 @@ on:
         description: "Reference date (YYYY-MM-DD)"
         required: false
         default: "2025-12-31"
-  # schedule:
-  #   - cron: "0 9 * * MON"   # Mondays, 09:00 UTC
+  schedule:
+    - cron: "0 9 * * MON"   # Mondays, 09:00 UTC
 
 permissions:
   contents: write

@@ -87,53 +87,113 @@ def write_json(payload: RankingOutput, path: Path) -> None:
 
 
 def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None = None) -> None:
-    """The readable version, with the caveats beside the list and not below it."""
+    """The readable version.
+
+    A plain list. The robustness simulation still decides the order — it runs
+    on every fund and the five published are the ones that survived it — but
+    "appeared in 42% of simulations" next to a fund name is noise for someone
+    choosing where to put their emergency reserve. That number lives in
+    `ranking.json` and in the technical section at the bottom, where the people
+    who want to audit the method will look for it.
+    """
     lines: list[str] = [
-        "# Melhores fundos de renda fixa — 31/12/2025",
+        "# Melhores fundos de renda fixa para o investidor de varejo",
         "",
-        f"Data de referência: **{payload.reference_date:%d/%m/%Y}** · "
-        f"janela de **{payload.lookback_months} meses** · "
-        f"benchmark: **{payload.benchmark_label}**.",
+        f"Data de referência: **{payload.reference_date:%d/%m/%Y}** · janela de "
+        f"**{payload.lookback_months} meses** · referência de comparação: "
+        f"**{payload.benchmark_label}**.",
         "",
-        "> **A ordem entre os cinco não é significativa.** Com doze meses de dados diários, a "
-        "incerteza sobre o retorno ajustado ao risco é maior que as diferenças entre eles. "
-        "O que a lista afirma é que estes cinco se sustentam, não que o primeiro é melhor que "
-        "o segundo. A taxa de aparição ao lado de cada fundo é a medida disso.",
+        "Duas listas, porque a resposta depende de quando você precisa do dinheiro de volta.",
         "",
     ]
 
     for profile in payload.profiles:
-        pesos = " · ".join(
-            f"{name} {weight}"
-            for name, weight in sorted(profile.weights.items(), key=lambda kv: -kv[1])
-        )
         lines += [
             f"## {profile.label}",
             "",
-            f"{profile.eligible_universe_size} fundos elegíveis. Pesos: {pesos}.",
+            f"Escolhidos entre **{profile.eligible_universe_size} fundos** que um investidor de "
+            "varejo consegue de fato comprar.",
             "",
-            "| # | Fundo | Gestor | Grupo | Taxa | Resgate | Sobre o CDI | Nota | Aparição |",
-            "|---:|---|---|---|---:|---:|---:|---:|---:|",
+            "| # | Fundo | Gestor | Taxa a.a. | Resgate | Rendeu em 12m | vs CDI |",
+            "|---:|---|---|---:|---:|---:|---:|",
         ]
         for fund in profile.top:
             numbers = fund.metrics
             days = numbers.get("dias_resgate")
+            prazo = f"D+{int(days)}" if isinstance(days, int | float) else "—"
             lines.append(
-                f"| {fund.rank} | {fund.name[:44]} | {(fund.manager or '—')[:24]} "
-                f"| {(fund.peer_group or '—')[:34]} "
-                f"| {_percent(numbers.get('taxa_adm'))} "
-                f"| D+{int(days) if isinstance(days, int | float) else '—'} "
-                f"| {_percent(numbers.get('excesso'))} "
-                f"| {fund.score:.1f} | {fund.appearance_rate:.0%} |"
+                f"| {fund.rank} | {fund.name[:46]} | {(fund.manager or '—')[:22]} "
+                f"| {_percent(numbers.get('taxa_adm'), 3)} | {prazo} "
+                f"| {_percent(numbers.get('retorno'))} | {_percent(numbers.get('excesso'))} |"
             )
         lines += ["", "### Por que cada um", ""]
         for fund in profile.top:
             lines += [f"**{fund.rank}. {fund.name}** — {fund.rationale}", ""]
 
+    lines += [
+        "---",
+        "",
+        "## O que você precisa saber antes de usar esta lista",
+        "",
+        "Duas limitações importam mais que todas as outras.",
+        "",
+        "**1. Este ranking não olha o que os fundos têm dentro.** Ele mede resultado, não "
+        "conteúdo. Dois fundos com rentabilidade, oscilação e pior queda praticamente "
+        "idênticos podem carregar riscos de crédito completamente diferentes — e crédito "
+        "privado no Brasil paga um prêmio pequeno e constante por muitos meses e devolve tudo "
+        "de uma vez quando o emissor quebra. Nada na série de cotas antecipa isso.",
+        "",
+        "**2. Doze meses de histórico não dizem o que acontece em 2026.** O método foi testado "
+        "fora da amostra e funcionou em 2025 (ver `validacao.md`), mas 2025 teve um único "
+        "regime de juros. É evidência, não garantia.",
+        "",
+        "### E três coisas que valem ser ditas",
+        "",
+        "**Os pesos são uma escolha, não uma dedução.** Custo pesa mais que rentabilidade "
+        "passada porque a taxa é o único número que se sabe com certeza sobre o ano que vem — "
+        "e porque apenas 40% dos fundos bateram o CDI em 2025. Mas não há demonstração de que "
+        "esses pesos sejam ótimos. O que o projeto garante é que, informados outros pesos, o "
+        "resultado sai coerente com eles: os pesos vivem em um arquivo de configuração.",
+        "",
+        "**A lista concentra em poucas gestoras.** É consequência coerente do critério: as "
+        "gestoras dos grandes bancos praticam taxas muito baixas nos fundos de casa, e custo "
+        "é o maior peso. Não é recomendação de concentrar — é o que o critério devolve.",
+        "",
+        "**A ordem entre os cinco não é forte.** Com doze meses de dados diários, a incerteza "
+        "sobre o retorno ajustado ao risco é maior que a distância entre os primeiros "
+        "colocados. A lista afirma que estes cinco se sustentam, não que o primeiro é melhor "
+        "que o segundo.",
+        "",
+    ]
+
     if notes:
-        lines += ["---", "", "## O que esta lista não sabe", ""]
-        lines += [f"- {note}" for note in notes]
-        lines.append("")
+        lines += ["### Outras limitações", ""] + [f"- {note}" for note in notes] + [""]
+
+    lines += [
+        "---",
+        "",
+        "## Seção técnica",
+        "",
+        "O ranking foi reconstruído **1.000 vezes**, reamostrando as séries de retorno em "
+        "blocos e sorteando os pesos dentro de faixas declaradas. Os cinco publicados são os "
+        "que mais sobreviveram a esse teste, não os de maior nota pontual. A taxa de "
+        "sobrevivência de cada um:",
+        "",
+        "| Fundo | Perfil | Nota | Apareceu no top 5 em |",
+        "|---|---|---:|---:|",
+    ]
+    for profile in payload.profiles:
+        for fund in profile.top:
+            lines.append(
+                f"| {fund.name[:40]} | {profile.profile_id} | {fund.score:.1f} "
+                f"| {fund.appearance_rate:.0%} |"
+            )
+    lines += [
+        "",
+        "Taxas e prazos não variam entre simulações, então parte dessa estabilidade é "
+        "mecânica. Todos os números por fundo estão em `ranking.json`.",
+        "",
+    ]
 
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines), encoding="utf-8")
+    path.write_text(chr(10).join(lines), encoding="utf-8")

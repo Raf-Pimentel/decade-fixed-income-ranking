@@ -73,7 +73,12 @@ expected_funnel:
     with_enough_observations: 2_924     # new step: the 200-day floor, never measured before
     above_min_assets: 2_690             # was 2_944, measured before the 200-day floor
     above_min_shareholders: 787         # was 1_714 at a 10-shareholder cut; see min_shareholders
-    with_fee_and_redemption: 520        # was 975 before the shareholder cut was raised
+    # 580, not 520: the statement is now fetched for every year the window touches,
+    # not only the reference year. A fund that filed in 2024 and never refiled is in
+    # force in 2025, and fetching one year made it look as though it had never
+    # disclosed anything. The change came from phase 5.5, which needs earlier cut
+    # dates to work at all — and it improves the reference-date run too.
+    with_fee_and_redemption: 580
   by_target_investor:
-    retail: 502      # was 854 before the shareholder cut was raised to 500
-    qualified: 16    # was 69, same reason
+    retail: 559      # was 502 before the statement was fetched for every year
+    qualified: 19    # same reason

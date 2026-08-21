@@ -16,7 +16,7 @@ Desenho completo: `docs/01-solution-design.md`. Checklist executável: `docs/02-
 Diário de decisões: `docs/decisoes.md`.
 
 **Fases:** 1 ✓ · 2 ✓ · 3 ✓ · 4 ✓ · 5 ✓ · 5.5 teste no passado ✓ (**validado**) ·
-**6 documentação ← aqui**.
+6 documentação ✓ — **entrega pronta**, falta só o vídeo.
 
 Estado detalhado e decisão pendente: topo de `docs/02-checklist.md`.
 
@@ -91,9 +91,9 @@ Se o pipeline produzir números diferentes, ou a CVM mudou algo ou eu quebrei al
 | ≥ 200 observações | 2.924 | ±3% |
 | PL ≥ R$ 10 mi | 2.690 | ±3% |
 | ≥ 500 cotistas | 787 | ±3% |
-| Com taxa e prazo publicados | **520** | ±3% |
-| — dos quais Público Geral | 502 | ±3% |
-| — dos quais Qualificado | 16 | ±5% |
+| Com taxa e prazo publicados | **580** | ±3% |
+| — dos quais Público Geral | 559 | ±3% |
+| — dos quais Qualificado | 19 | ±5% |
 
 Reproduzido em 20/08/2026 pelo pipeline contra os arquivos completos, com desvio
 **0,00% em todas as etapas**. Os números da Fase 1 que divergiam foram corrigidos:

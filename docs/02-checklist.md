@@ -182,20 +182,23 @@ em 2 de 3 (p84, p97, p51). Vantagem sobre a mediana entre −8 e +31 pontos-base
 
 ---
 
-## Fase 6 — Documentação (D7 tarde · 26/08)
+## Fase 6 — Documentação ✓
 
-- [ ] `README.md`: o que é, como instalar, como rodar, o que sai, quanto demora
-- [ ] Rodar do zero em máquina limpa via Docker e cronometrar
-- [ ] `ranking.md` com a racionalidade por fundo e as métricas que decidiram
-- [ ] `docs/decisoes.md` consolidado
-- [ ] Seção destacada: **a decisão de maior incerteza**, com o porquê
-- [ ] Limitações escritas sem suavizar
-- [ ] Link do vídeo no README
-- [ ] **Execução semanal automática ligada** — workflow agendado que roda o pipeline do zero
-      e publica o `ranking.json`. Confirmar que rodou de verdade ao menos uma vez, sem mim
-- [ ] **Página visual do ranking** — Top 5, métricas e o resultado do teste no passado
-
----
+- [x] `README.md`: o que é, como instalar, como rodar, o que sai, quanto demora, e o que o
+      método **não** faz
+- [x] `ranking.md` como **lista simples** — taxa de aparição saiu da vitrine e vive no
+      `ranking.json` e na seção técnica (D-035, ponto 4)
+- [x] **Duas limitações em destaque** acima das outras: risco de crédito escondido e doze
+      meses não preverem 2026
+- [x] Concentração em poucas gestoras declarada e explicada
+- [x] **Arbitrariedade dos pesos** nomeada como limitação de primeira ordem, com o argumento
+      de que o projeto entrega a máquina e não os pesos ótimos
+- [x] `docs/decisoes.md` consolidado — 37 decisões, 6 reversões preservadas
+- [x] **Execução semanal automática ligada** (`weekly-ranking.yml`, segundas 09:00 UTC)
+- [ ] **Página visual do ranking** — não feita. Extra aprovado que não coube; o `ranking.md`
+      cumpre o entregável do case
+- [ ] Vídeo de 5 min — roteiro minutado pronto em `docs/decisoes.md`, gravação é do Rafael
+- [ ] Link do vídeo no README, depois de gravado
 
 ## D8 — Folga e vídeo (27/08)
 

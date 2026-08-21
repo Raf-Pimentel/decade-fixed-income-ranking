@@ -52,6 +52,7 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-034](#d-034) | 20/08 | 5 | **O primeiro Top 5 continha fundos institucionais. Dois defeitos meus** | 🎥📊 |
 | [D-035](#d-035) | 20/08 | 5 | **Revisão do primeiro resultado: seis conclusões, nenhuma implementada agora** | 🎥 |
 | [D-036](#d-036) | 20/08 | 5.5 | **O teste no passado validou o método — e corrigi dois erros contra mim** | 🎥📊 |
+| [D-037](#d-037) | 20/08 | 6 | Extrato multi-ano ampliou o universo; o guardrail pegou e o resultado não mudou | 📊 |
 
 ---
 
@@ -941,6 +942,27 @@ independentes**.
 
 Escrevi na D-017 que o teste seria quase de graça *se* o point-in-time estivesse correto, e que
 se fosse difícil de rodar seria sinal de que estava furado. Rodou como um comando.
+
+---
+
+## D-037 — Extrato multi-ano ampliou o universo, e o resultado não mudou 📊
+**Quando:** 20/08, Fase 6
+
+A Fase 5.5 exigiu buscar o extrato de **todos os anos que a janela toca**, não só o do ano de
+referência — um fundo que protocolou em 2024 e não reprotocolou continua vigente em 2025, e
+buscar um ano só fazia parecer que ele nunca tinha divulgado nada.
+
+Isso melhorou também a rodada da data de referência: **520 → 580 fundos**, varejo de 502 para
+559. O guardrail do funil disparou sozinho (+11,5% na última etapa), como deveria, e o baseline
+foi restabelecido com o motivo escrito ao lado do número.
+
+**O que vale registrar:** com 60 fundos a mais no universo, o teste no passado deu **exatamente
+o mesmo resultado** — p92/p100/p98 e p84/p97/p51, mesmas vantagens em pontos-base. Um método
+cujo veredito virasse com 11% a mais de universo não seria um método. Este não virou.
+
+**Efeito colateral bem-vindo:** a concentração caiu de 8 em 10 fundos numa única gestora para
+6 em 10, com BTG, Daycoval e Inter aparecendo. O texto da entrega foi ajustado de "uma gestora"
+para "poucas gestoras".
 
 ---
 
