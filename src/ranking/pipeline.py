@@ -26,7 +26,7 @@ import polars as pl
 from ranking import config
 from ranking.contracts import quality, schemas
 from ranking.extract import http, manifest, readers
-from ranking.publish import writers
+from ranking.publish import html, writers
 from ranking.rank import eligibility, robustness, scoring
 from ranking.transform import metrics, panel, universe
 
@@ -322,6 +322,10 @@ def run(
     writers.write_json(payload, output_dir / "ranking.json")
     writers.write_markdown(payload, output_dir / "ranking.md", notes=_NOTES)
     (output_dir / "relatorio_qualidade.md").write_text(funnel.to_markdown(), encoding="utf-8")
+    # Regenerated on every run so the page can never be older than the numbers
+    # beside it. The verdict is carried over from the last out-of-sample test
+    # if one has been run into this directory.
+    html.write_html(payload, output_dir / "ranking.html", validation=_last_verdict(output_dir))
 
     return RunResult(
         payload=payload,
@@ -340,6 +344,22 @@ def _latest_date(series: pl.DataFrame, fallback: dt.date) -> dt.date:
         return fallback
     latest = series["data"].max()
     return latest if isinstance(latest, dt.date) else fallback
+
+
+def _last_verdict(output_dir: Path) -> str | None:
+    """The one-line verdict from `validacao.md`, if the backtest has been run.
+
+    Read rather than recomputed: the out-of-sample test takes a minute and
+    rebuilds the ranking three times, which is not something an ordinary run
+    should be made to do.
+    """
+    report = output_dir / "validacao.md"
+    if not report.exists():
+        return None
+    for line in report.read_text(encoding="utf-8").splitlines():
+        if line.startswith("## Veredito:"):
+            return line.removeprefix("## Veredito:").strip()
+    return None
 
 
 def _window_start(reference_date: dt.date, months: int) -> dt.date:

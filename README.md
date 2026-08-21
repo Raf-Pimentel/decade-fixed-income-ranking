@@ -13,10 +13,11 @@ uv run ranking --reference-date 2025-12-31
 ```
 
 One command, about 40 seconds from a cold cache. Downloads roughly 280 MB from the CVM
-and the Central Bank, validates 6.3 million rows, and writes four files to `saida/`:
+and the Central Bank, validates 6.3 million rows, and writes five files to `saida/`:
 
 | File | For | Contains |
 |---|---|---|
+| `ranking.html` | a person, at a glance | the same lists as a self-contained page, regenerated on every run |
 | `ranking.md` | a person | the two top-five lists, why each fund is there, and what the method cannot see |
 | `ranking.json` | another system | the same, plus every metric, percentile and source hash |
 | `relatorio_qualidade.md` | whoever needs to trust the numbers | the eligibility funnel against its expected baseline |

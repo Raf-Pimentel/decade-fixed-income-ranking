@@ -25,6 +25,8 @@ repaired.
 from __future__ import annotations
 
 import datetime as dt
+import shutil
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -210,13 +212,17 @@ def run_all(
 
     rules = load_profiles(config_dir / "profiles.yaml").backtest
     outcomes: list[Outcome] = []
+    # Each cut date rebuilds the whole ranking, which writes a full set of
+    # outputs. Those go to a scratch directory rather than beside the real
+    # deliverables: `saida/` should hold the answer, not the working out.
+    scratch = Path(tempfile.mkdtemp(prefix="backtest-"))
 
     # The forward window is read once from the final run, so that every cut
     # date is measured against the same series and the same end date.
     final = pipeline.run(
         reference_date=end_date,
         config_dir=config_dir,
-        output_dir=output_dir / "_backtest_final",
+        output_dir=scratch / "final",
         cache_dir=cache_dir,
         simulations=simulations,
     )
@@ -228,7 +234,7 @@ def run_all(
         run = pipeline.run(
             reference_date=cut,
             config_dir=config_dir,
-            output_dir=output_dir / f"_backtest_{cut:%Y%m%d}",
+            output_dir=scratch / f"{cut:%Y%m%d}",
             cache_dir=cache_dir,
             simulations=simulations,
         )
@@ -253,6 +259,7 @@ def run_all(
                 )
             )
 
+    shutil.rmtree(scratch, ignore_errors=True)
     return outcomes, verdict(outcomes, rules)
 
 
