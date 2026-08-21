@@ -489,12 +489,26 @@ def _rank_profile(
 
 
 _NOTES = [
-    "**Não olhamos a carteira.** O ranking mede resultado, não conteúdo. Dois fundos com "
-    "números idênticos podem carregar riscos de crédito completamente diferentes.",
-    "**A ordem entre os cinco não é significativa.** A taxa de aparição mede isso.",
-    "**Taxas e prazos não variam na simulação**, então parte da estabilidade é mecânica.",
-    "**Fundos indexados à inflação são medidos contra o CDI**, não contra o IMA-B — "
-    "a série histórica do IMA não é publicada em formato utilizável.",
-    "**O universo só sobreviveu quem publica taxa e prazo.** Não se recomenda o que não "
-    "se consegue precificar.",
+    # Deliberately does NOT repeat the two headline limitations, nor the note
+    # about constant fees inflating apparent stability — the first two are
+    # stated in full above, and the third is now answered with a number by the
+    # "só pelo desempenho" column. A caveat restated twice reads as carelessness
+    # and makes the reader skim the ones that only appear once.
+    "**Só entra fundo que publica taxa e prazo de resgate.** Não se recomenda o que não se "
+    "consegue precificar. Isso exclui 26% dos fundos que passariam nos demais filtros, e a "
+    "exclusão não é aleatória: a obrigação de publicar lâmina alcança fundos de varejo e não "
+    "os restritos a investidor qualificado.",
+    "**Fundos indexados à inflação são medidos contra o CDI**, não contra o IMA-B. A ANBIMA "
+    "não publica a série histórica do IMA em formato utilizável, e isso afeta 8% do universo — "
+    "esses fundos aparecem pior do que são num ano de juros altos.",
+    "**Fundos que fecharam não estão na base.** O universo é, por construção, otimista: quem "
+    "quebrou em 2025 não aparece para ser comparado.",
+    "**A oscilação dos fundos de crédito é subestimada.** Dívida privada no Brasil não é "
+    "remarcada todo dia como uma ação, o que faz esses fundos parecerem mais tranquilos do que "
+    "são — e melhora artificialmente a nota de quem carrega mais risco.",
+    "**A comparação é antes do imposto de renda.** Como quase todos os fundos de renda fixa "
+    "seguem a mesma tabela, a ordem relativa continua justa; o número absoluto não é o que o "
+    "cliente leva para casa.",
+    "**Cada fundo é avaliado sozinho**, não como parte de uma carteira. Não há restrição de "
+    "diversificação, então os cinco escolhidos podem ser parecidos entre si.",
 ]
