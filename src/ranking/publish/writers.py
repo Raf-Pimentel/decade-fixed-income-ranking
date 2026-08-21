@@ -11,11 +11,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ranking.contracts.schemas import RankedFund, RankingOutput
+from ranking.contracts.schemas import ProfileRanking, RankedFund, RankingOutput
 from ranking.publish.format import money as _money
 from ranking.publish.format import percent as _percent
 
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "1.1.0"
 
 
 def describe(fund: RankedFund) -> str:
@@ -44,7 +44,7 @@ def describe(fund: RankedFund) -> str:
     excess = numbers.get("excesso")
     if isinstance(excess, float):
         verb = "acima" if excess >= 0 else "abaixo"
-        parts.append(f"{_percent(abs(excess))} {verb} do CDI em 12 meses")
+        parts.append(f"{_percent(abs(excess))} {verb} do CDI na janela")
 
     fall = numbers.get("pior_queda")
     if isinstance(fall, float):
@@ -61,6 +61,60 @@ def describe(fund: RankedFund) -> str:
     # turn "CDI" into "cdi" and "R$" into "r$".
     sentence = joined[:1].upper() + joined[1:] + "."
     return f"{sentence} Apareceu no top 5 em {fund.appearance_rate:.0%} das simulações."
+
+
+def _weights(weights: dict[str, int]) -> str:
+    """Weights as a line a person can read, heaviest first."""
+    ordered = sorted(weights.items(), key=lambda item: -item[1])
+    return " · ".join(f"`{name}` {weight}" for name, weight in ordered)
+
+
+def _profile_footnotes(profile: ProfileRanking) -> list[str]:
+    """What shaped this particular list, said next to the list itself.
+
+    Three things a reader cannot infer from five names and their numbers: how
+    concentrated the universe they were drawn from already was, which funds
+    were passed over for duplicating one already on the list, and which
+    weighted criterion turned out to have nothing to say once eligibility had
+    done its work.
+    """
+    lines: list[str] = []
+
+    if profile.manager_share:
+        biggest, share = max(profile.manager_share.items(), key=lambda item: item[1])
+        lines += [
+            f"> **De onde vem a concentração.** A maior gestora deste universo é "
+            f"{biggest.title()}, com **{share:.0%}** dos {profile.eligible_universe_size} fundos "
+            "elegíveis. Uma lista que a repete não está concentrando mais do que o universo "
+            "de onde ela saiu — está refletindo o mercado que o investidor de varejo tem.",
+            "",
+        ]
+
+    if profile.displaced:
+        lines += [
+            "**Fundos deixados de fora por repetirem outro da lista.** Mesma gestora e séries "
+            "de cota que diferem por menos de 0,10% ao ano de oscilação: é uma carteira só, "
+            "vendida com dois nomes. O cliente que comprasse os dois teria uma exposição, não "
+            "duas.",
+            "",
+        ]
+        for item in profile.displaced:
+            lines += [
+                f"- *{item.name}* (nota {item.score:.1f}) — repete **{item.duplicate_of}**; "
+                f"as duas séries diferem em {item.tracking_difference:.4%} ao ano.",
+            ]
+        lines += [""]
+
+    if profile.inert_metrics:
+        named = ", ".join(f"`{name}`" for name in profile.inert_metrics)
+        lines += [
+            f"**Peso redistribuído.** {named} não separa nada dentro deste universo — a "
+            "elegibilidade já filtrou por esse critério, e quase todos os fundos que sobraram "
+            "empatam nele. O peso foi para os critérios que ainda distinguem, e os pesos de "
+            f"fato aplicados são {_weights(profile.effective_weights)}.",
+            "",
+        ]
+    return lines
 
 
 def write_json(payload: RankingOutput, path: Path) -> None:
@@ -84,13 +138,19 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
         "# Melhores fundos de renda fixa para o investidor de varejo",
         "",
         f"Data de referência: **{payload.reference_date:%d/%m/%Y}** · janela de "
-        f"**{payload.lookback_months} meses** · referência de comparação: "
-        f"**{payload.benchmark_label}**.",
+        f"**{payload.lookback_months} meses**"
+        + (
+            f" ({payload.window_start:%d/%m/%Y} a {payload.reference_date:%d/%m/%Y})"
+            if payload.window_start
+            else ""
+        )
+        + f" · referência de comparação: **{payload.benchmark_label}**.",
         "",
         "Duas listas, porque a resposta depende de quando você precisa do dinheiro de volta.",
         "",
     ]
 
+    months = payload.lookback_months
     for profile in payload.profiles:
         lines += [
             f"## {profile.label}",
@@ -98,7 +158,7 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
             f"Escolhidos entre **{profile.eligible_universe_size} fundos** que um investidor de "
             "varejo consegue de fato comprar.",
             "",
-            "| # | Fundo | Gestor | Taxa a.a. | Resgate | Rendeu em 12m | vs CDI |",
+            f"| # | Fundo | Gestor | Taxa a.a. | Resgate | Rendeu em {months}m | vs CDI |",
             "|---:|---|---|---:|---:|---:|---:|",
         ]
         for fund in profile.top:
@@ -113,6 +173,7 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
         lines += ["", "### Por que cada um", ""]
         for fund in profile.top:
             lines += [f"**{fund.rank}. {fund.name}** — {fund.rationale}", ""]
+        lines += _profile_footnotes(profile)
 
     lines += [
         "---",
@@ -127,9 +188,9 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
         "privado no Brasil paga um prêmio pequeno e constante por muitos meses e devolve tudo "
         "de uma vez quando o emissor quebra. Nada na série de cotas antecipa isso.",
         "",
-        "**2. Doze meses de histórico não dizem o que acontece em 2026.** O método foi testado "
-        "fora da amostra e funcionou em 2025 (ver `validacao.md`), mas 2025 teve um único "
-        "regime de juros. É evidência, não garantia.",
+        f"**2. {payload.lookback_months} meses de histórico não dizem o que acontece em 2026.** "
+        "O método foi testado fora da amostra e funcionou em 2025 (ver `validacao.md`), mas "
+        "2025 teve um único regime de juros. É evidência, não garantia.",
         "",
         "### E três coisas que valem ser ditas",
         "",
@@ -143,10 +204,10 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
         "gestoras dos grandes bancos praticam taxas muito baixas nos fundos de casa, e custo "
         "é o maior peso. Não é recomendação de concentrar — é o que o critério devolve.",
         "",
-        "**A ordem entre os cinco não é forte.** Com doze meses de dados diários, a incerteza "
-        "sobre o retorno ajustado ao risco é maior que a distância entre os primeiros "
-        "colocados. A lista afirma que estes cinco se sustentam, não que o primeiro é melhor "
-        "que o segundo.",
+        f"**A ordem entre os cinco não é forte.** Com {payload.lookback_months} meses de dados "
+        "diários, a incerteza sobre o retorno ajustado ao risco é maior que a distância entre "
+        "os primeiros colocados. A lista afirma que estes cinco se sustentam, não que o "
+        "primeiro é melhor que o segundo.",
         "",
     ]
 
@@ -163,8 +224,9 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
         "que mais sobreviveram a esse teste, não os de maior nota pontual. A taxa de "
         "sobrevivência de cada um:",
         "",
-        "| Fundo | Perfil | Nota | Apareceu no top 5 | Só pelo desempenho |",
-        "|---|---|---:|---:|---:|",
+        "| Fundo | Perfil | Nota no grupo | Nota no universo | Apareceu no top 5 "
+        "| Só pelo desempenho |",
+        "|---|---|---:|---:|---:|---:|",
     ]
     for profile in payload.profiles:
         for fund in profile.top:
@@ -175,8 +237,18 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
             )
             lines.append(
                 f"| {fund.name[:40]} | {profile.profile_id} | {fund.score:.1f} "
-                f"| {fund.appearance_rate:.0%} | {honest} |"
+                f"| {fund.score_pool:.1f} | {fund.appearance_rate:.0%} | {honest} |"
             )
+    lines += [
+        "",
+        "**Duas notas, porque o percentil é sempre relativo a alguma coisa.** A primeira "
+        "compara o fundo com os pares da mesma categoria ANBIMA, que é a pergunta certa para "
+        "não premiar quem simplesmente tomou mais risco de crédito. Ela é também silenciosa "
+        "sobre a qualidade da categoria: ser o primeiro de dezoito vale 1 num grupo forte e "
+        "num grupo fraco. A segunda nota refaz a conta contra **todo o universo elegível do "
+        "perfil**. Quando as duas se afastam, o fundo é o melhor de um grupo que não é bom — "
+        "e quem lê tem o direito de saber disso antes de comprar.",
+    ]
     lines += [
         "",
         "**A última coluna responde outra pergunta:** este fundo continuaria no top 5 se "

@@ -15,9 +15,12 @@ afford.
 
 from __future__ import annotations
 
+import calendar
 import datetime as dt
 import zipfile
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from functools import partial
 from pathlib import Path
 
 import numpy as np
@@ -27,7 +30,7 @@ from ranking import config
 from ranking.contracts import quality, schemas
 from ranking.extract import http, manifest, readers
 from ranking.publish import html, writers
-from ranking.rank import eligibility, robustness, scoring
+from ranking.rank import eligibility, robustness, scoring, selection
 from ranking.transform import metrics, panel, universe
 
 BUSINESS_DAYS_PER_YEAR = 252
@@ -45,7 +48,27 @@ class RunResult:
     # portfolios from exactly this set, so that the comparison is against the
     # choices the method actually had, not against a different universe.
     eligible_by_profile: dict[str, list[str]] = field(default_factory=dict)
+    # The quotas of the funds that were ranked.
     series: pl.DataFrame | None = None
+    # Every validated quota in the window, for every fund that published one,
+    # whether or not it was eligible. Measuring what happened after a cut date
+    # has to read from here: a fund chosen in March and no longer eligible in
+    # December still had a return, and reading its outcome from the eligible
+    # set would quietly drop exactly the funds whose disappearance is the
+    # result worth knowing.
+    #
+    # Carries the three columns a forward return is computed from and nothing
+    # else. The full panel is millions of rows and the out-of-sample test holds
+    # one of these open while building another, which is the largest thing this
+    # single-node design is ever asked to keep in memory at once.
+    all_series: pl.DataFrame | None = None
+    # The benchmark's daily rates over the same window, so that anything
+    # measured downstream compounds it over the same days as the funds.
+    benchmark_daily: pl.DataFrame | None = None
+    # The admin fee of every fund that was ranked. The out-of-sample test uses
+    # it to draw a control group matched on cost, which is how the part of the
+    # result that is fee arithmetic gets separated from the part that is not.
+    fees: dict[str, float] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -84,6 +107,57 @@ def _extract(archive: Path, member: str, destination: Path) -> Path | None:
         if member not in bundle.namelist():
             return None
         target.write_bytes(bundle.read(member))
+    return target
+
+
+def _read_member(
+    archive: Path,
+    member: str,
+    unpacked: Path,
+    read: Callable[[Path], pl.DataFrame],
+) -> pl.DataFrame | None:
+    path = _extract(archive, member, unpacked)
+    return None if path is None else read(path)
+
+
+def _parsed(
+    cache_dir: Path,
+    name: str,
+    entry: manifest.ManifestEntry,
+    read: Callable[[], pl.DataFrame | None],
+) -> Path | None:
+    """The parsed form of one monthly file, kept beside the archive it came from.
+
+    Parsing is the expensive half of a run. The daily reports arrive as some
+    280 MB of latin-1, semicolon-separated text, and turning that into typed
+    columns costs far more than the download does once the archives are on
+    disk. Each month is parsed once and written back as Parquet under a name
+    carrying the source file's own SHA-256, so the cache is keyed by the bytes
+    that produced it.
+
+    That key is what makes the cache safe rather than merely fast. The CVM
+    restates by overwriting a published file in place, without versioning it;
+    a restated archive hashes differently, misses the cache, and is parsed
+    again. A cache keyed on the file name would serve yesterday's numbers
+    forever and never say so.
+
+    A path comes back rather than a table, and that is the point of the
+    function as much as the caching is. Twelve months of daily reports held as
+    twelve decoded frames while a thirteenth is being decoded is the peak this
+    pipeline has to survive, and it is the only place where a single-node
+    design would run out of room first. Handing back the file lets each month
+    be released as soon as it is written, and lets the panel be assembled from
+    the columnar form in one pass instead of thirteen.
+    """
+    store = cache_dir / "parsed"
+    store.mkdir(parents=True, exist_ok=True)
+    target = store / f"{name}.{entry.sha256[:16]}.parquet"
+    if target.exists():
+        return target
+    frame = read()
+    if frame is None:
+        return None
+    frame.write_parquet(target)
     return target
 
 
@@ -144,13 +218,22 @@ def _download(
     unpacked = cache_dir / "unpacked"
     months = _months_between(start, end)
 
-    daily_frames = []
+    daily_parts: list[Path] = []
     for year, month in months:
+        stem = f"inf_diario_fi_{year}{month:02d}"
         archive = fetch("daily_report", year=year, month=month)
-        member = _extract(archive, f"inf_diario_fi_{year}{month:02d}.csv", unpacked)
-        if member is not None:
-            daily_frames.append(readers.read_daily_report(member))
-    daily = pl.concat(daily_frames)
+        part = _parsed(
+            cache_dir,
+            stem,
+            entries[http.resolve_url(sources["daily_report"].filename, year=year, month=month)],
+            partial(_read_member, archive, f"{stem}.csv", unpacked, readers.read_daily_report),
+        )
+        if part is not None:
+            daily_parts.append(part)
+    # Assembled from the columnar files in a single pass. Every month shares
+    # one schema by construction, so the panel is a scan rather than a stack of
+    # frames held open at once.
+    daily = pl.scan_parquet(daily_parts).collect()
 
     registry_zip = fetch("registry")
     classes = _extract(registry_zip, "registro_classe.csv", unpacked)
@@ -159,25 +242,36 @@ def _download(
         raise RuntimeError("the CVM registry archive is missing its expected members")
     registry = readers.read_registry(classes, funds_file)
 
-    # Every year the window touches, not just the last one. A statement filed
-    # in 2024 is still in force in March 2025 if the fund has not refiled, and
-    # fetching only the reference year would make the earlier cut dates of the
-    # backtest look as though half the universe had never disclosed anything.
-    years = sorted({year for year, _ in months})
+    # A statement stays in force until the fund files a new one, so the window
+    # alone does not bound which files matter: a fund that filed in 2024 and
+    # never refiled is still governed by that filing throughout 2025. Every
+    # year the window touches is fetched, plus the year before it, which is
+    # what keeps a fund that simply had nothing new to say from looking as
+    # though it had never disclosed anything at all.
+    years = sorted({year for year, _ in months} | {start.year - 1})
     statement = pl.concat(
         [readers.read_statement(fetch("statement", year=year)) for year in years],
         how="diagonal",
     )
 
-    factsheets = []
+    factsheet_parts: list[Path] = []
     for year, month in months:
+        stem = f"lamina_fi_{year}{month:02d}"
         archive = fetch("factsheet", year=year, month=month)
-        member = _extract(archive, f"lamina_fi_{year}{month:02d}.csv", unpacked)
-        if member is not None:
-            factsheets.append(readers.read_factsheet(member))
+        part = _parsed(
+            cache_dir,
+            stem,
+            entries[http.resolve_url(sources["factsheet"].filename, year=year, month=month)],
+            partial(_read_member, archive, f"{stem}.csv", unpacked, readers.read_factsheet),
+        )
+        if part is not None:
+            factsheet_parts.append(part)
+    # Diagonally, unlike the daily reports: the factsheet layout gains and
+    # loses columns between months, and a strict concat would refuse a year
+    # that spans one of those changes.
     factsheet = (
-        pl.concat(factsheets, how="diagonal")
-        if factsheets
+        pl.concat([pl.read_parquet(part) for part in factsheet_parts], how="diagonal")
+        if factsheet_parts
         else pl.DataFrame(schema={"cnpj_classe": pl.String, "data": pl.Date})
     )
 
@@ -281,7 +375,7 @@ def run(
     draws = robustness.resample_metrics(
         eligible_series,
         order=order,
-        benchmark_rate=benchmark,
+        benchmark=window,
         simulations=simulations or profiles_config.robustness.simulations,
         block_size=profiles_config.robustness.block_size_days,
         seed=profiles_config.robustness.seed,
@@ -300,6 +394,7 @@ def run(
             simulations,
             draws,
             slot_of,
+            eligible_series,
         )
         rankings.append(ranking)
         eligible_by_profile[profile_id] = eligible
@@ -308,9 +403,18 @@ def run(
         schema_version=writers.SCHEMA_VERSION,
         reference_date=reference_date,
         lookback_months=months,
+        window_start=start,
         sources=inputs.manifest,
         profiles=rankings,
         benchmark_label="CDI",
+        # Stated per peer group rather than once, because the field is what a
+        # downstream consumer reads to know what a fund's excess return is
+        # measured against. Every group names CDI here, and naming it group by
+        # group is what makes that a published fact instead of an assumption
+        # the reader has to make.
+        benchmark_by_group=dict.fromkeys(
+            sorted(str(name) for name in funds["classificacao_anbima"].unique() if name), "CDI"
+        ),
     )
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -330,7 +434,100 @@ def run(
         quarantined_share=validated.quarantined_share,
         eligible_by_profile=eligible_by_profile,
         series=eligible_series,
+        all_series=series.select("cnpj_classe", "data", "valor_cota"),
+        benchmark_daily=window,
+        fees={
+            str(cnpj): float(fee)
+            for cnpj, fee in zip(funds["cnpj_classe"], funds["taxa_adm"], strict=True)
+            if fee is not None
+        },
     )
+
+
+def _duplicate_map(
+    series: pl.DataFrame,
+    funds: pl.DataFrame,
+    max_tracking_difference: float,
+    min_overlap_days: int,
+) -> dict[str, dict[str, float]]:
+    """Which funds are the same portfolio under another name.
+
+    Returns, per fund, the funds it duplicates and how far apart they are. Two
+    funds qualify when the same manager runs both and the annualised volatility
+    of the difference between their daily returns falls below the threshold —
+    the reasoning for that pair of conditions is in `rank/selection.py`.
+
+    Every pair is measured on the days both funds actually published a quota
+    and on no others. Aligning the whole panel to its shortest member instead
+    would hand every comparison the same handful of days, and any two series
+    agree over a handful of days. The variance of the difference is obtained
+    through a presence mask in three matrix products rather than one pass per
+    pair, which matters because the simulation applies this same rule a
+    thousand times and must not recompute it.
+    """
+    manager_of = dict(zip(funds["cnpj_classe"].to_list(), funds["gestor"].to_list(), strict=True))
+    panel = (
+        series.filter(pl.col("cnpj_classe").is_in(set(manager_of)))
+        .sort("data")
+        .pivot(on="cnpj_classe", index="data", values="valor_cota", aggregate_function="last")
+    )
+    columns = [name for name in panel.columns if name != "data"]
+    if len(columns) < 2:
+        return {}
+
+    quotas = panel.select(columns).to_numpy().astype(float)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        values = quotas[1:] / quotas[:-1] - 1.0
+    present = np.isfinite(values)
+    values = np.where(present, values, 0.0)
+    mask = present.astype(float)
+
+    counts = mask.T @ mask
+    sums = values.T @ mask
+    squares = (values**2).T @ mask
+    products = values.T @ values
+
+    with np.errstate(divide="ignore", invalid="ignore"):
+        # var(a - b) over the days the pair shares, annualised.
+        mean_square = (squares + squares.T - 2 * products) / counts
+        mean_gap = (sums - sums.T) / counts
+        distance = np.sqrt(np.maximum(mean_square - mean_gap**2, 0.0)) * np.sqrt(
+            BUSINESS_DAYS_PER_YEAR
+        )
+    distance = np.nan_to_num(distance, nan=np.inf, posinf=np.inf)
+    distance[counts < min_overlap_days] = np.inf
+    np.fill_diagonal(distance, np.inf)
+
+    twins: dict[str, dict[str, float]] = {}
+    for position, cnpj in enumerate(columns):
+        manager = manager_of.get(cnpj)
+        if manager is None:
+            continue
+        matched = np.flatnonzero(distance[position] <= max_tracking_difference)
+        pairs = {
+            columns[other]: float(distance[position, other])
+            for other in matched
+            if manager_of.get(columns[other]) == manager
+        }
+        if pairs:
+            twins[cnpj] = pairs
+    return twins
+
+
+def _tax_regime(name: str | None, peer_group: str | None, long_term: str | None) -> str:
+    """How the client is taxed on this fund, as far as public data can say.
+
+    Debentures issued under the infrastructure incentive are exempt from income
+    tax for individuals, so a fund built on them is not comparable, after tax,
+    to a fund that follows the ordinary regressive table — even though the two
+    sit in the same ANBIMA category and the delivery reports both before tax.
+    Naming the regime per fund is what keeps that difference visible instead of
+    being absorbed into a sentence about relative order holding.
+    """
+    haystack = f"{name or ''} {peer_group or ''}".upper()
+    if "INCENTIVAD" in haystack or "INFRA" in haystack:
+        return "isento_pf_incentivado"
+    return "tabela_regressiva_longo_prazo" if long_term == "S" else "tabela_regressiva"
 
 
 def _latest_date(series: pl.DataFrame, fallback: dt.date) -> dt.date:
@@ -358,11 +555,24 @@ def _last_verdict(output_dir: Path) -> str | None:
 
 
 def _window_start(reference_date: dt.date, months: int) -> dt.date:
+    """The first day of a window that is exactly `months` long.
+
+    The window is closed at both ends and counted back from the reference date
+    itself, not from the start of its month: twelve months ending on
+    31/12/2025 begin on 01/01/2025 and hold about 249 business days.
+
+    Counting back to the first day of the month twelve months earlier would
+    begin on 01/12/2024 and hand thirteen months of quotas to something
+    labelled twelve — a return the reader cannot reconcile against anything
+    the fund publishes, and a benchmark a full percentage point away from the
+    CDI of the calendar year.
+    """
     year = reference_date.year - (months // 12)
     month = reference_date.month - (months % 12)
     if month <= 0:
         year, month = year - 1, month + 12
-    return dt.date(year, month, 1)
+    day = min(reference_date.day, calendar.monthrange(year, month)[1])
+    return dt.date(year, month, day) + dt.timedelta(days=1)
 
 
 def _rank_profile(
@@ -374,6 +584,7 @@ def _rank_profile(
     simulations: int | None = None,
     draws: dict[str, np.ndarray] | None = None,
     slot_of: dict[str, int] | None = None,
+    pool_series: pl.DataFrame | None = None,
 ) -> tuple[schemas.ProfileRanking, list[str]]:
     """Eligibility first, then percentiles — never the other way round."""
     pool = eligibility.for_profile(funds, profile.eligibility)
@@ -386,52 +597,107 @@ def _rank_profile(
                 label=profile.label,
                 eligible_universe_size=0,
                 weights=profile.weights,
+                effective_weights=profile.weights,
                 top=[],
                 top_n=top_n,
             ),
             eligible,
         )
 
+    # Weight only what can still discriminate. A criterion already enforced as
+    # a filter arrives here with every fund tied on it, and a weight spent on a
+    # tie is a weight subtracted from the metrics that could separate.
+    weights, inert = scoring.effective_weights(
+        pool, profile.weights, profiles_config.scoring.min_dispersion
+    )
+
     grouped = scoring.merge_small_groups(
         pool, group="classificacao_anbima", min_size=universe_config.peer_groups.min_size
     )
     directions = {name: spec.direction for name, spec in profiles_config.metrics.items()}
+    clip = profiles_config.scoring.winsorise
     scored = grouped
-    for name in profile.weights:
+    for name in weights:
         if name in scored.columns:
-            scored = scoring.winsorise(scored, metric=name, lower=0.01, upper=0.99)
+            scored = scoring.winsorise(scored, metric=name, lower=clip.lower, upper=clip.upper)
             scored = scoring.peer_percentile(
                 scored, metric=name, group="peer_group_effective", direction=directions[name]
             )
-    scored = scoring.total_score(scored, profile.weights)
+    scored = scoring.total_score(scored, weights)
+
+    # The same weighted score, computed against the whole eligible pool instead
+    # of the peer group. Percentiles inside a category are the right way to ask
+    # whether a fund is good for what it is; they are also silent about whether
+    # the category itself is any good, because being first of eighteen in a
+    # weak group and first of eighteen in a strong one both score one. Putting
+    # the two numbers side by side is what lets a reader tell those apart, and
+    # it is the honest way to publish a list that mixes categories: the peer
+    # score decides the ranking, and the pool score says what that is worth
+    # against everything the profile could have bought.
+    pool_scored = grouped.with_columns(
+        pl.lit(scoring.GLOBAL_PEER_GROUP).alias("peer_group_effective")
+    )
+    for name in weights:
+        if name in pool_scored.columns:
+            pool_scored = scoring.winsorise(
+                pool_scored, metric=name, lower=clip.lower, upper=clip.upper
+            )
+            pool_scored = scoring.peer_percentile(
+                pool_scored, metric=name, group="peer_group_effective", direction=directions[name]
+            )
+    pool_scored = scoring.total_score(pool_scored, weights)
+    score_pool = dict(
+        zip(pool_scored["cnpj_classe"].to_list(), pool_scored["score"].to_list(), strict=True)
+    )
+
+    duplicates = _duplicate_map(
+        pool_series if pool_series is not None else pl.DataFrame(),
+        pool,
+        profiles_config.selection.max_tracking_difference,
+        profiles_config.selection.min_overlap_days,
+    )
+    identifiers = scored["cnpj_classe"].to_list()
 
     # The draws were computed over the full eligible set, so they are cut down
     # to this profile's funds, in this frame's row order.
     profile_draws = None
     if draws and slot_of:
-        columns = [slot_of[cnpj] for cnpj in scored["cnpj_classe"].to_list()]
+        columns = [slot_of[cnpj] for cnpj in identifiers]
         profile_draws = {name: array[:, columns] for name, array in draws.items()}
 
     stability = robustness.simulate(
         scored,
-        weights=profile.weights,
+        weights=weights,
         jitter=profile.jitter,
         # The metrics that move between simulations are the ones derived from
         # the return series. Naming them lets the report separate real
         # robustness from the mechanical kind that a constant fee provides.
         varying_metrics=list(profile_draws) if profile_draws else None,
         metric_draws=profile_draws,
-        metrics_config={name: directions[name] for name in profile.weights},
+        metrics_config={name: directions[name] for name in weights},
         group="peer_group_effective",
         seed=profiles_config.robustness.seed,
         simulations=simulations or profiles_config.robustness.simulations,
         top_n=top_n,
+        duplicates={name: frozenset(pairs) for name, pairs in duplicates.items()},
     )
     scored = scored.join(stability, on="cnpj_classe", how="left")
 
     # Published in order of how often a fund survived, not of where it landed
-    # once. See decision D-011.
-    best = scored.sort(["appearance_rate", "score"], descending=True).head(top_n)
+    # once, and then trimmed to five funds rather than five scores: two share
+    # classes of one portfolio are two rows here and one exposure in a client's
+    # account. See decisions D-011 and D-040.
+    ordered = scored.sort(["appearance_rate", "score"], descending=True)
+    chosen, displaced = selection.pick_distinct(
+        ordered["cnpj_classe"].to_list(), duplicates, top_n=top_n
+    )
+    names = dict(
+        zip(ordered["cnpj_classe"].to_list(), ordered["denominacao_social"].to_list(), strict=True)
+    )
+    scores = dict(zip(ordered["cnpj_classe"].to_list(), ordered["score"].to_list(), strict=True))
+    best = ordered.filter(pl.col("cnpj_classe").is_in(chosen)).sort(
+        pl.col("cnpj_classe").replace_strict({c: i for i, c in enumerate(chosen)}, default=99)
+    )
 
     ranked: list[schemas.RankedFund] = []
     for position, row in enumerate(best.iter_rows(named=True), start=1):
@@ -442,6 +708,7 @@ def _rank_profile(
             manager=row.get("gestor"),
             peer_group=row.get("peer_group_effective"),
             score=float(row["score"]),
+            score_pool=float(score_pool.get(row["cnpj_classe"], row["score"])),
             appearance_rate=float(row.get("appearance_rate") or 0.0),
             appearance_rate_variable_only=(
                 float(row["appearance_rate_variable_only"])
@@ -465,10 +732,17 @@ def _rank_profile(
                     "fonte_taxa",
                     "taxa_zero_declarada",
                 )
+            }
+            | {
+                "regime_tributario": _tax_regime(
+                    row.get("denominacao_social"),
+                    row.get("classificacao_anbima"),
+                    row.get("tributacao_longo_prazo"),
+                )
             },
             percentiles={
                 name: float(row[f"{name}_pct"])
-                for name in profile.weights
+                for name in weights
                 if f"{name}_pct" in row and row[f"{name}_pct"] is not None
             },
         )
@@ -481,11 +755,42 @@ def _rank_profile(
             label=profile.label,
             eligible_universe_size=len(pool),
             weights=profile.weights,
+            effective_weights=weights,
+            inert_metrics=inert,
+            displaced=[
+                schemas.Displaced(
+                    cnpj_classe=item.cnpj_classe,
+                    name=names.get(item.cnpj_classe) or item.cnpj_classe,
+                    score=float(scores.get(item.cnpj_classe) or 0.0),
+                    duplicate_of=names.get(item.duplicate_of) or item.duplicate_of,
+                    tracking_difference=item.tracking_difference,
+                )
+                for item in displaced
+            ],
+            manager_share=_manager_share(pool),
             top=ranked,
             top_n=top_n,
         ),
         eligible,
     )
+
+
+def _manager_share(pool: pl.DataFrame) -> dict[str, float]:
+    """How concentrated the pool a profile chose from already is.
+
+    A list drawn from a universe where one house runs a quarter of the funds
+    will name that house repeatedly, and without this number the reader cannot
+    tell a ranking that concentrated from a universe that already was. Only the
+    largest few are reported; the tail says nothing.
+    """
+    if pool.is_empty() or "gestor" not in pool.columns:
+        return {}
+    counted = pool.group_by("gestor").len().sort("len", descending=True).head(5)
+    return {
+        str(name): round(int(size) / len(pool), 4)
+        for name, size in zip(counted["gestor"], counted["len"], strict=True)
+        if name is not None
+    }
 
 
 _NOTES = [
@@ -498,17 +803,27 @@ _NOTES = [
     "consegue precificar. Isso exclui 26% dos fundos que passariam nos demais filtros, e a "
     "exclusão não é aleatória: a obrigação de publicar lâmina alcança fundos de varejo e não "
     "os restritos a investidor qualificado.",
-    "**Fundos indexados à inflação são medidos contra o CDI**, não contra o IMA-B. A ANBIMA "
-    "não publica a série histórica do IMA em formato utilizável, e isso afeta 8% do universo — "
-    "esses fundos aparecem pior do que são num ano de juros altos.",
+    "**Todos os fundos são medidos contra o CDI**, inclusive os indexados à inflação. A ANBIMA "
+    "publica o IMA como foto do dia, não como série histórica, então uma janela que termina "
+    "numa data passada não se reconstrói a partir dele. Como a comparação é feita dentro do "
+    "grupo de pares, um benchmark deslocado move todo o grupo junto e não altera a ordem por "
+    "excesso; o que ele altera é o retorno por unidade de risco, que divide esse excesso por "
+    "volatilidades diferentes. Afeta 8% do universo e uma das duas métricas de desempenho.",
+    "**O imposto de renda fica de fora, e isso não é neutro para todo mundo.** A maioria dos "
+    "fundos segue a mesma tabela regressiva, e entre eles a ordem relativa se mantém. Fundos "
+    "incentivados de infraestrutura são **isentos para pessoa física**, então o que o cliente "
+    "leva para casa é maior do que a tabela mostra — e a comparação bruta os subestima. O "
+    "regime de cada fundo está no `ranking.json`, no campo `regime_tributario`.",
     "**Fundos que fecharam não estão na base.** O universo é, por construção, otimista: quem "
     "quebrou em 2025 não aparece para ser comparado.",
     "**A oscilação dos fundos de crédito é subestimada.** Dívida privada no Brasil não é "
     "remarcada todo dia como uma ação, o que faz esses fundos parecerem mais tranquilos do que "
     "são — e melhora artificialmente a nota de quem carrega mais risco.",
-    "**A comparação é antes do imposto de renda.** Como quase todos os fundos de renda fixa "
-    "seguem a mesma tabela, a ordem relativa continua justa; o número absoluto não é o que o "
-    "cliente leva para casa.",
+    "**A taxa é contada duas vezes, de propósito.** A cota do informe diário já vem líquida, "
+    "então o retorno em excesso ali dentro já pune o fundo caro. Dar à taxa o maior peso conta "
+    "o mesmo custo de novo — e a segunda contagem é a que fala sobre 2026, enquanto a primeira "
+    "fala sobre 2025. É escolha, não descuido.",
     "**Cada fundo é avaliado sozinho**, não como parte de uma carteira. Não há restrição de "
-    "diversificação, então os cinco escolhidos podem ser parecidos entre si.",
+    "diversificação além de não repetir a mesma carteira duas vezes, então os cinco escolhidos "
+    "podem ser parecidos entre si sem serem idênticos.",
 ]

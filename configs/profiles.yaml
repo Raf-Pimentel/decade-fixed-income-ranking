@@ -35,7 +35,7 @@ profiles:
     label: "Retail — emergency reserve"
     description: >
       Money that may be needed at any moment. Capital preservation and cost
-      dominate; return is a secondary criterion. 492 funds qualify.
+      dominate; return is a secondary criterion.
     eligibility:
       target_investor: ["Público Geral"]
       max_minimum_investment_brl: 5_000
@@ -59,8 +59,8 @@ profiles:
     label: "Retail — two years or more"
     description: >
       Money with a horizon. Risk-adjusted return matters properly here, but
-      cost still carries the single largest weight. 724 funds qualify — every
-      fund the liquidity profile can reach, plus everything up to D+30.
+      cost still carries the single largest weight. Every fund the liquidity
+      profile can reach, plus everything up to D+30.
     eligibility:
       target_investor: ["Público Geral"]
       max_minimum_investment_brl: 50_000
@@ -86,6 +86,42 @@ profiles:
   # not restricted ones. Ranking that sample would produce a list biased by
   # regulation rather than by quality. See D-032. Re-enabling it is a matter of
   # adding a profile block here; the eligibility machinery already supports it.
+
+# How percentiles become one number.
+scoring:
+  # Winsorising before ranking: one fund with a mis-stated quota should not
+  # define the top of the scale for everybody else. Clipping rather than
+  # dropping keeps that fund in the ranking, where it can be seen.
+  winsorise: {lower: 0.01, upper: 0.99}
+  # A metric has to separate funds before a weight attached to it means
+  # anything. Below this share of funds sitting off the single most common
+  # value, the metric is treated as inert: its weight is redistributed across
+  # the metrics that do vary, and the output names it. Eligibility and scoring
+  # ask different questions, and a criterion that has already been enforced as
+  # a filter can arrive at the scoring step with nothing left to say.
+  min_dispersion: 0.05
+
+# How five funds are chosen, rather than five scores.
+#
+# One manager routinely sells one portfolio through a row of distribution
+# wrappers — Caixa offers a dozen over a single fixed-income portfolio. Each is
+# a separate class in the registry, each is eligible, and each scores almost
+# the same. A top five holding two of them offers four exposures and does not
+# say so.
+selection:
+  # Two funds count as one when the same manager runs both AND the difference
+  # between their daily returns barely moves. Measured as the annualised
+  # volatility of that difference: two wrappers of one portfolio differ only by
+  # a fee, which is a constant drag and adds no variance. Measured on this
+  # universe, the two known Itaú twins sit at 0.062% and the tightest pairs at
+  # 0.0001%, so a tenth of a percent a year catches them with room to spare.
+  #
+  # Correlation cannot do this job here and is deliberately not used: every
+  # post-fixed fund tracks the same overnight curve and correlates above 0.99
+  # with every other, so any threshold meaningful enough to catch a twin also
+  # marks half the universe as duplicated.
+  max_tracking_difference: 0.001   # 0.10% a.a.
+  min_overlap_days: 60             # below this, two series have not met enough
 
 # How we test whether the ranking is real or noise (decision D-011).
 robustness:

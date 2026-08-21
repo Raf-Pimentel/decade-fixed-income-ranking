@@ -54,6 +54,14 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-036](#d-036) | 20/08 | 5.5 | **O teste no passado validou o método — e corrigi dois erros contra mim** | 🎥📊 |
 | [D-037](#d-037) | 20/08 | 6 | Extrato multi-ano ampliou o universo; o guardrail pegou e o resultado não mudou | 📊 |
 | [D-038](#d-038) | 21/08 | 6 | **Publicar a taxa só-desempenho revelou que a lista é, sobretudo, de custo** | 🎥📊 |
+| [D-039](#d-039) | 21/08 | 6 | A janela mede exatamente os meses que declara | 🎥📊 |
+| [D-040](#d-040) | 21/08 | 6 | **Cinco fundos, não cinco notas: uma carteira ocupa uma vaga** | 🎥📊 |
+| [D-041](#d-041) | 21/08 | 6 | Peso só vale para critério que separa | 📊 |
+| [D-042](#d-042) | 21/08 | 6 | Duas notas por fundo: dentro do grupo e contra o universo | 🎥 |
+| [D-043](#d-043) | 21/08 | 6 | A reamostragem sorteia por fundo, e o benchmark vai junto | 🎥📊 |
+| [D-044](#d-044) | 21/08 | 6 | **O teste no passado mede o universo inteiro, e diz contra o que** | 🎥📊 |
+| [D-045](#d-045) | 21/08 | 6 | Os entregáveis moram no repositório | 📊 |
+| [D-046](#d-046) | 21/08 | 6 | Testes que leem o arquivo entregue | 🎥 |
 
 ---
 
@@ -332,7 +340,7 @@ fundos sorteados ao acaso**. A terceira é a que importa: responde se meu métod
 É o controle que quase ninguém faz.
 
 **Por que cabe no prazo:** se o point-in-time estiver correto, cada rodada é um comando —
-`python -m ranking --data-ref 2025-06-30`. Nenhum código novo. O custo está em medir e escrever,
+`uv run ranking --reference-date 2025-06-30`. Nenhum código novo. O custo está em medir e escrever,
 não em programar. Isso é o retorno concreto da disciplina de point-in-time, que até agora era
 só uma boa prática no papel. **E o teste audita a si mesmo:** se for difícil de rodar, é porque
 o point-in-time está furado.
@@ -1002,6 +1010,237 @@ lista que é escolhido tanto por custo quanto por desempenho.
 
 ---
 
+## D-039 — A janela mede exatamente os meses que ela declara 📊🎥
+
+**Situação:** uma janela de doze meses terminando em 31/12/2025 pode começar em dois
+lugares — no primeiro dia do mês doze meses atrás (01/12/2024) ou no dia seguinte à
+mesma data doze meses atrás (01/01/2025). A diferença é um mês inteiro.
+
+**Decisão:** a janela é fechada nas duas pontas e contada a partir da própria data de
+referência. Doze meses terminando em 31/12/2025 começam em **01/01/2025** e contêm
+**252 dias úteis**.
+
+**Por quê:** a alternativa não quebra nada. Fundo e benchmark são compostos sobre a
+mesma janela, então o excesso continua internamente coerente e nenhum teste fica
+vermelho. O que ela produz é um retorno de treze meses publicado sob a palavra "doze",
+que ninguém consegue reconciliar com o que o próprio fundo divulga, e um CDI de 15,39%
+onde o ano-calendário fez 14,3242%. É o pior tipo de erro que este projeto pode ter:
+invisível por dentro, checável por fora.
+
+**O que garante isso:** `tests/unit/test_window.py` verifica a propriedade para 1, 3, 6,
+12, 24 e 36 meses, incluindo os casos chatos — 31 de março menos um mês não tem 31 de
+fevereiro para cair, e 29 de fevereiro só existe em ano bissexto. E
+`test_published_output.py` refaz a conta a partir do `ranking.json` entregue: a distância
+entre `window_start` e `reference_date` tem que bater com `lookback_months`.
+
+**Consequência de contrato:** `window_start` é publicado no JSON. Um consumidor não tem
+como conferir uma contagem de meses; tem como conferir duas datas.
+
+---
+
+## D-040 — Cinco fundos, não cinco notas 🎥📊
+
+**Situação:** uma gestora brasileira roda uma carteira só e a vende através de várias
+classes de distribuição. Medi: a Caixa oferece **doze** sobre uma única carteira de renda
+fixa — Executivo, Clássico, Personal, Investidor, Especial, Empreender. Cada uma é uma
+classe separada no registro da CVM, cada uma é elegível, e cada uma tira quase a mesma
+nota, porque são quase o mesmo fundo.
+
+Uma nota ranqueia fundos um a um. Uma lista de cinco é consumida de uma vez, por alguém
+que vai carregar os cinco. São perguntas diferentes, e um Top 5 com dois invólucros da
+mesma carteira entrega quatro exposições sem avisar.
+
+**Decisão:** o ranking escolhe os cinco primeiros que sejam **distinguíveis entre si**.
+Dois fundos contam como um quando a mesma gestora roda os dois **e** a diferença entre
+suas séries de retorno quase não oscila.
+
+**A medida é a diferença, não a correlação — e isso importa.** Correlação não resolve este
+problema neste mercado: todo fundo pós-fixado segue a mesma curva de um dia e correlaciona
+acima de 0,99 com todos os outros. Medi no universo elegível: mesmo a 0,999, a correlação
+marca 161 fundos como duplicata de alguma coisa. A pergunta certa não é *estes dois se
+movem juntos* e sim *quanto estes dois discordam*. Dois invólucros de uma carteira diferem
+só pela taxa, que é um arrasto constante e não gera variância nenhuma.
+
+**O limiar, medido:** volatilidade anualizada da diferença abaixo de **0,10% ao ano**. Os
+gêmeos conhecidos — Itaú Janeiro e Itaú Private Janeiro, CNPJs sequenciais, mesma carteira
+— ficam em 0,062%. Os pares mais apertados do universo ficam em 0,0001%. Exigir a mesma
+gestora é o que separa "uma casa vendendo uma carteira duas vezes" de "duas casas rodando
+fundos Selic parecidos", que para o cliente é escolha de verdade.
+
+**A ordem nunca é rearranjada.** A regra decide se um candidato acrescenta algo ao que já
+foi aceito, nunca promove ninguém por cima de quem estava melhor colocado.
+
+**Nada fica escondido:** o fundo deixado de fora é publicado ao lado da lista, com nome, o
+fundo que ele repete e a distância entre os dois. Na entrega de 31/12/2025 é o BTG Pactual
+Tesouro Selic, que repete o BTG Pactual CDB I a 0,036% ao ano de distância.
+
+**A simulação aplica a mesma regra.** Contar sobrevivência sobre uma lista construída por
+um critério diferente do que produz a resposta mediria a estabilidade de algo que ninguém
+vê.
+
+---
+
+## D-041 — Peso só vale para critério que separa 📊
+
+**Situação:** o perfil de liquidez filtra para resgate em até um dia e depois dá peso 10
+ao prazo de resgate. Medido no universo elegível: **214 dos 218 fundos liquidam em D+0**.
+Todos empatam, o percentil sai 0,5 para todo mundo, e dez dos cem pontos não decidem nada.
+
+**Decisão:** um critério cuja dispersão no universo elegível fique abaixo de um piso
+declarado é tratado como inerte. Seu peso é redistribuído proporcionalmente entre os
+critérios que ainda distinguem, e o `ranking.json` nomeia o critério e publica os pesos
+**de fato aplicados** ao lado dos declarados.
+
+**Por quê:** elegibilidade e pontuação respondem perguntas diferentes, e um critério pode
+ser decisivo na primeira e vazio na segunda. Prazo de resgate já fez o trabalho dele como
+filtro; como critério ele não tem mais o que dizer. Carregar o peso morto em silêncio
+significa que os outros critérios valem 11% mais do que o arquivo de configuração afirma,
+sem que ninguém consiga ver isso.
+
+**Por que isso não é mexer nos pesos depois de ver o resultado.** A regra 11 proíbe ajustar
+peso, corte ou métrica em função do que o teste devolveu. Isto é uma regra sobre a **forma
+do dado**, aplicada igual a todo perfil e a toda data de referência, e escrita como
+`min_dispersion` em YAML. Ninguém escolheu qual critério cai: o universo é que decide, a
+cada execução. No perfil de prazo, com resgate espalhado de D+0 a D+30, nenhum critério é
+inerte e os pesos aplicados são os declarados.
+
+---
+
+## D-042 — Duas notas por fundo: dentro do grupo e contra o universo 🎥
+
+**Situação:** a D-008 estabeleceu que cada métrica vira posição relativa dentro do grupo
+ANBIMA, para não premiar quem tomou mais risco de crédito. Essa é a pergunta certa e ela é
+**silenciosa sobre o grupo**: ser o primeiro de dezoito vale 1 num grupo forte e num grupo
+fraco. O Top 5 final mistura grupos e soma esses percentis como se fossem comensuráveis.
+
+**Decisão:** todo fundo publica duas notas — a nota contra os pares da categoria, que
+decide o ranking, e a mesma nota recalculada contra **todo o universo elegível do perfil**.
+
+**Por quê:** é a informação que falta para ler a lista, e ela é barata. Na entrega de
+31/12/2025 o Daycoval Títulos Públicos tira 83,2 no grupo e **66,9** no universo: é o
+melhor de uma categoria que não é boa. O Itaú Janeiro tira 89,9 e 86,8, e as duas notas
+próximas dizem outra coisa — ele é bom contra os pares e continua bom contra tudo.
+
+**O que eu não faço:** inventar um termo de qualidade de grupo para "corrigir" a soma.
+Isso exigiria afirmar que uma categoria vale mais que outra, que é exatamente o julgamento
+que a comparação intra-grupo existe para não ter que fazer. Publicar as duas notas entrega
+o julgamento a quem lê.
+
+---
+
+## D-043 — A reamostragem sorteia por fundo, e o benchmark vai junto 🎥📊
+
+**Situação:** a simulação de robustez (D-011) responde quanto da vantagem de um fundo
+sobre outro é sorte de amostra. Três detalhes de implementação decidem se a resposta
+significa alguma coisa.
+
+**Decisão 1 — cada fundo sorteia os próprios blocos.** A grandeza estimada é
+idiossincrática: quanto do resultado *deste* fundo é acaso. Dar a todos o mesmo calendário
+reamostrado preserva o comovimento do mercado, o que soa conservador e é o contrário —
+move a seção transversal inteira junta, deixa a ordem relativa quase intacta, e devolve
+taxas de sobrevivência perto de 100% para um ranking que ninguém estressou. O preço é que
+um ano simulado não contém crash comum; está declarado e é o erro mais barato dos dois.
+
+**Decisão 2 — o benchmark é reamostrado com o fundo.** Excesso é diferença entre duas
+séries compostas, então os dois lados precisam ser compostos sobre os mesmos dias. Medir um
+ano reamostrado do fundo contra o CDI do ano-calendário enviesa todo excesso — e como
+retorno por unidade de risco divide essa diferença pela volatilidade, um viés que se
+cancelaria num ranking por excesso **não se cancela ali**. Ele reordena, a favor dos fundos
+mais voláteis. É o mesmo mecanismo da D-030, aplicado a outro lugar.
+
+**Decisão 3 — cada fundo mantém o próprio comprimento de histórico.** Truncar o painel
+inteiro no fundo mais curto jogaria fora um quinto da evidência de todo mundo para acomodar
+o mais novo. O painel é alinhado à esquerda e preenchido, e o preenchimento fica fora de
+toda estatística em vez de ser contado como calmaria.
+
+**Efeito medido:** as taxas de aparição saem do aglomerado de 97–100% e passam a ocupar a
+faixa de 31% a 99%. O ranking não ficou menos confiável — ele parou de afirmar uma
+confiança que não tinha.
+
+---
+
+## D-044 — O teste no passado mede o universo inteiro, e diz contra o que 🎥📊
+
+**Situação:** a D-017 desenhou o teste fora da amostra com três comparações. Duas escolhas
+de implementação decidem se ele é um teste ou um espelho.
+
+**Decisão 1 — os retornos futuros são lidos do painel validado completo**, não do
+universo elegível na data final. Um fundo escolhido em março que encolheu abaixo do corte
+de cotistas até dezembro **continua tendo tido um retorno**. Ler o resultado do conjunto
+sobrevivente o descarta em silêncio da média, e a média passa a ser dividida pelos fundos
+que deram certo. É o viés de sobrevivência que este projeto critica em três documentos,
+aplicado ao teste que existe para detectá-lo.
+
+A garantia está escrita como propriedade em `test_out_of_sample.py`: o divisor é sempre o
+número de fundos que o método escolheu, nunca o número deles que era mensurável. Um fundo
+sem cota nenhuma depois do corte entra com o último valor conhecido, conforme a política
+congelada, e sai nomeado no relatório.
+
+**Decisão 2 — o CDI é composto sobre exatamente os dias medidos** e publicado na tabela.
+Uma comparação anunciada e não calculada é pior do que uma comparação ausente.
+
+**Decisão 3 — entra um controle casado por custo.** A taxa sai da cota antes de qualquer
+medição, então um ranking cujo maior peso é a taxa ganha parte de qualquer vantagem por
+aritmética conhecida antes do teste. O relatório repete o sorteio usando só o quartil mais
+barato do mesmo universo.
+
+**Esse controle é reportado, não faz parte do critério** — que foi congelado antes de ele
+existir. E ele **não é experimento limpo**: segurar o custo também muda a composição do
+grupo, porque o quartil mais barato é dominado por fundo de título público, que rende bruto
+menos que crédito. É um segundo ângulo, não uma decomposição entre custo e habilidade, e o
+relatório diz isso com essas palavras.
+
+**O resultado, como ele saiu:** veredito de aprovação — liquidez 2 de 3, prazo 3 de 3,
+contra o critério de 2 de 3 por perfil. E, na mesma tabela: o Top 5 ficou acima da mediana
+dos elegíveis em **dois de seis** recortes, e **abaixo do CDI nos seis**. A vantagem sobre a
+mediana vai de −15 a +21 pontos-base. O texto do relatório é gerado a partir desses números
+em vez de afirmar uma leitura fixa, justamente para que ele não possa continuar otimista
+quando os números deixarem de ser.
+
+---
+
+## D-045 — Os entregáveis moram no repositório 📊
+
+**Situação:** o enunciado pede `ranking.md` no repositório GitHub. Um arquivo que só passa
+a existir depois que alguém roda o pipeline não está entregue — e um README que aponta para
+ele vira link quebrado para quem clona.
+
+**Decisão:** `saida/` é versionada. `dados/` não.
+
+**Por quê:** a distinção é entre o que prova o resultado e o que o reconstrói. Os dados
+brutos são pesados, reconstruíveis, e sujeitos a retificação silenciosa pela CVM — o que os
+prende à execução não é o arquivo, é o hash SHA-256 de cada fonte, que já viaja dentro do
+`ranking.json`. O resultado é o produto.
+
+A execução semanal comita direto em `saida/`, no mesmo lugar para onde o README, o desenho
+e a lista de entregáveis do enunciado apontam. Uma segunda cópia sob outro nome significaria
+duas respostas no repositório e nenhuma forma de saber qual é a atual.
+
+---
+
+## D-046 — Testes que leem o arquivo entregue 🎥
+
+**Situação:** a suíte cobre invariantes financeiras, contratos de fronteira e as doze
+armadilhas da CVM. Tudo isso testa **componentes contra fixtures**, e isso deixa passar uma
+classe inteira de defeito: a maquinaria funcionando perfeitamente e a resposta publicada
+ainda assim errada.
+
+Uma janela rotulada com o número errado de meses, um Top 5 com a mesma carteira duas vezes,
+um critério com peso que empata para todo fundo do universo, um campo de contrato publicado
+vazio — nenhum quebra função nenhuma, e nenhum aparece numa suíte verde que só olha para
+dentro.
+
+**Decisão:** `tests/integration/test_published_output.py` abre o `ranking.json` e o
+`ranking.md` entregues e afirma contra o produto. Que a janela tem a duração que o rótulo
+promete. Que nenhuma lista repete uma carteira. Que os pesos aplicados somam 100 e que um
+critério inerte está nomeado. Que todo grupo de pares diz contra qual benchmark foi medido.
+Que todo fundo publica seu regime tributário e as duas notas.
+
+**A regra que fica:** todo campo publicado precisa de um teste que falharia se ele saísse
+vazio, com o rótulo errado, ou repetido. É a fronteira que outro time consome.
+
+---
+
 # Material para a apresentação
 
 *Seção viva — vou alimentando conforme o projeto anda.*
@@ -1042,7 +1281,7 @@ lista que é escolhido tanto por custo quanto por desempenho.
 
 | Número | |
 |---|---|
-| 36.594 → 975 | o funil inteiro, de todas as classes registradas ao universo investável |
+| 36.594 → 580 | o funil inteiro, de todas as classes registradas ao universo investável |
 | R$ 4,4 trilhões | patrimônio do universo antes do corte de divulgação |
 | 10,3% e 0% | cobertura e preenchimento de taxa do `cad_fi.csv` |
 | 66% vs 5,3% | fundos "com menos de 1 ano" pelo campo errado vs pelo certo |
@@ -1053,14 +1292,20 @@ lista que é escolhido tanto por custo quanto por desempenho.
 | 194 aspas soltas | quebravam a leitura de um arquivo de 12 MB |
 | 31 MB em 2,7 s | as cinco fontes baixadas do zero, com repetição e disjuntor |
 | 6,3 milhões de linhas em ~4 s | um ano de informe diário lido, validado e reduzido a painel |
-| 0,55% em quarentena | 35.070 por cota não positiva, 12 por PL negativo |
-| CDI 2025 = 14,3242% | em exatamente 252 dias úteis — bate com a constante de anualização |
-| **37%** | dos 975 fundos elegíveis bateram o CDI. A mediana ficou **0,22% abaixo** |
+| 0,55% em quarentena | por cota não positiva, com o motivo escrito linha a linha |
+| **CDI 2025 = 14,3242% em 252 dias úteis** | a janela de 12 meses tem 252 dias, não 273 — e é isso que faz o número bater com o que o fundo publica |
+| **40%** | dos 580 fundos elegíveis bateram o CDI. A mediana ficou **0,19% abaixo** |
 | 58% do varejo é D+0 | por isso um ranking único de varejo não serve |
-| 223 testes verdes | cobertura de 93% nos módulos de cálculo |
-| p92 · p100 · p98 / p84 · p97 · p51 | o Top 5 contra mil carteiras aleatórias, em três datas de corte |
-| +10 a +31 pontos-base | a vantagem real sobre a mediana — pequena, e é por isso que é crível |
-| 100% vs 3% | o 1º do perfil de prazo some do top 5 quando pontuado só por desempenho: a lista é de custo |
+| **214 de 218** | fundos do perfil de liquidez liquidam em D+0 — prazo de resgate é filtro, não critério, e o peso dele é redistribuído |
+| **12 invólucros, 1 carteira** | classes de distribuição que a Caixa oferece sobre uma única carteira de renda fixa |
+| **0,062% a.a.** | a distância entre Itaú Janeiro e Itaú Private Janeiro: mesma carteira, dois nomes, dois CNPJs sequenciais |
+| 0,99 para todo mundo | por que correlação não identifica gêmeo em renda fixa pós-fixada: todos seguem a mesma curva |
+| 283 testes verdes | incluindo os que abrem o `ranking.json` entregue e testam o produto, não a função |
+| **p68 · p99 · p22 / p71 · p94 · p72** | o Top 5 contra mil carteiras aleatórias, em três datas de corte, nos dois perfis |
+| **2 de 6 e 0 de 6** | recortes em que o Top 5 bateu a mediana dos elegíveis, e em que bateu o CDI |
+| −15 a +21 pontos-base | a vantagem real sobre a mediana: pequena nos dois sentidos, e é por isso que três cortes não distinguem método de sorte |
+| 83,2 no grupo, 66,9 no universo | o 1º do perfil de prazo é o melhor de uma categoria que não é boa — as duas notas dizem isso |
+| 99% vs 1% | o mesmo fundo some do top 5 quando pontuado só por desempenho: a lista é de custo |
 
 ## Esqueleto do vídeo (5 min)
 

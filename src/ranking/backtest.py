@@ -6,15 +6,29 @@ rebuilt as of three earlier dates, using nothing published after each of them,
 and the five funds it chose are measured against what an investor could have
 done instead.
 
-Three comparisons, in increasing order of how much they hurt:
+Four comparisons, in increasing order of how much they hurt:
 
 1. the median of the funds that were eligible on the day — did we beat the
    typical fund of the same universe?
-2. the benchmark — did we beat the CDI?
+2. the benchmark — the CDI compounded over exactly the days being measured,
+   so that the answer is a real number rather than a placeholder;
 3. **a thousand portfolios of five funds drawn at random from that same
-   universe** — did we beat chance? This is the one that decides. A method that
-   cannot outperform a coin toss over the funds it had available is not a
-   method, however defensible its reasoning.
+   universe** — did we beat chance? This is the one that decides the frozen
+   criterion. A method that cannot outperform a coin toss over the funds it
+   had available is not a method, however defensible its reasoning;
+4. **a thousand portfolios drawn from the cheapest quarter of that universe.**
+   Cost is deducted from the quota before anybody measures anything, so a
+   ranking whose heaviest weight is the fee earns part of its advantage by
+   arithmetic that was knowable before the test was written. Holding cost
+   roughly constant separates that part from whatever else the method is
+   doing. This one is reported, not part of the criterion, which was frozen
+   before it existed.
+
+What every fund is measured on is the full validated panel, not the funds that
+were still eligible at the end. A fund chosen in March that shrank below the
+shareholder floor by December still had a return, and reading outcomes from
+the surviving universe would silently drop it from the average — survivorship
+bias inside the very test written to avoid it.
 
 The success criterion and the rule for funds that stop reporting were written
 into `configs/profiles.yaml` and committed before this ever ran. Rule 11 of the
@@ -48,8 +62,16 @@ class Outcome:
     peer_median_return: float
     benchmark_return: float
     random_percentile: float
+    # The same comparison against portfolios drawn from the cheapest quarter of
+    # the same universe. Cost is deducted from the quota, so a method that
+    # prefers cheap funds earns part of its advantage by arithmetic rather than
+    # by selection; this is the part that survives once that is held constant.
+    cheap_percentile: float
     beat_median: int
     discontinued: list[str]
+    # Selected funds with no quota published after the cut date at all. Held at
+    # their last known value, per the frozen policy, and named here.
+    carried: list[str]
 
     @property
     def excess_over_median(self) -> float:
@@ -100,6 +122,20 @@ def forward_returns(series: pl.DataFrame, start: dt.date, end: dt.date) -> dict[
     return results
 
 
+def benchmark_return(daily: pl.DataFrame | None, start: dt.date, end: dt.date) -> float:
+    """The CDI compounded over the same days the funds are measured on.
+
+    Strictly after the cut and up to the end, matching `forward_returns`
+    exactly. Compounding rather than summing: at Brazilian levels the
+    difference over a year is worth several percentage points, which is far
+    larger than anything this test is trying to detect.
+    """
+    if daily is None or daily.is_empty():
+        return 0.0
+    window = daily.filter((pl.col("data") > start) & (pl.col("data") <= end))
+    return metrics.compound(window["taxa"].to_list())
+
+
 def discontinued(series: pl.DataFrame, end: dt.date, tolerance_days: int = 30) -> list[str]:
     """Funds whose series stops well before the end of the measurement window.
 
@@ -127,6 +163,24 @@ def random_portfolios(returns: dict[str, float], size: int, draws: int, seed: in
     return np.asarray(values[picks].mean(axis=1), dtype=float)
 
 
+def cheapest_quartile(returns: dict[str, float], fees: dict[str, float]) -> dict[str, float]:
+    """The quarter of the universe that charges least, by admin fee.
+
+    A ranking whose heaviest weight is cost will beat the median fund partly
+    because cheap funds keep more of the same gross return — that is
+    arithmetic, known before any test is run, and it would show up as apparent
+    skill in a comparison against the whole universe. Drawing the control from
+    funds that are already cheap holds that constant and leaves the question
+    the test is actually for: among funds of similar cost, does the method pick
+    better ones?
+    """
+    priced = {cnpj: fees[cnpj] for cnpj in returns if cnpj in fees}
+    if len(priced) < 8:
+        return dict(returns)
+    cut = float(np.quantile(np.array(list(priced.values()), dtype=float), 0.25))
+    return {cnpj: value for cnpj, value in returns.items() if priced.get(cnpj, cut + 1) <= cut}
+
+
 def percentile_of(value: float, distribution: np.ndarray) -> float:
     """Share of the distribution this value beats."""
     if distribution.size == 0:
@@ -142,15 +196,35 @@ def evaluate(
     benchmark_return: float,
     rules: Backtest,
     stopped: list[str] | None = None,
+    fees: dict[str, float] | None = None,
+    forward_returns_all: dict[str, float] | None = None,
 ) -> Outcome:
-    """Score one profile's top five against the three comparisons."""
-    picked = [eligible_returns[cnpj] for cnpj in selected if cnpj in eligible_returns]
+    """Score one profile's top five against the comparisons.
+
+    Every selected fund contributes, including one that has left the eligible
+    universe since the cut date. Averaging over only the survivors would be the
+    survivorship bias this test exists to avoid, applied to the test itself: a
+    fund that shrank, closed to new money or stopped disclosing is exactly the
+    outcome a method should be charged for. A fund with no quota published
+    after the cut at all is held at its last known value — flat — which is the
+    policy frozen in configuration before any of this ran.
+    """
+    outcomes = forward_returns_all or eligible_returns
+    picked = [outcomes.get(cnpj, 0.0) for cnpj in selected]
+    carried = [cnpj for cnpj in selected if cnpj not in outcomes]
     selected_return = float(np.mean(picked)) if picked else 0.0
     universe = np.array(list(eligible_returns.values()), dtype=float)
     median = float(np.median(universe)) if universe.size else 0.0
 
+    size = len(selected) or 5
     draws = random_portfolios(
-        eligible_returns, size=len(selected) or 5, draws=rules.random_portfolios, seed=rules.seed
+        eligible_returns, size=size, draws=rules.random_portfolios, seed=rules.seed
+    )
+    cheap = random_portfolios(
+        cheapest_quartile(eligible_returns, fees or {}),
+        size=size,
+        draws=rules.random_portfolios,
+        seed=rules.seed,
     )
     return Outcome(
         cut_date=cut_date,
@@ -160,8 +234,10 @@ def evaluate(
         peer_median_return=median,
         benchmark_return=benchmark_return,
         random_percentile=percentile_of(selected_return, draws),
+        cheap_percentile=percentile_of(selected_return, cheap),
         beat_median=sum(1 for value in picked if value > median),
         discontinued=stopped or [],
+        carried=carried,
     )
 
 
@@ -218,7 +294,10 @@ def run_all(
     scratch = Path(tempfile.mkdtemp(prefix="backtest-"))
 
     # The forward window is read once from the final run, so that every cut
-    # date is measured against the same series and the same end date.
+    # date is measured against the same series and the same end date. It is the
+    # whole validated panel — every fund that published a quota, eligible or
+    # not — because the outcome of a fund that fell out of the universe is part
+    # of the result, not something to be excused from it.
     final = pipeline.run(
         reference_date=end_date,
         config_dir=config_dir,
@@ -226,9 +305,14 @@ def run_all(
         cache_dir=cache_dir,
         simulations=simulations,
     )
-    full_series = final.series
+    full_series = final.all_series
     if full_series is None:  # pragma: no cover - run() always sets it
         raise RuntimeError("the pipeline did not return a series to measure against")
+    benchmark_daily = final.benchmark_daily
+    # The final run has given up everything it is needed for. Releasing it here
+    # matters: each cut date builds a panel of its own, and holding two of them
+    # open is the peak of the whole programme.
+    del final
 
     for cut in rules.cut_dates:
         run = pipeline.run(
@@ -240,12 +324,11 @@ def run_all(
         )
         realised = forward_returns(full_series, start=cut, end=end_date)
         stopped = discontinued(full_series, end=end_date)
+        benchmark = benchmark_return(benchmark_daily, start=cut, end=end_date)
 
         for profile in run.payload.profiles:
-            eligible = run.eligible_by_profile.get(profile.profile_id, [])
-            eligible_returns = {
-                cnpj: value for cnpj, value in realised.items() if cnpj in set(eligible)
-            }
+            eligible = set(run.eligible_by_profile.get(profile.profile_id, []))
+            eligible_returns = {cnpj: value for cnpj, value in realised.items() if cnpj in eligible}
             selected = [fund.cnpj_classe for fund in profile.top]
             outcomes.append(
                 evaluate(
@@ -253,11 +336,14 @@ def run_all(
                     cut_date=cut,
                     selected=selected,
                     eligible_returns=eligible_returns,
-                    benchmark_return=0.0,
+                    benchmark_return=benchmark,
                     rules=rules,
                     stopped=[cnpj for cnpj in selected if cnpj in stopped],
+                    fees=run.fees,
+                    forward_returns_all=realised,
                 )
             )
+        del run
 
     shutil.rmtree(scratch, ignore_errors=True)
     return outcomes, verdict(outcomes, rules)
@@ -277,41 +363,98 @@ def to_markdown(outcomes: list[Outcome], result: Verdict, end_date: dt.date) -> 
         "",
         f"## Veredito: {result.summary()}",
         "",
-        "| Corte | Perfil | Top 5 rendeu | Mediana dos elegíveis | Vantagem "
-        "| Contra o acaso | Bateram a mediana |",
-        "|---|---|---:|---:|---:|---:|---:|",
+        "| Corte | Perfil | Top 5 rendeu | CDI | Mediana dos elegíveis | Vantagem "
+        "| Contra o acaso | Contra os baratos | Bateram a mediana |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for outcome in sorted(outcomes, key=lambda item: (item.cut_date, item.profile_id)):
         mark = "✅" if outcome.random_percentile > result.threshold else "❌"
         lines.append(
             f"| {outcome.cut_date:%d/%m/%Y} | {outcome.profile_id} "
-            f"| {outcome.selected_return:+.2%} | {outcome.peer_median_return:+.2%} "
+            f"| {outcome.selected_return:+.2%} | {outcome.benchmark_return:+.2%} "
+            f"| {outcome.peer_median_return:+.2%} "
             f"| **{outcome.excess_over_median * 10_000:+.0f} pb** "
-            f"| p{outcome.random_percentile:.0%} {mark} | {outcome.beat_median} de 5 |"
+            f"| p{outcome.random_percentile:.0%} {mark} "
+            f"| p{outcome.cheap_percentile:.0%} | {outcome.beat_median} de 5 |"
         )
     edges = [outcome.excess_over_median * 10_000 for outcome in outcomes]
+    cheap = [outcome.cheap_percentile for outcome in outcomes]
+    beat_median = sum(1 for outcome in outcomes if outcome.excess_over_median > 0)
+    beat_benchmark = sum(1 for outcome in outcomes if outcome.excess_over_benchmark > 0)
+    tested = len(outcomes)
     lines += [
         "",
         "**Contra o acaso** é a coluna que decide o veredito: em que percentil o Top 5 caiu "
         "numa distribuição de mil carteiras de cinco fundos sorteados do mesmo universo "
         "elegível naquela data. Bater a mediana dos pares é fácil; bater o sorteio não é.",
         "",
-        "### Mas leia o percentil junto com a vantagem",
+        "### O que os números dizem, sem arredondar para cima",
         "",
-        f"A vantagem sobre a mediana ficou entre **{min(edges):+.0f} e "
-        f"{max(edges):+.0f} pontos-base**. Isso é pequeno em termos absolutos, e o "
-        "percentil alto **não contradiz isso**: fundos de renda fixa pós-fixados "
-        "rendem todos perto do CDI, então a "
-        "distribuição das carteiras aleatórias é muito estreita. Ficar no percentil 98 de uma "
-        "distribuição apertada significa ganhar de quase todo mundo por pouco — não ganhar "
-        "por muito.",
+        f"A vantagem sobre a mediana dos elegíveis ficou entre **{min(edges):+.0f} e "
+        f"{max(edges):+.0f} pontos-base**, e o Top 5 ficou acima dessa mediana em "
+        f"**{beat_median} dos {tested} recortes**. "
+        + (
+            "Em mais da metade dos casos, portanto, escolher os cinco melhores pelo método "
+            "rendeu **menos** que pegar o fundo do meio da lista."
+            if beat_median * 2 < tested
+            else "O saldo é positivo, mas por margens pequenas."
+        ),
         "",
-        "A leitura correta é: **o método escolhe consistentemente o lado certo da "
-        "distribuição, e o prêmio por isso é de algumas dezenas de pontos-base ao ano.** Em "
-        "renda fixa, onde a taxa mediana é 0,50% ao ano, algumas dezenas de pontos-base é "
-        "exatamente a ordem de grandeza do que há para ganhar.",
+        f"Contra o CDI, o Top 5 ficou à frente em **{beat_benchmark} dos {tested} recortes**. "
+        + (
+            "Nenhum. Os fundos escolhidos renderam menos que o CDI em todos os cortes, o que "
+            "não é surpresa num universo em que só 40% dos fundos bateram o CDI no ano — mas "
+            "precisa estar escrito, porque é a comparação que o cliente faz de cabeça."
+            if beat_benchmark == 0
+            else "É a comparação que o cliente faz de cabeça, e por isso está na tabela."
+        ),
+        "",
+        "Isso convive com percentis altos contra o sorteio sem contradição: fundos de renda "
+        "fixa pós-fixados rendem todos perto do CDI, então a distribuição das carteiras "
+        "aleatórias é muito estreita. Ficar num percentil alto de uma distribuição apertada "
+        "significa ganhar de quase todo mundo **por muito pouco** — e ficar num percentil "
+        "baixo significa perder de quase todo mundo, também por muito pouco. Nos dois casos, "
+        "o que está em jogo são dezenas de pontos-base ao ano. Em renda fixa, onde a taxa "
+        "mediana é 0,50% ao ano, é exatamente a ordem de grandeza do que há para ganhar — e "
+        "é também pequeno o bastante para que três recortes não distingam método de sorte.",
+        "",
+        "### Contra os baratos: separando o que é seleção do que é aritmética",
+        "",
+        "A taxa de administração já sai da cota antes de qualquer medição. Como ela é o maior "
+        "peso dos dois perfis, parte da vantagem sobre a mediana **não é escolha, é "
+        "subtração**: fundo mais barato entrega mais do mesmo retorno bruto, e isso se sabia "
+        "antes de rodar qualquer teste.",
+        "",
+        "A coluna **contra os baratos** repete o sorteio usando apenas o quartil mais barato "
+        f"do mesmo universo. O Top 5 ficou entre **p{min(cheap):.0%} e p{max(cheap):.0%}** "
+        "contra esse controle.",
+        "",
+        "**Leia essa coluna com cuidado, porque ela não é um experimento limpo.** Segurar o "
+        "custo aproximadamente constante também muda a composição do grupo de comparação: o "
+        "quartil mais barato é dominado por fundos de título público, que rendem bruto menos "
+        "que os de crédito. Um percentil mais alto contra os baratos é, em parte, o Top 5 "
+        "sendo comparado com fundos de risco menor. A coluna é um segundo ângulo sobre o "
+        "mesmo resultado, não uma decomposição entre custo e habilidade.",
+        "",
+        "Ela é **reportada, não faz parte do critério**. O critério foi congelado antes de "
+        "existir e continua sendo a comparação contra o universo inteiro.",
         "",
     ]
+    carried = sorted({cnpj for outcome in outcomes for cnpj in outcome.carried})
+    if carried:
+        lines += (
+            [
+                "## Fundos escolhidos que saíram do universo elegível",
+                "",
+                "Mantidos na carteira pelo último valor conhecido, conforme a política "
+                "congelada na configuração, e contados na média do Top 5. Tirá-los seria medir "
+                "o método só pelos fundos que deram certo.",
+                "",
+            ]
+            + [f"- `{cnpj}`" for cnpj in carried]
+            + [""]
+        )
+
     stopped = sorted({cnpj for outcome in outcomes for cnpj in outcome.discontinued})
     if stopped:
         lines += (

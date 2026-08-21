@@ -116,8 +116,10 @@ def _outcome(percentile: float, cut: dt.date) -> backtest.Outcome:
         peer_median_return=0.05,
         benchmark_return=0.04,
         random_percentile=percentile,
+        cheap_percentile=percentile,
         beat_median=3,
         discontinued=[],
+        carried=[],
     )
 
 
@@ -184,8 +186,10 @@ def _for(profile: str, percentiles: list[float]) -> list[backtest.Outcome]:
             peer_median_return=0.05,
             benchmark_return=0.04,
             random_percentile=percentile,
+            cheap_percentile=percentile,
             beat_median=3,
             discontinued=[],
+            carried=[],
         )
         for date, percentile in zip(dates, percentiles, strict=True)
     ]

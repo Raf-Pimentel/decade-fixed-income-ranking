@@ -1,7 +1,11 @@
-# Dados baixados e resultados gerados — nunca versionados.
-# São reconstruíveis a partir do código: `python -m ranking --data-ref 2025-12-31`
+# Dados baixados: reconstruíveis, pesados, e sujeitos a retificação pela CVM.
+# O manifesto de hashes dentro do ranking.json é o que prova o que foi lido.
 dados/
-saida/
+
+# `saida/` É versionada. O enunciado pede o ranking.md no repositório, e um
+# entregável que só existe depois de alguém rodar o pipeline não está entregue.
+# Quem clona vê o resultado; quem quiser conferir roda:
+#   uv run ranking --reference-date 2025-12-31 --validate
 
 # O enunciado do case é documento da Decade, não do projeto
 *.pdf

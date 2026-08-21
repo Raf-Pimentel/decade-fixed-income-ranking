@@ -5,35 +5,39 @@ Ao final de cada fase, apresento o resultado e espero aprovação antes de segui
 
 ---
 
-## Onde estamos — PROJETO ENTREGUE (20/08/2026)
+## Onde estamos — PROJETO ENTREGUE (21/08/2026)
 
-**Todas as fases concluídas.** Tag `v1.0.0` publicada.
+**Todas as fases concluídas.**
 
 | | |
 |---|---|
-| Suíte | **223 testes verdes** · cobertura 93% nos módulos de cálculo |
+| Suíte | **283 testes verdes** · cobertura 93% nos módulos de cálculo |
 | `ruff`, `ruff format`, `mypy` | limpos |
 | Funil de qualidade | dentro do baseline, 0,00% de desvio |
 | Universo | **580 fundos** de 36.594 classes · 559 varejo |
+| Janela | 12 meses = **01/01/2025 a 31/12/2025**, 252 dias úteis, CDI 14,3242% |
 | Execução | `uv run ranking --reference-date 2025-12-31`, ~40 s |
-| Automação | rodando às segundas, 09:00 UTC |
-| **Teste no passado** | **validado** — liquidez 3/3, prazo 2/3 (D-036) |
+| Validação | `uv run ranking --reference-date 2025-12-31 --validate`, minutos |
+| Automação | rodando às segundas, 09:00 UTC, comitando em `saida/` |
+| **Teste no passado** | **validado** — liquidez 2/3, prazo 3/3, contra o critério de 2/3 por perfil (D-044) |
 
-Entregáveis em `saida/`: `ranking.md` · `ranking.json` · `relatorio_qualidade.md` ·
-`validacao.md`. Mais `README.md`, `docs/` e o repositório.
+Entregáveis versionados em `saida/`: `ranking.md` · `ranking.json` · `ranking.html` ·
+`relatorio_qualidade.md` · `validacao.md`. Mais `README.md`, `docs/` e o repositório.
+
+### O que o veredito de "validado" quer dizer, e o que não quer
+
+Passou no critério congelado antes de rodar. E, na mesma tabela: o Top 5 bateu a mediana dos
+elegíveis em **2 de 6** recortes e ficou **abaixo do CDI nos 6**, com vantagem entre −15 e
++21 pontos-base. As medições saem do painel validado inteiro, não do universo elegível no fim,
+justamente para que fundo que saiu do universo entre na conta. Ver D-044.
 
 ### O que falta, e é tudo do Rafael
 
-- [ ] **Gravar o vídeo de 5 min.** Roteiro minutado e cinco frases prontas em `docs/decisoes.md`.
+- [ ] **Gravar o vídeo de 5 min.** Roteiro minutado e frases prontas em `docs/03-guia-de-defesa.md`.
 - [ ] **Colocar o link do vídeo no README** depois de gravado.
 - [ ] **Conferir 3 fundos na planilha** — cota de 02/01/2025 e 30/12/2025 contra o
       `ranking.json`. Única verificação do cálculo que não passa por mim.
 - [ ] **Decidir se o repositório vira público** antes de enviar à Decade.
-
-### Não feito, declarado
-
-- [ ] **Página visual do ranking** — extra aprovado que não coube. O `ranking.md` cumpre o
-      entregável do case.
 
 ---
 
@@ -148,7 +152,7 @@ estão escritos na seção 8.1 do desenho e **não podem ser alterados depois de
 Se eu sentir vontade de mexer, é sinal de que o resultado não agradou — e é exatamente aí que
 não se mexe.
 
-- [x] Rodar o pipeline com `--data-ref 2025-03-31`, `2025-06-30` e `2025-09-30`
+- [x] Rodar o pipeline com `--reference-date` em 2025-03-31, 2025-06-30 e 2025-09-30
 - [x] **Auditoria de point-in-time:** confirmar que nenhuma linha posterior à data de corte
       entrou. Se entrou, é bug grave na Etapa 1 e o teste inteiro está contaminado
 - [x] Congelar os três Top 5 em arquivo, antes de medir qualquer coisa

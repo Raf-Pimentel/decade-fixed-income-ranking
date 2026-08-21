@@ -38,13 +38,21 @@ data_quality:
 
 # Peer groups. Funds are compared only against similar funds, so that the
 # ranking does not automatically reward whoever took the most credit risk.
+#
+# The benchmark is the CDI, for every group, and the output says so group by
+# group rather than leaving the reader to assume it. The alternative — IMA-B
+# for inflation-linked funds, IRF-M for fixed-rate ones — is the textbook
+# answer and is not available: ANBIMA publishes the IMA series as a snapshot
+# of the current day, not as history, so a window ending on a past date cannot
+# be reconstructed from it. Comparing within the peer group absorbs most of
+# the cost, because a benchmark shift moves every fund in a group by the same
+# amount and the ranking on excess return is unchanged. It does not absorb all
+# of it: return per unit of risk divides that shifted difference by
+# volatilities that differ, and there the order does move. The delivery names
+# the affected share of the universe.
 peer_groups:
   field: Classificacao_Anbima
   min_size: 20                     # smaller groups merge into the parent
-  benchmarks:                      # decision D-014: the right benchmark per group
-    default: CDI
-    inflation_linked: IMA-B
-    fixed_rate: IRF-M
 
 # Expected funnel — this is the data regression test (decision D-015).
 # A run that deviates beyond the tolerance stops and asks for investigation.

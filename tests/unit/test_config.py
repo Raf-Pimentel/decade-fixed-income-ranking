@@ -137,6 +137,10 @@ def test_peer_groups_have_a_minimum_size(universe) -> None:
     assert universe.peer_groups.min_size >= 20
 
 
-def test_benchmarks_are_not_all_cdi(universe) -> None:
-    """Decision D-014: judging an inflation-linked fund against CDI is wrong."""
-    assert set(universe.peer_groups.benchmarks.values()) > {"CDI"}
+def test_scoring_rules_are_configurable_not_hard_coded(profiles) -> None:
+    """Winsorising bounds, the dispersion floor and the similarity threshold all
+    change what gets published, so all three live in YAML."""
+    assert 0 < profiles.scoring.winsorise.lower < profiles.scoring.winsorise.upper < 1
+    assert 0 < profiles.scoring.min_dispersion < 1
+    assert 0 < profiles.selection.max_tracking_difference < 0.05
+    assert profiles.selection.min_overlap_days >= 30

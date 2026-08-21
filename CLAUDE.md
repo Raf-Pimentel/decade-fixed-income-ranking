@@ -15,8 +15,12 @@ Prazo: **28/08/2026, 20h**.
 Desenho completo: `docs/01-solution-design.md`. Checklist executável: `docs/02-checklist.md`.
 Diário de decisões: `docs/decisoes.md`. Guia de defesa: `docs/03-guia-de-defesa.md`.
 
-**Fases:** 1 ✓ · 2 ✓ · 3 ✓ · 4 ✓ · 5 ✓ · 5.5 teste no passado ✓ (**validado**) ·
-6 documentação ✓ — **entrega pronta**, falta só o vídeo.
+**Fases:** 1 ✓ · 2 ✓ · 3 ✓ · 4 ✓ · 5 ✓ · 5.5 teste no passado ✓ (**validado**: liquidez 2/3,
+prazo 3/3, contra critério de 2/3 por perfil) · 6 documentação ✓ — **entrega pronta**, falta só
+o vídeo.
+
+Ler "validado" junto com o resto da tabela: o Top 5 bateu a mediana dos elegíveis em 2 de 6
+recortes e ficou abaixo do CDI nos 6, com vantagem entre −15 e +21 pontos-base. Ver D-044.
 
 Estado detalhado e decisão pendente: topo de `docs/02-checklist.md`.
 
@@ -56,7 +60,8 @@ Estado detalhado e decisão pendente: topo de `docs/02-checklist.md`.
 
 ## Armadilhas dos dados — já custaram investigação, não redescobrir
 
-Cada linha tem teste de regressão em `tests/unit/test_traps.py` ou `test_readers.py`.
+Cada linha tem teste de regressão em `tests/unit/test_traps.py`, `test_readers.py` ou
+`test_selection.py`.
 
 | # | Armadilha | Defesa obrigatória |
 |---|---|---|
@@ -72,6 +77,7 @@ Cada linha tem teste de regressão em `tests/unit/test_traps.py` ou `test_reader
 | 10 | **Aspas duplas soltas em texto livre.** 194 no `extrato_fi_2025.csv`; o leitor engolia quebras de linha e morria com "CSV malformed" | `quote_char=None`: a CVM não usa aspas como delimitador |
 | 11 | **Prazo de resgate vem em dias úteis ou corridos**, misturados (`TP_DIA_PAGTO_RESGATE`) | Converter tudo para dias corridos na leitura. É o 2º maior peso do varejo |
 | 12 | **Extrato e lâmina nomeiam as mesmas colunas de forma diferente** (`QT_DIA_CONVERSAO_COTA` vs `QT_DIA_CONVERSAO_COTA_RESGATE`) | Dois mapeamentos separados; nunca reaproveitar um nome do outro arquivo |
+| 13 | **Uma carteira aparece no registro como vários fundos.** Uma gestora vende a mesma carteira por várias classes de distribuição — a Caixa tem 12 sobre uma só. CNPJs diferentes, nomes diferentes, notas quase iguais: um Top 5 sem tratamento devolve a mesma exposição duas vezes. **Correlação não identifica isso** em pós-fixado, porque todo fundo segue a mesma curva e correlaciona acima de 0,99 | Mesma gestora **e** volatilidade anualizada da diferença entre as séries abaixo de 0,10% a.a. Caso de teste: `52239457000157` e `52239793000108` (Itaú Janeiro e Itaú Private Janeiro, 0,062% a.a.) |
 
 ---
 
@@ -126,12 +132,20 @@ Para cada unidade de trabalho, nesta ordem, sem pular:
 |---|---|---|
 | **Invariante financeira** | toda função de `metricas/` | cota constante ⇒ retorno 0 · cota que dobra ⇒ 100% · retorno diário composto = retorno ponta a ponta · drawdown ≤ 0 · vol ≥ 0 |
 | **Contrato** | toda fronteira de etapa | schema, tipos, obrigatoriedade, faixas, unicidade |
-| **Armadilha** | uma por linha da tabela acima | regressão das 12 armadilhas conhecidas |
+| **Armadilha** | uma por linha da tabela acima | regressão das 13 armadilhas conhecidas |
 | **Integração** | pipeline completo | roda ponta a ponta em fixture pequena e produz o JSON válido |
 | **Golden file** | saída final | o `ranking.json` de uma fixture congelada não muda sem eu querer |
+| **Produto** | `tests/integration/test_published_output.py` | abre o arquivo entregue e testa **o que foi publicado**, não a função que publicou: a janela tem a duração que o rótulo promete · nenhuma lista repete uma carteira · os pesos aplicados somam 100 e o critério inerte está nomeado · nenhum campo do contrato sai vazio |
 
 Fixtures ficam em `tests/fixtures/`: recortes **reais e pequenos** (20 fundos, 60 dias),
 congelados no repositório. Nunca baixar da internet dentro de um teste.
+
+**A regra que separa as quatro primeiras da quinta:** as quatro olham para dentro e pegam
+função errada. A quinta olha para o arquivo entregue e pega a maquinaria certa produzindo
+resposta errada — janela com rótulo errado, lista com a mesma carteira duas vezes, peso que
+empata para todo mundo, campo de contrato publicado vazio. Nenhum desses quebra função
+nenhuma. **Todo campo publicado precisa de um teste que falharia se ele saísse vazio, com o
+rótulo errado, ou repetido.**
 
 ---
 
@@ -179,10 +193,11 @@ minha e manual.** Nunca declarar "pronto" sem ter rodado e colado a saída.
 
 ```bash
 uv sync                                  # instalar
-uv run pytest -q                         # testes
+uv run pytest -q                         # 283 testes
 uv run pytest --cov=src --cov-report=term-missing
 uv run ruff check . && uv run mypy src   # qualidade
-uv run python -m ranking --data-ref 2025-12-31
+uv run ranking --reference-date 2025-12-31             # o ranking
+uv run ranking --reference-date 2025-12-31 --validate  # + o teste fora da amostra
 ```
 
 ## Fontes de dados (URLs verificadas em 19/08/2026)

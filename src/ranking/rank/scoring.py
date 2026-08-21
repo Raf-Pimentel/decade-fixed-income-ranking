@@ -82,6 +82,63 @@ def peer_percentile(frame: pl.DataFrame, metric: str, group: str, direction: str
     ).drop("_rank", "_size", "_rank_all", "_size_all")
 
 
+def dispersion(frame: pl.DataFrame, metric: str) -> float:
+    """How much a metric actually varies across the funds being compared.
+
+    Measured as the share of funds that do *not* sit on the single most common
+    value, which is the form of the question that matters for a ranking: a
+    percentile can only separate funds that differ, and ties all receive the
+    same average rank whatever the weight attached to them.
+    """
+    values = frame[metric].drop_nulls()
+    if values.len() == 0:
+        return 0.0
+    counts = values.value_counts().get_column("count")
+    largest_tie = counts.max()
+    if not isinstance(largest_tie, int):  # pragma: no cover - polars always counts as int
+        return 0.0
+    return 1.0 - largest_tie / values.len()
+
+
+def effective_weights(
+    frame: pl.DataFrame, weights: dict[str, int], min_dispersion: float
+) -> tuple[dict[str, int], list[str]]:
+    """Redistribute weight away from metrics that cannot separate anything.
+
+    Eligibility and scoring answer different questions, and a metric can be
+    load-bearing for the first and empty for the second. The liquidity profile
+    admits only funds that pay out within a day, so by the time its funds are
+    scored almost all of them settle same-day: redemption speed has already
+    done its work as a filter and has nothing left to say as a criterion.
+    Every fund ties, every percentile comes back at one half, and the weight
+    attached to it is subtracted from the ones that could still discriminate.
+
+    Rather than quietly carry a dead term, the weight is moved to the metrics
+    that do vary, in proportion to what they already carried, and the metric is
+    named in the output. This is a rule about the shape of the data, applied
+    identically to every profile and every reference date — not a judgement
+    about any particular number, which is what keeps the weights themselves
+    frozen.
+    """
+    live = {
+        name: weight
+        for name, weight in weights.items()
+        if name in frame.columns and dispersion(frame, name) >= min_dispersion
+    }
+    inert = [name for name in weights if name not in live]
+    if not inert or not live:
+        return dict(weights), []
+
+    total = sum(live.values())
+    scaled = {name: weight * 100 / total for name, weight in live.items()}
+    rounded = {name: round(value) for name, value in scaled.items()}
+    drift = 100 - sum(rounded.values())
+    if drift:
+        heaviest = max(rounded, key=lambda name: rounded[name])
+        rounded[heaviest] += drift
+    return rounded, inert
+
+
 def total_score(frame: pl.DataFrame, weights: dict[str, int]) -> pl.DataFrame:
     """Weighted sum of the percentiles, on a 0 to 100 scale.
 

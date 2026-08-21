@@ -13,7 +13,8 @@ from typing import Annotated
 
 import typer
 
-from ranking import pipeline
+from ranking import backtest, pipeline
+from ranking.publish import html
 
 app = typer.Typer(add_completion=False, help=__doc__)
 
@@ -36,6 +37,15 @@ def main(
         bool, typer.Option(help="Read from a local slice instead of downloading.")
     ] = False,
     input_dir: Annotated[Path | None, typer.Option(help="Local slice, with --offline.")] = None,
+    validate: Annotated[
+        bool,
+        typer.Option(
+            help=(
+                "Also rebuild the ranking as of each frozen cut date and measure what "
+                "followed, writing validacao.md. Minutes rather than seconds."
+            )
+        ),
+    ] = False,
 ) -> None:
     """Rank Brazilian fixed-income funds as of a reference date."""
     result = pipeline.run(
@@ -58,6 +68,27 @@ def main(
                 f"  {fund.rank}. {fund.name[:52]:<52} "
                 f"nota {fund.score:5.1f}  aparição {fund.appearance_rate:.0%}"
             )
+    # The out-of-sample test rebuilds the whole ranking once per cut date, so it
+    # is asked for rather than assumed. It writes its own report and then the
+    # ranking page is rendered again, because the page carries the verdict and
+    # a page whose verdict is older than the run beside it is worse than a page
+    # with no verdict at all.
+    if validate:
+        outcomes, result_of_test = backtest.run_all(
+            end_date=reference_date.date(),
+            config_dir=config_dir,
+            output_dir=output_dir,
+            simulations=simulations,
+        )
+        report = output_dir / "validacao.md"
+        report.write_text(
+            backtest.to_markdown(outcomes, result_of_test, reference_date.date()), encoding="utf-8"
+        )
+        html.write_html(
+            result.payload, output_dir / "ranking.html", validation=result_of_test.summary()
+        )
+        typer.echo(f"\nTeste fora da amostra: {result_of_test.summary()}")
+
     typer.echo(f"\nEscrito em {result.output_dir}/")
 
     if not result.funnel.ok:

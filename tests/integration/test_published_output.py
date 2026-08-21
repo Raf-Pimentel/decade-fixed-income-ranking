@@ -1,0 +1,148 @@
+"""Tests that read the delivered files, not the functions that wrote them.
+
+Everything else in the suite checks a component against a fixture. That catches
+a wrong formula and misses an entire class of defect: the machinery working
+perfectly and the published answer still being wrong or misleading. A window
+labelled with the wrong number of months, a top five holding one portfolio
+twice, a weighted criterion that turns out to be a tie for every fund in the
+pool — none of those break a function, and none of them show up in a green
+suite that only ever looks inward.
+
+So these open `ranking.json` and assert against the product.
+"""
+
+from __future__ import annotations
+
+import datetime as dt
+import json
+from pathlib import Path
+
+import pytest
+
+from ranking import pipeline
+
+
+@pytest.fixture(scope="module")
+def payload(tmp_path_factory):
+    output_dir = tmp_path_factory.mktemp("published")
+    result = pipeline.run(
+        reference_date=dt.date(2025, 12, 31),
+        config_dir=Path(__file__).parents[2] / "configs",
+        input_dir=Path(__file__).parents[1] / "fixtures",
+        output_dir=output_dir,
+        offline=True,
+        lookback_months=3,
+        simulations=50,
+    )
+    body = json.loads((result.output_dir / "ranking.json").read_text(encoding="utf-8"))
+    body["_markdown"] = (result.output_dir / "ranking.md").read_text(encoding="utf-8")
+    return body
+
+
+# ---------------------------------------------------------------------------
+# The window is what the label says
+# ---------------------------------------------------------------------------
+
+
+def test_the_published_window_matches_the_published_month_count(payload) -> None:
+    start = dt.date.fromisoformat(payload["window_start"])
+    end = dt.date.fromisoformat(payload["reference_date"])
+    months = (end.year - start.year) * 12 + end.month - start.month + 1
+    assert months == payload["lookback_months"]
+
+
+def test_the_window_is_stated_in_dates_and_not_only_in_months(payload) -> None:
+    """A month count cannot be checked by a reader. Two dates can."""
+    start = dt.date.fromisoformat(payload["window_start"])
+    assert f"{start:%d/%m/%Y}" in payload["_markdown"]
+
+
+def test_the_readable_report_never_names_a_window_it_did_not_use(payload) -> None:
+    months = payload["lookback_months"]
+    wrong = {3, 6, 12, 24} - {months}
+    for count in wrong:
+        assert f"Rendeu em {count}m" not in payload["_markdown"]
+
+
+# ---------------------------------------------------------------------------
+# Five funds, not five scores
+# ---------------------------------------------------------------------------
+
+
+def test_no_fund_appears_twice_in_one_list(payload) -> None:
+    for profile in payload["profiles"]:
+        identifiers = [fund["cnpj_classe"] for fund in profile["top"]]
+        assert len(identifiers) == len(set(identifiers))
+
+
+def test_a_displaced_fund_names_what_it_duplicates_and_by_how_much(payload) -> None:
+    """Passing a fund over is a decision the reader is entitled to audit, so it
+    has to arrive with the fund it repeats and the distance between them."""
+    for profile in payload["profiles"]:
+        for item in profile["displaced"]:
+            assert item["duplicate_of"]
+            assert item["duplicate_of"] != item["name"]
+            assert 0.0 <= item["tracking_difference"] <= 1.0
+
+
+# ---------------------------------------------------------------------------
+# Every weight does something
+# ---------------------------------------------------------------------------
+
+
+def test_the_weights_actually_applied_are_published(payload) -> None:
+    for profile in payload["profiles"]:
+        assert sum(profile["effective_weights"].values()) == 100
+
+
+def test_an_inert_criterion_is_named_and_its_weight_moved_elsewhere(payload) -> None:
+    """A metric every eligible fund ties on cannot separate anything, so its
+    weight is redistributed rather than silently wasted — and the difference
+    between declared and effective weights has to be visible."""
+    for profile in payload["profiles"]:
+        for metric in profile["inert_metrics"]:
+            assert metric in profile["weights"]
+            assert metric not in profile["effective_weights"]
+        if not profile["inert_metrics"]:
+            assert profile["effective_weights"] == profile["weights"]
+
+
+# ---------------------------------------------------------------------------
+# Nothing published is a placeholder
+# ---------------------------------------------------------------------------
+
+
+def test_every_peer_group_names_the_benchmark_it_was_measured_against(payload) -> None:
+    """An empty benchmark field is worse than an absent one: it reads as though
+    the question was asked and came back with nothing."""
+    assert payload["benchmark_by_group"]
+    assert all(payload["benchmark_by_group"].values())
+    groups = {fund["peer_group"] for profile in payload["profiles"] for fund in profile["top"]}
+    named = set(payload["benchmark_by_group"]) | {"(universo inteiro)"}
+    assert groups <= named
+
+
+def test_every_ranked_fund_states_its_tax_regime(payload) -> None:
+    """Funds built on incentivised infrastructure debt are exempt for
+    individuals, so 'before tax, relative order holds' is not true of every
+    fund in the universe and the delivery must not imply that it is."""
+    for profile in payload["profiles"]:
+        for fund in profile["top"]:
+            assert fund["metrics"]["regime_tributario"]
+
+
+def test_each_fund_carries_both_the_peer_score_and_the_pool_score(payload) -> None:
+    """A percentile inside a category says nothing about the category. Both
+    numbers, or the reader cannot tell the best of a strong group from the best
+    of a weak one."""
+    for profile in payload["profiles"]:
+        for fund in profile["top"]:
+            assert 0 <= fund["score"] <= 100
+            assert 0 <= fund["score_pool"] <= 100
+
+
+def test_the_universe_a_profile_chose_from_is_described(payload) -> None:
+    for profile in payload["profiles"]:
+        assert profile["eligible_universe_size"] >= len(profile["top"])
+        for share in profile["manager_share"].values():
+            assert 0 < share <= 1

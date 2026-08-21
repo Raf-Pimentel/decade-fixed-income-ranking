@@ -16,7 +16,7 @@ Existem milhares de fundos de renda fixa registrados no Brasil. A pergunta é: *
 
 ## 2. A ideia, em um parágrafo
 
-Eu pego todos os fundos de renda fixa que um cliente comum consegue de fato comprar. Para cada um, calculo dez números simples a partir do valor da cota de 2025: quanto rendeu, quanto oscilou, quanto caiu no pior momento, quanto cobra de taxa, em quantos dias devolve o dinheiro, e qual o tamanho. Comparo cada fundo **apenas com fundos parecidos com ele** — um fundo que só compra título público não disputa com um que compra dívida de empresa. Somo esses números com pesos que dependem do perfil do cliente. Aí, antes de publicar, **testo se o resultado se sustenta**: refaço a conta mil vezes mexendo levemente nos dados e nos pesos, e só recomendo os fundos que continuam aparecendo no topo. O resultado final não é "o fundo nº 1", é **"estes cinco são consistentemente bons, e a ordem entre eles não significa muita coisa"**.
+Eu pego todos os fundos de renda fixa que um cliente comum consegue de fato comprar. Para cada um, calculo dez métricas a partir do valor da cota de 2025: quanto rendeu, quanto oscilou, quanto caiu no pior momento, quanto cobra de taxa, em quantos dias devolve o dinheiro, qual o tamanho do fundo, etc. Comparo cada fundo **apenas com fundos parecidos com ele** — um fundo que só compra título público não disputa com um que compra dívida de empresa. Somo esses números com pesos que dependem do perfil do cliente. Aí, antes de publicar, **testo se o resultado se sustenta**: refaço a conta mil vezes mexendo levemente nos dados e nos pesos, e só recomendo os fundos que continuam aparecendo no topo. O resultado final não é "o fundo nº 1", é **"estes cinco são consistentemente bons, e a ordem entre eles não significa muita coisa"**.
 
 ---
 
@@ -47,8 +47,8 @@ custa e em quantos dias o dinheiro volta. Não é conveniência de dados, é o m
 recomendação responsável. A lacuna que isso revela não é aleatória: fundos de varejo são
 obrigados por lei a publicar lâmina, os restritos a qualificado não. É desenho da regulação.
 
-**Quinhentos cotistas.** O corte começou em 10, e o primeiro ranking real trouxe fundos com
-17, 31 e 70 cotistas e dezenas de bilhões de patrimônio — veículos institucionais rotulados
+**Quinhentos cotistas.** O corte começou em 10, e o primeiro ranking que fiz trouxe fundos com
+17, 31 e 70 cotistas e dezenas de bilhões de patrimônio. veículos institucionais rotulados
 "Público Geral". Medindo o universo de varejo: o percentil 10 tem **31 cotistas** e a mediana
 **924**. Um corte em 10 não excluía nada. Ver D-034.
 
@@ -64,23 +64,34 @@ Tudo é público e baixável sem cadastro. Três fontes:
 | **CVM — Registro de Fundos e Classes** | Nome, gestor, classificação, público-alvo, se é aberto/exclusivo | 1 arquivo ZIP (foto do momento) |
 | **CVM — Extrato e Lâmina** | Taxa de administração, taxa de performance, prazo de resgate, aplicação mínima | Extrato: 1 por ano · Lâmina: 1 por mês |
 | **Banco Central — série 12** | Taxa CDI de cada dia | API JSON |
-| **ANBIMA — índices IMA** | IMA-B, IRF-M e IMA-S: as referências certas para fundos de inflação e prefixados | 1 Excel, download livre |
+| **ANBIMA — classificação** | O grupo de comparação de cada fundo, que é dentro do que todo percentil é calculado | Chega dentro do registro da CVM |
 
-Volume total para rodar o projeto: **cerca de 15 arquivos, ~200 MB**. Cabe em qualquer notebook.
+Volume total para rodar o projeto: **cerca de 15 arquivos, ~200 MB**.
 
-**Sobre a ANBIMA, e uma promessa que não foi cumprida.** Na Fase 1 constatei que os índices IMA
-baixam sem credencial e planejei escolher o benchmark por grupo: CDI para pós-fixado, IMA-B para
-indexado à inflação, IRF-M para prefixado. Comparar todo fundo com o CDI é conceitualmente
-errado — um fundo de IMA-B parece péssimo contra o CDI num ano de juros altos, quando está
-apenas fazendo o que promete.
+### O benchmark é o CDI, para todos os grupos, e a saída diz isso
 
-**Isso não entrou.** O arquivo do IMA é Excel binário, e a alternativa em texto que a ANBIMA
-publica é a foto do dia corrente, não a série histórica — inútil para uma data de referência em
-dezembro de 2025. Medi antes de desistir: **91,8% do universo de varejo é corretamente servido
-pelo CDI, 8,2% precisaria de IMA-B, e prefixado puro é zero.** Ver D-030.
+O livro-texto manda escolher o benchmark por grupo: CDI para pós-fixado, IMA-B para indexado à
+inflação, IRF-M para prefixado. Comparar um fundo de IMA-B contra o CDI num ano de juros altos
+faz ele parecer péssimo quando está apenas fazendo o que promete.
 
-O que a ANBIMA de fato fornece, e é o mais importante, é a **classificação** que define os grupos
-de comparação — e ela chega dentro do registro da CVM, sem depender da API autenticada.
+**O dado não permite.** A ANBIMA publica o IMA como **foto do dia corrente**, não como série
+histórica: o arquivo principal é Excel binário e a alternativa em texto traz o valor de hoje.
+Uma janela que termina numa data passada não se reconstrói a partir disso.
+
+Medi o custo antes de aceitá-lo: **91,8% do universo de varejo é corretamente servido pelo CDI,
+8,2% precisaria de IMA-B, e prefixado puro é zero.** E a comparação intra-grupo absorve a maior
+parte do resto — um benchmark deslocado move todos os 8,2% juntos, e a ordem por excesso dentro
+do grupo não muda. **O que ela não absorve** é o retorno por unidade de risco, que divide esse
+excesso deslocado por volatilidades diferentes; ali a ordem muda. Então o efeito não é nulo:
+é limitado a 8,2% do universo e a uma das duas métricas de desempenho. Ver D-030.
+
+Por isso `benchmark_by_group` sai preenchido grupo a grupo no `ranking.json`, nomeando CDI em
+cada um. Um campo vazio seria pior que um campo ausente — leria como se a pergunta tivesse sido
+feita e voltado sem resposta.
+
+**O que a ANBIMA fornece, e é o que mais importa aqui, é a classificação** que define os grupos
+de comparação. Ela chega dentro do registro da CVM, sem depender da API autenticada, e é dentro
+dela que cada percentil é calculado.
 
 ---
 
@@ -96,7 +107,8 @@ Seis etapas. Cada uma é uma pasta de código, recebe uma coisa e devolve outra.
 | **Saída** | Arquivos originais salvos em `dados/brutos/`, mais um `manifesto.json` com o nome, o tamanho e a impressão digital (hash) de cada arquivo |
 | **O que faz** | Baixa os arquivos da CVM, do Banco Central e da ANBIMA. Se a conexão falhar, tenta de novo 3 vezes com espera crescente. Se o arquivo já existe e a impressão digital bate, não baixa de novo |
 | **Tolerância a falha** | Três camadas: **repetição** (3 tentativas com espera crescente), **disjuntor** (após 5 falhas seguidas no mesmo servidor, para de insistir e falha com mensagem clara em vez de travar), e **verificação de conteúdo** (a CVM devolve página de erro com status 200 — confiro se o arquivo é mesmo um ZIP antes de aceitar) |
-| **Por que o manifesto** | A CVM **sobrescreve os arquivos** quando corrige um dado, sem avisar e sem manter versão. O manifesto é a única forma de eu provar, daqui a três meses, com qual versão do dado o ranking foi feito |
+| **Por que o manifesto** | A CVM **sobrescreve os arquivos** quando corrige um dado, sem avisar e sem manter versão. O manifesto é a única forma de eu saber, daqui a três meses, com qual versão do dado o ranking foi feito |
+| **Cache de leitura** | Cada arquivo mensal é lido uma vez e guardado como Parquet sob um nome que carrega o SHA-256 do arquivo de origem. Ler é a metade cara da execução — 280 MB de texto latin-1 separado por ponto e vírgula custam mais que o download depois que os arquivos estão em disco. **A chave é o hash, não o nome**: arquivo retificado tem hash diferente, erra o cache e é lido de novo. Cache por nome de arquivo serviria número velho para sempre, sem avisar |
 
 ### Etapa 2 — Conferir
 
@@ -119,6 +131,8 @@ Checagens:
 | Fundo tem pelo menos 200 dias de cota no período | tiro da disputa |
 
 **Regra de freio:** se mais de 5% das linhas de um arquivo forem descartadas, o programa **para com erro**. Prefiro não entregar ranking a entregar um ranking torto sem ninguém perceber.
+
+**E nada é descartado em silêncio:** toda linha rejeitada vai para quarentena **com o motivo escrito**. Filtro que não se consegue inspecionar é indistinguível de bug.
 
 ### Etapa 3 — Juntar
 
@@ -159,13 +173,18 @@ Cada fórmula é uma função pequena com teste próprio. Exemplos de teste: uma
 ### Como se roda
 
 ```bash
-python -m ranking --data-ref 2025-12-31
+uv run ranking --reference-date 2025-12-31
 ```
 
-Um comando. Mesmo comando, mesma data, mesmo resultado. E qualquer etapa pode ser chamada isolada, de dentro de outro programa:
+Um comando. Mesmo comando, mesma data, mesmo resultado. Acrescentar `--validate` roda também o teste fora da amostra e escreve `validacao.md` — minutos em vez de segundos, porque roda o pipeline quatro vezes.
+
+A linha de comando é casca fina. O programa inteiro é uma função, e outro time a importa sem precisar de shell:
 
 ```python
-from ranking import baixar, calcular, ranquear
+from ranking.pipeline import run
+
+resultado = run(reference_date=date(2025, 12, 31))
+resultado.payload.profiles[0].top[0].name
 ```
 
 ---
@@ -234,16 +253,19 @@ O ciclo é sempre o mesmo, e não pulo etapa:
 
 Se um teste passa de primeira, ele está errado — não testa o que eu acho que testa.
 
-### Os quatro tipos de teste, e por que cada um existe
+### Os cinco tipos de teste, e por que cada um existe
 
 | Tipo | Exemplo concreto | Que erro pega |
 |---|---|---|
 | **Invariante financeira** | cota constante ⇒ retorno 0 · cota que dobra ⇒ 100% · composição dia a dia = ponta a ponta · pior queda nunca é positiva | Fórmula errada. É o erro mais caro e o mais silencioso |
 | **Contrato** | schema rejeita CNPJ com 13 dígitos, cota negativa, data futura | Dado ruim entrando |
-| **Armadilha** | `Data_Inicio` do CNPJ `00068305000135` é 2025, mas a idade tem que sair 31 anos | Regressão das 8 armadilhas que já descobri |
+| **Armadilha** | `Data_Inicio` do CNPJ `00068305000135` é 2025, mas a idade tem que sair 31 anos | Regressão das 13 armadilhas conhecidas |
 | **Ponta a ponta** | pipeline roda em fixture de 20 fundos × 60 dias e gera JSON válido | Peças que funcionam sozinhas e quebram juntas |
+| **Produto** | abre o `ranking.json` entregue: a janela tem a duração que o rótulo promete · nenhuma lista repete uma carteira · os pesos aplicados somam 100 · nenhum campo do contrato sai vazio | **A maquinaria certa produzindo resposta errada** |
 
 Mais um: **arquivo dourado**. Congelo o `ranking.json` de uma fixture. Se ele mudar sem eu ter mexido de propósito, algo aconteceu.
+
+**Por que o quinto tipo existe.** Os quatro primeiros olham para dentro e pegam função errada. Nenhum deles pega uma janela de treze meses rotulada como doze, uma lista com a mesma carteira em duas posições, um peso que empata para todo fundo do universo, ou um campo de contrato publicado vazio. Nada disso quebra função nenhuma — tudo isso atravessa uma suíte verde. A regra que fica: **todo campo publicado precisa de um teste que falharia se ele saísse vazio, com o rótulo errado, ou repetido.**
 
 ### Fixtures
 
@@ -288,6 +310,8 @@ Cada ano a mais de histórico custa cerca de 10% do universo. Além disso, 2021�
 
 **Uso 12 meses para pontuar** e reporto 3, 6 e 24 meses junto, para quem quiser discordar do meu critério com os números na mão. A janela é um parâmetro de configuração.
 
+**E doze meses são doze meses.** A janela é fechada nas duas pontas e contada a partir da própria data de referência: 31/12/2025 menos doze meses começa em **01/01/2025** e contém **252 dias úteis**, contra os 14,3242% que o CDI fez no ano-calendário. Começar no primeiro dia do mês doze meses atrás daria 01/12/2024, treze meses, 273 dias e um CDI de 15,39% — sem quebrar nada, porque fundo e benchmark continuariam compostos sobre a mesma janela e o excesso continuaria coerente. O que sairia errado é só o que o leitor consegue conferir: um retorno que não bate com o que o próprio fundo publica. Por isso o `ranking.json` publica `window_start` como data, não só a contagem de meses — contagem de mês ninguém confere, duas datas qualquer um confere.
+
 ---
 
 ## 7. Dois perfis de cliente
@@ -323,6 +347,30 @@ Antes de aplicar os pesos, converto cada número na **posição relativa do fund
 
 Sem isso, o ranking viraria automaticamente "os cinco fundos que tomaram mais risco de crédito" — porque em 2025 eles renderam mais, e o problema deles ainda não apareceu.
 
+### Duas notas, porque percentil é sempre relativo a alguma coisa
+
+Comparar dentro do grupo responde *este fundo é bom para o que ele é?*, que é a pergunta respondível a partir de uma série de cotas. Ela é **silenciosa sobre o grupo**: ser o primeiro de dezoito vale 1 numa categoria forte e numa fraca, e o Top 5 final mistura categorias.
+
+Então todo fundo publica duas notas: a nota contra os pares, que decide o ranking, e a mesma nota recalculada contra **todo o universo elegível do perfil**. Quando as duas se afastam, o fundo é o melhor de uma categoria que não é boa. Na entrega de 31/12/2025 o primeiro colocado do perfil de prazo tira 83,2 no grupo e 66,9 no universo, e quem lê tem direito de saber disso antes de comprar.
+
+Eu **não** invento um termo de qualidade de grupo para "corrigir" a soma. Isso exigiria afirmar que uma categoria vale mais que outra — exatamente o julgamento que a comparação intra-grupo existe para não precisar fazer. Publicar as duas notas devolve o julgamento a quem lê.
+
+### Peso só vale para critério que separa
+
+Elegibilidade e pontuação respondem perguntas diferentes, e um critério pode ser decisivo na primeira e vazio na segunda. O perfil de liquidez filtra para resgate em até um dia e depois dá peso ao prazo de resgate — mas **214 dos 218 fundos que sobram liquidam em D+0**. Todos empatam, o percentil sai 0,5 para todo mundo, e o peso não decide nada enquanto os outros critérios valem 11% mais do que a configuração afirma.
+
+Um critério cuja dispersão no universo elegível fica abaixo de um piso declarado é tratado como inerte: o peso vai proporcionalmente para os que ainda distinguem, e a saída nomeia o critério e publica os pesos **de fato aplicados** ao lado dos declarados. É regra sobre a forma do dado, aplicada igual a todo perfil e a toda data — o universo decide qual critério cai, a cada execução, não eu.
+
+### Cinco fundos, não cinco notas
+
+Uma nota ranqueia fundos um a um. Uma lista de cinco é consumida de uma vez, por alguém que vai carregar os cinco.
+
+Uma gestora brasileira roda uma carteira e a vende por várias classes de distribuição — a Caixa tem **doze** sobre uma só carteira de renda fixa. Cada uma é classe separada no registro, cada uma é elegível, cada uma tira quase a mesma nota. Um Top 5 com duas delas entrega quatro exposições sem avisar.
+
+Dois fundos contam como um quando **a mesma gestora roda os dois** e a diferença entre suas séries de retorno quase não oscila — volatilidade anualizada da diferença abaixo de 0,10% ao ano. Correlação não serve aqui e não é usada: todo fundo pós-fixado segue a mesma curva de um dia e correlaciona acima de 0,99 com todos os outros, então qualquer limiar alto o bastante para pegar um gêmeo também marca metade do universo. A pergunta certa não é *estes dois se movem junto*, é *quanto estes dois discordam*: dois invólucros de uma carteira diferem só pela taxa, que é arrasto constante e não gera variância.
+
+O fundo deixado de fora sai publicado ao lado da lista, com nome, o fundo que ele repete e a distância entre os dois.
+
 ---
 
 ## 8. Como lido com o fato de que o ranking é ruidoso
@@ -348,6 +396,16 @@ Um fundo que só é primeiro na conta exata, e some quando eu mexo um pouco nos 
 
 Isso também responde à crítica mais óbvia que se pode fazer ao projeto: *"os pesos são arbitrários"*. São. Mas eu mostro o quanto o resultado depende deles.
 
+### Três detalhes da reamostragem que decidem se ela significa alguma coisa
+
+**Cada fundo sorteia os próprios blocos.** A grandeza estimada é idiossincrática: quanto da vantagem *deste* fundo sobre aquele é sorte de amostra. Dar a todos o mesmo calendário reamostrado preserva o comovimento do mercado, o que soa conservador e é o contrário — move a seção transversal inteira junta, deixa a ordem relativa quase intacta e devolve sobrevivência perto de 100% para um ranking que ninguém estressou. O preço é que um ano simulado não contém crash comum. Está declarado, e é o mais barato dos dois erros.
+
+**O benchmark é reamostrado junto com o fundo.** Excesso é diferença entre duas séries compostas, e as duas precisam ser compostas sobre os mesmos dias. Medir um ano reamostrado do fundo contra o CDI do ano-calendário enviesa todo excesso — e como retorno por unidade de risco divide essa diferença pela volatilidade, um viés que se cancelaria num ranking por excesso não se cancela ali: ele reordena, a favor dos fundos mais voláteis.
+
+**Cada fundo mantém o próprio comprimento de histórico.** Truncar o painel no fundo mais curto jogaria fora um quinto da evidência de todo mundo para acomodar o mais novo.
+
+Com os três no lugar, as taxas de aparição ocupam a faixa de 31% a 99%, em vez do aglomerado de 97% a 100% que uma reamostragem de calendário comum produz. O ranking não ficou menos confiável — ele parou de afirmar uma confiança que não tinha.
+
 ---
 
 ## 8.1 O teste no passado: o método funciona?
@@ -361,8 +419,10 @@ Então faço o teste óbvio: **monto o ranking com dados de meio do ano e vejo o
 Rodo o pipeline inteiro fingindo que hoje é 30 de junho de 2025. Mesmo código, mesma configuração, nenhuma linha nova:
 
 ```bash
-python -m ranking --data-ref 2025-06-30
+uv run ranking --reference-date 2025-12-31 --validate
 ```
+
+Por dentro, isso é o pipeline inteiro rodado quatro vezes — uma por data de corte, mais a final que fornece a régua. Mesmo código, mesma configuração, nenhuma linha nova.
 
 Congelo o Top 5 que sair. Depois meço quanto esses cinco fundos renderam de **julho a dezembro de 2025** — período que o ranking não viu.
 
@@ -372,11 +432,24 @@ Se o point-in-time da Etapa 1 estiver correto, isso é literalmente um comando. 
 
 | Referência | Pergunta que responde |
 |---|---|
-| Mediana do grupo | Meu Top 5 bate o fundo típico da mesma categoria? |
-| CDI / IMA-B / IRF-M | Bate o benchmark que o fundo promete seguir? |
+| Mediana dos elegíveis | Meu Top 5 bate o fundo típico do mesmo universo? |
+| CDI, composto sobre exatamente os dias medidos | Bate o benchmark que o cliente tem na cabeça? |
 | **1.000 carteiras de 5 fundos sorteados** ao acaso do universo elegível | **Meu método bate o acaso?** |
+| 1.000 carteiras sorteadas do **quartil mais barato** do mesmo universo | Quanto disso é seleção e quanto é a taxa ser menor? |
 
-A terceira é a que importa. É o controle que quase ninguém faz, e é o que separa análise de horóscopo. O número que reporto é: **em que percentil da distribuição de carteiras aleatórias meu Top 5 caiu.**
+A terceira é a que decide o critério congelado. É o controle que quase ninguém faz, e é o que separa análise de horóscopo. O número reportado é em que percentil da distribuição de carteiras aleatórias o Top 5 caiu.
+
+**A quarta existe porque a taxa sai da cota antes de qualquer medição.** Como o custo é o maior peso dos dois perfis, parte de qualquer vantagem sobre a mediana é aritmética que se sabia antes de rodar o teste: fundo mais barato entrega mais do mesmo retorno bruto. Sortear só entre os baratos segura isso aproximadamente constante.
+
+E ela não é experimento limpo, o que o relatório diz com essas palavras: segurar o custo também muda a composição do grupo, porque o quartil mais barato é dominado por fundo de título público, que rende bruto menos que crédito. É um segundo ângulo sobre o mesmo resultado, não uma decomposição entre custo e habilidade. Por isso ela é **reportada e não faz parte do critério**, que foi congelado antes de ela existir.
+
+### De onde saem os retornos medidos
+
+Do **painel validado inteiro**, não do universo elegível na data final.
+
+A diferença não é detalhe. Um fundo escolhido em março que encolheu abaixo do corte de cotistas até dezembro continua tendo tido um retorno. Ler o resultado do conjunto sobrevivente o descarta em silêncio da média, e a média passa a ser dividida pelos fundos que deram certo — o viés de sobrevivência que este projeto critica em três lugares, aplicado ao próprio teste que existe para detectá-lo.
+
+A garantia é uma propriedade testada: **o divisor é sempre o número de fundos que o método escolheu**, nunca o número deles que era mensurável. Um fundo sem cota nenhuma depois do corte entra com o último valor conhecido, conforme a política congelada antes, e sai nomeado no relatório.
 
 ### Três datas de corte, não uma
 
@@ -408,48 +481,80 @@ Que o método funciona **em 2026**. Ele mostra que funcionou em três recortes d
 
 | Arquivo | Para quem | Conteúdo |
 |---|---|---|
-| `ranking.json` | Outro sistema | Top 5 por perfil, com todos os números, os pesos usados, a taxa de aparecimento e o manifesto das fontes |
-| `ranking.md` | Uma pessoa | O mesmo, em texto, com um parágrafo explicando cada escolha |
+| `saida/ranking.md` | Uma pessoa | As duas listas, um parágrafo explicando cada escolha, e o que o método não enxerga |
+| `saida/ranking.json` | Outro sistema | O mesmo, com todos os números, percentis, pesos aplicados e o manifesto das fontes |
+| `saida/ranking.html` | Uma pessoa, de relance | As mesmas listas como página autocontida |
+| `saida/relatorio_qualidade.md` | Quem precisa confiar nos números | O funil de elegibilidade contra o baseline |
+| `saida/validacao.md` | Quem precisa confiar no método | O teste fora da amostra |
 | `README.md` | Quem for rodar | Como instalar e executar, o que cada etapa faz |
 | Código + testes | Quem for manter | Um comando para rodar tudo, funções importáveis |
+
+**`saida/` é versionada.** O enunciado pede o `ranking.md` no repositório, e um arquivo que só passa a existir depois que alguém roda o pipeline não está entregue — além de virar link quebrado no README de quem clona. `dados/` não é versionada: é pesada, reconstruível, e o que a prende a uma execução não é o arquivo e sim o SHA-256 de cada fonte, que já viaja dentro do `ranking.json`.
 
 Formato do `ranking.json`:
 
 ```json
 {
-  "versao_do_formato": "1.0.0",
-  "data_referencia": "2025-12-31",
-  "janela_meses": 12,
-  "fontes": { "inf_diario_202512.zip": "sha256:..." },
-  "perfis": [{
-    "perfil": "varejo",
-    "fundos_avaliados": 871,
-    "pesos": { "taxa_adm": 25, "prazo_resgate": 20 },
-    "top5": [{
-      "posicao": 1,
-      "cnpj": "00000000000000",
-      "nome": "...",
-      "gestor": "...",
-      "grupo": "Renda Fixa Duração Baixa Soberano",
-      "nota": 87.4,
-      "aparicao_no_top5": 0.91,
-      "numeros": {
-        "rentabilidade_12m": 0.1132,
-        "ganho_sobre_cdi": 0.0041,
-        "oscilacao": 0.0018,
-        "pior_queda": -0.0002,
-        "taxa_adm": 0.0020,
-        "prazo_resgate_dias": 0,
-        "patrimonio": 4210000000.0,
-        "cotistas": 152331
+  "schema_version": "1.1.0",
+  "reference_date": "2025-12-31",
+  "lookback_months": 12,
+  "window_start": "2025-01-01",
+  "benchmark_label": "CDI",
+  "benchmark_by_group": { "Renda Fixa Duração Baixa Soberano": "CDI" },
+  "sources": { "inf_diario_fi_202512.zip": "3f9a..." },
+  "profiles": [{
+    "profile_id": "varejo_liquidez",
+    "label": "Retail — emergency reserve",
+    "eligible_universe_size": 218,
+    "weights":           { "admin_fee": 30, "volatility": 20, "redemption_days": 10 },
+    "effective_weights": { "admin_fee": 33, "volatility": 22 },
+    "inert_metrics": ["redemption_days"],
+    "manager_share": { "ITAU UNIBANCO ASSET MANAGEMENT LTDA.": 0.2752 },
+    "displaced": [{
+      "cnpj_classe": "09215250000113",
+      "name": "BTG PACTUAL TESOURO SELIC ...",
+      "score": 74.8,
+      "duplicate_of": "BTG PACTUAL CDB I ...",
+      "tracking_difference": 0.000363
+    }],
+    "top": [{
+      "rank": 1,
+      "cnpj_classe": "51998694000139",
+      "name": "...",
+      "manager": "...",
+      "peer_group": "Renda Fixa Duração Média Grau de Invest.",
+      "score": 86.8,
+      "score_pool": 72.0,
+      "appearance_rate": 0.99,
+      "appearance_rate_variable_only": 0.72,
+      "metrics": {
+        "retorno": 0.1432, "excesso": -0.00001, "volatilidade": 0.00071,
+        "pior_queda": 0.0, "taxa_adm": 0.0004, "dias_resgate": 0,
+        "patrimonio_medio": 19152092772.66, "cotistas": 141715,
+        "observacoes": 252, "fonte_taxa": "EXTRATO",
+        "regime_tributario": "tabela_regressiva"
       },
-      "porque": "..."
+      "percentiles": { "admin_fee": 0.97, "volatility": 1.0 },
+      "rationale": "..."
     }]
   }]
 }
 ```
 
-O campo `versao_do_formato` existe para que outro time possa depender do arquivo sem medo: se eu mudar a estrutura de forma incompatível, o número muda.
+Sete campos existem porque um número sozinho engana, e vale dizer qual pergunta cada um responde:
+
+| Campo | Pergunta que ele responde |
+|---|---|
+| `window_start` | A janela tem mesmo a duração que `lookback_months` afirma? Contagem de meses ninguém confere; duas datas qualquer um confere |
+| `benchmark_by_group` | Contra o que o excesso deste fundo foi medido? Declarado grupo a grupo, para não sobrar suposição |
+| `effective_weights` / `inert_metrics` | Os pesos declarados foram todos usados? Qual critério empatou para o universo inteiro e teve o peso redistribuído? |
+| `displaced` | Que fundo o score alcançou e a regra de distinção deixou de fora, por repetir qual carteira, e a que distância? |
+| `manager_share` | O universo de onde essa lista saiu já era concentrado? |
+| `score_pool` | Esta nota é boa contra os pares, ou também contra tudo que o perfil podia comprar? |
+| `appearance_rate_variable_only` | Este fundo continuaria no top 5 se fosse pontuado só por desempenho, ignorando taxa e prazo? |
+| `regime_tributario` | A comparação bruta é justa com este fundo? Fundo incentivado de infraestrutura é isento para pessoa física |
+
+O campo `schema_version` existe para que outro time possa depender do arquivo sem medo: acréscimo de campo sobe a versão menor, mudança incompatível sobe a maior.
 
 ---
 
@@ -526,25 +631,46 @@ artificialmente a nota de quem carrega mais risco.
 **6. Parte da estabilidade medida é mecânica.** Taxas e prazos não variam entre simulações,
 então um fundo bem ranqueado por custo aparenta mais robustez do que a evidência sustenta.
 
-**7. Fundos indexados à inflação são medidos contra o CDI**, não contra o IMA-B. Afeta 8,2% do
-universo. A série histórica do IMA não é publicada em formato utilizável.
+**7. Fundos indexados à inflação são medidos contra o CDI**, não contra o IMA-B, porque a
+ANBIMA publica o IMA como foto do dia e não como série. Afeta 8,2% do universo, e a comparação
+intra-grupo absorve o efeito no ranking por excesso mas **não** no retorno por unidade de risco,
+que divide o excesso deslocado por volatilidades diferentes.
 
-**8. Ignora imposto de renda.** A comparação é pré-tributação. Como quase todos os fundos de
-renda fixa seguem a mesma tabela, a comparação relativa continua justa; o número absoluto não
-é o que o cliente leva para casa.
+**8. Ignora imposto de renda, e isso não é neutro para todo mundo.** A comparação é
+pré-tributação. Para a maioria dos fundos, que segue a mesma tabela regressiva, a ordem
+relativa continua justa. **Fundo incentivado de infraestrutura é isento para pessoa física**,
+então o que o cliente leva para casa é maior do que a tabela mostra e a comparação bruta o
+subestima. Por isso todo fundo publica `regime_tributario`: a ressalva geral seria falsa se
+aplicada sem exceção, e a exceção existe dentro do universo elegível.
 
-**9. Cada fundo é avaliado isoladamente.** Não há restrição de diversificação, então o Top 5
-pode conter cinco fundos parecidos — e de fato concentra em uma gestora, pelo motivo explicado
-na seção 12.1.
+**9. A lista mistura categorias e soma percentis calculados dentro delas.** Ser o primeiro de
+dezoito vale 1 num grupo forte e num grupo fraco, e o Top 5 junta os dois. Não invento um termo
+de qualidade de grupo para corrigir a soma — isso exigiria afirmar que uma categoria vale mais
+que outra, exatamente o julgamento que a comparação intra-grupo existe para evitar. Publico as
+duas notas, `score` e `score_pool`, e o leitor decide.
 
-**10. O cadastro é uma foto de hoje.** A CVM não guarda versões antigas do registro.
+**10. A taxa é contada duas vezes, de propósito.** A cota já vem líquida, então o excesso
+dentro dela **já** pune o fundo caro; dar à taxa o maior peso conta o mesmo custo de novo. É
+escolha, não descuido — a primeira contagem fala de 2025 e a segunda fala de 2026 — mas quem
+lê precisa saber que está lá.
 
-### 12.1 Sobre a concentração em uma gestora
+**11. Cada fundo é avaliado isoladamente.** A única restrição de carteira é não repetir a mesma
+carteira duas vezes: dois invólucros de um portfólio ocupam uma vaga, não duas. Isso é bem menos
+que otimizar a combinação dos cinco, e a lista continua concentrando em poucas gestoras pelo
+motivo da seção 12.1.
 
-Oito dos dez recomendados são do mesmo grupo. Isso é consequência coerente do critério, não
+**12. O cadastro é uma foto de hoje.** A CVM não guarda versões antigas do registro.
+
+### 12.1 Sobre a concentração em poucas gestoras
+
+Seis dos dez recomendados são do mesmo grupo. Isso é consequência coerente do critério, não
 sintoma de erro: essa gestora pratica taxas muito baixas nos fundos de casa, e custo é o maior
-peso dos dois perfis. Fica declarado na entrega porque quem lê precisa saber que a lista
-concentra, e por quê.
+peso dos dois perfis.
+
+E há um número que muda a leitura, publicado em `manager_share`: **essa gestora já responde por
+27,5% dos 218 fundos do perfil de liquidez e por 20% dos 390 do perfil de prazo.** Três nomes
+numa lista de cinco não é a lista concentrando mais que o universo — é o universo que o varejo
+brasileiro tem. Sem esse número a concentração parece defeito; com ele, é aritmética.
 
 ## 13. O que fica em aberto
 

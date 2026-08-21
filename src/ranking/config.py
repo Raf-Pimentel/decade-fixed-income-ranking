@@ -45,7 +45,6 @@ class DataQuality(_Strict):
 class PeerGroups(_Strict):
     field: str
     min_size: int
-    benchmarks: dict[str, str]
 
 
 class ExpectedFunnel(_Strict):
@@ -105,6 +104,21 @@ class Profile(_Strict):
         return self
 
 
+class Winsorise(_Strict):
+    lower: float
+    upper: float
+
+
+class Scoring(_Strict):
+    winsorise: Winsorise
+    min_dispersion: float
+
+
+class Selection(_Strict):
+    max_tracking_difference: float
+    min_overlap_days: int
+
+
 class Robustness(_Strict):
     simulations: int
     seed: int
@@ -128,6 +142,8 @@ class Backtest(_Strict):
 class ProfilesConfig(_Strict):
     metrics: dict[str, MetricSpec]
     profiles: dict[str, Profile]
+    scoring: Scoring
+    selection: Selection
     robustness: Robustness
     backtest: Backtest
 

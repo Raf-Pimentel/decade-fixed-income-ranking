@@ -74,7 +74,7 @@ def test_pipeline_produces_a_quality_report(result, output_dir) -> None:
 
 def test_output_matches_the_declared_contract(result, output_dir) -> None:
     payload = json.loads((output_dir / "ranking.json").read_text(encoding="utf-8"))
-    assert payload["schema_version"] == "1.0.0"
+    assert payload["schema_version"] == "1.1.0"
     assert payload["reference_date"] == "2025-12-31"
     assert {p["profile_id"] for p in payload["profiles"]} == {"varejo_liquidez", "varejo_prazo"}
 

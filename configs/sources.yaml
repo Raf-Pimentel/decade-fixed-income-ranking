@@ -73,19 +73,15 @@ sources:
       is served. An unbounded URL asks for everything since 1986 and always
       fails. A backfill longer than about ten years has to be chunked.
 
-  anbima_indices:
-    label: "ANBIMA IMA indices (IMA-B, IRF-M, IMA-S)"
-    url: "https://www.anbima.com.br/informacoes/ima/arqs/ima_completo.xls"
-    filename: "ima_completo.xls"
-    granularity: snapshot
-    note: >
-      Public, no credentials. The ANBIMA fund database does require a key, but
-      these indices do not — and they are what we actually need, so that an
-      inflation-linked fund is judged against IMA-B rather than against CDI.
-
 # Deliberately not used, and why:
 #   cad_fi.csv  - obsolete under RCVM 175: covers 10.3% of fixed-income classes
 #                 and has 0% of admin fees filled in. See decision D-002.
 #   data.anbima.com.br - requires client_id/secret. Not needed: the ANBIMA
-#                 classification already ships inside the CVM registry.
+#                 classification already ships inside the CVM registry, and it
+#                 is the ANBIMA input the ranking depends on - it defines the
+#                 peer groups every percentile is computed within.
+#   ima_completo.xls - the IMA index file is a snapshot of the current day, not
+#                 a history, so a window ending on a past reference date cannot
+#                 be rebuilt from it. Every peer group is benchmarked to CDI and
+#                 the output states that per group. See decision D-030.
 #   CDA (portfolio holdings) - the known gap. See section 13 of the design doc.

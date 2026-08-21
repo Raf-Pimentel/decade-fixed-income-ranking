@@ -175,9 +175,32 @@ class RankedFund(BaseModel):
             "that stability with the mechanical part removed"
         ),
     )
+    score_pool: float = Field(
+        default=0.0,
+        description=(
+            "the same score computed against the whole eligible pool instead of the "
+            "fund's peer group. A fund whose peer score is high and whose pool score "
+            "is low is the best of a weak category, which the headline score alone "
+            "cannot say"
+        ),
+    )
     metrics: dict[str, float | int | str | None] = Field(default_factory=dict)
     percentiles: dict[str, float] = Field(default_factory=dict)
     rationale: str = ""
+
+
+class Displaced(BaseModel):
+    """A fund the score placed inside the top five and similarity kept out."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    cnpj_classe: str
+    name: str
+    score: float
+    duplicate_of: str
+    tracking_difference: float = Field(
+        description="annualised volatility of the difference between the two return series"
+    )
 
 
 class ProfileRanking(BaseModel):
@@ -187,6 +210,26 @@ class ProfileRanking(BaseModel):
     label: str
     eligible_universe_size: int
     weights: dict[str, int]
+    effective_weights: dict[str, int] = Field(
+        default_factory=dict,
+        description=(
+            "the weights actually applied. A metric with no spread across the eligible "
+            "pool carries no information, so its weight is redistributed across the "
+            "metrics that do and the difference is published here"
+        ),
+    )
+    inert_metrics: list[str] = Field(
+        default_factory=list,
+        description="weighted metrics whose values are effectively tied across the pool",
+    )
+    displaced: list[Displaced] = Field(
+        default_factory=list,
+        description="funds excluded from the list for duplicating a fund already in it",
+    )
+    manager_share: dict[str, float] = Field(
+        default_factory=dict,
+        description="share of the eligible pool held by each of its largest managers",
+    )
     top: list[RankedFund]
     top_n: int = 5
 
@@ -209,6 +252,14 @@ class RankingOutput(BaseModel):
     schema_version: str
     reference_date: dt.date
     lookback_months: int
+    window_start: dt.date | None = Field(
+        default=None,
+        description=(
+            "first day of the measurement window, inclusive. Published so that a "
+            "consumer can verify the window against its own calendar instead of "
+            "trusting the month count"
+        ),
+    )
     sources: dict[str, Any]
     profiles: list[ProfileRanking]
     generated_at: dt.datetime = Field(default_factory=lambda: dt.datetime.now(dt.UTC))
