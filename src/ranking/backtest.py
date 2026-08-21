@@ -292,8 +292,9 @@ def to_markdown(outcomes: list[Outcome], result: Verdict, end_date: dt.date) -> 
         "### Mas leia o percentil junto com a vantagem",
         "",
         f"A vantagem sobre a mediana ficou entre **{min(edges):+.0f} e "
-        f"{max(edges):+.0f} pontos-base**. Isso é pequeno em termos absolutos, e o percentil alto **não contradiz "
-        "isso**: fundos de renda fixa pós-fixados rendem todos perto do CDI, então a "
+        f"{max(edges):+.0f} pontos-base**. Isso é pequeno em termos absolutos, e o "
+        "percentil alto **não contradiz isso**: fundos de renda fixa pós-fixados "
+        "rendem todos perto do CDI, então a "
         "distribuição das carteiras aleatórias é muito estreita. Ficar no percentil 98 de uma "
         "distribuição apertada significa ganhar de quase todo mundo por pouco — não ganhar "
         "por muito.",
