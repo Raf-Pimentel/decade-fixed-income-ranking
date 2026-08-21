@@ -5,49 +5,43 @@ Ao final de cada fase, apresento o resultado e espero aprovação antes de segui
 
 ---
 
-## Onde estamos — checkpoint de 20/08/2026 (segundo)
+## Onde estamos — checkpoint de 20/08/2026 (terceiro)
 
-**Fases 2, 3, 4 e 5 concluídas.** Faltam a 5.5 (teste no passado) e a 6 (documentação).
+**Fases 2, 3, 4, 5 e 5.5 concluídas. Falta só a Fase 6 (documentação).**
 
 | | |
 |---|---|
-| Commits | 12, todos no GitHub (repositório privado) |
-| Suíte | **207 testes verdes**, incluindo os 9 de integração |
-| Cobertura nos módulos de cálculo | 93% (meta: 90%) |
+| Commits | 16, todos no GitHub (privado) |
+| Suíte | **223 testes verdes** |
+| Cobertura nos módulos de cálculo | 93% |
 | `ruff`, `ruff format`, `mypy` | limpos |
-| Funil de qualidade | dentro do baseline |
-| Universo final | **520 fundos** — 502 varejo · R$ 1,51 trilhão |
-| Execução completa | ~36 s, um comando |
+| Universo final | 520 fundos · 502 varejo · R$ 1,51 tri |
+| Execução | `uv run ranking --reference-date 2025-12-31`, ~36 s |
+| **Teste no passado** | **validado** — liquidez 3/3, prazo 2/3 (ver D-036) |
 
-**Números apurados sobre os dados reais:** CDI 2025 = 14,3242% em 252 dias úteis ·
-**40% dos 520 fundos bateram o CDI** · excesso mediano **−0,19%** · taxa mediana 0,50% ·
-mediana de 3.616 cotistas.
+### Saídas geradas
 
-### Revisão do primeiro resultado — ver D-035
+`saida/ranking.json` · `saida/ranking.md` · `saida/relatorio_qualidade.md` · `saida/validacao.md`
 
-Seis conclusões registradas, **nenhuma implementada nesta fase**, por decisão. A quatro dias
-da entrega, o teste no passado e a documentação valem mais que otimizar pesos às pressas.
+### O que falta — Fase 6, tudo documentação
 
-Duas viram trabalho na Fase 6:
+- [ ] `README.md` completo: o que é, como instalar, como rodar, o que sai, quanto demora
+- [ ] `ranking.md` como **lista simples** — taxa de aparição sai da vitrine, fica no JSON e na
+      seção técnica (D-035, ponto 4)
+- [ ] Destacar **duas** limitações acima das outras: risco de crédito escondido e doze meses
+      não preverem 2026
+- [ ] Declarar a concentração em uma gestora, com a explicação (taxas de casa baixas + custo é
+      o maior peso)
+- [ ] Nomear a **arbitrariedade dos pesos** como limitação de primeira ordem (D-035, ponto 1)
+- [ ] Ligar a execução semanal automática e confirmar que rodou sem ninguém
+- [ ] Página visual do ranking
+- [ ] Vídeo de 5 min — roteiro minutado pronto em `docs/decisoes.md`
+- [ ] Tag `v1.0.0`
 
-- [ ] **`ranking.md` volta a ser lista simples.** A taxa de aparição sai da vitrine e fica no
-      `ranking.json` e na seção técnica. Ela continua determinando a ordem — é validação, não
-      produto.
-- [ ] **Destacar duas limitações acima das outras** no `ranking.md` e no vídeo: risco de
-      crédito escondido, e doze meses não preverem 2026. Uma lista de dez itens dilui as duas
-      que importam.
-- [ ] Declarar a concentração em uma gestora e explicá-la (taxas de casa muito baixas + custo
-      é o maior peso).
-- [ ] Nomear **a arbitrariedade dos pesos** como limitação de primeira ordem, com o argumento
-      da D-035: o projeto não encontra os pesos ótimos, mas garante que o pipeline produz o
-      ranking certo a partir dos pesos que receber.
+### Pendente com o Rafael
 
-### O que depende do Rafael, não de mim
-
-- [ ] **Conferir 3 fundos na planilha.** Cota de 02/01/2025 e 30/12/2025, retorno, comparar com
-      o `ranking.json`. É a verificação independente mais valiosa do projeto.
-- [x] ~~Decidir a questão dos perfis~~ — decidido: dois perfis de varejo (D-032).
-- [x] ~~Olhar o Top 5 e dizer se algo parece estranho~~ — feito, gerou a D-035.
+- [ ] **Conferir 3 fundos na planilha** — cota de 02/01/2025 e 30/12/2025, comparar com o
+      `ranking.json`. Única verificação verdadeiramente independente do cálculo.
 
 ---
 

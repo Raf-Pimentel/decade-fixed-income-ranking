@@ -15,8 +15,8 @@ Prazo: **28/08/2026, 20h**.
 Desenho completo: `docs/01-solution-design.md`. Checklist executável: `docs/02-checklist.md`.
 Diário de decisões: `docs/decisoes.md`.
 
-**Fases:** 1 planejamento ✓ · 2 setup e TDD ✓ · 3 extração e validação ✓ · 4 junção e
-métricas ✓ · **5 ranking e saída ← aqui** · 5.5 teste no passado · 6 documentação.
+**Fases:** 1 ✓ · 2 ✓ · 3 ✓ · 4 ✓ · 5 ✓ · 5.5 teste no passado ✓ (**validado**) ·
+**6 documentação ← aqui**.
 
 Estado detalhado e decisão pendente: topo de `docs/02-checklist.md`.
 

@@ -51,6 +51,7 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-033](#d-033) | 20/08 | 5 | Só ligar a simulação de verdade mostrou que ela não estava ligada | 🎥 |
 | [D-034](#d-034) | 20/08 | 5 | **O primeiro Top 5 continha fundos institucionais. Dois defeitos meus** | 🎥📊 |
 | [D-035](#d-035) | 20/08 | 5 | **Revisão do primeiro resultado: seis conclusões, nenhuma implementada agora** | 🎥 |
+| [D-036](#d-036) | 20/08 | 5.5 | **O teste no passado validou o método — e corrigi dois erros contra mim** | 🎥📊 |
 
 ---
 
@@ -891,6 +892,58 @@ mais que uma tentativa apressada de otimizar pesos.
 
 ---
 
+## D-036 — O teste no passado validou o método 🎥📊
+**Quando:** 20/08, Fase 5.5
+
+O ranking foi reconstruído em 31/03, 30/06 e 30/09 de 2025, usando nada publicado depois de
+cada data, e os cinco escolhidos foram medidos até 31/12/2025 contra a mediana dos elegíveis
+e contra **mil carteiras de cinco fundos sorteados do mesmo universo**.
+
+| Corte | Perfil | Top 5 | Mediana | Vantagem | Contra o acaso |
+|---|---|---:|---:|---:|---:|
+| 31/03 | liquidez | +10,93% | +10,66% | +27 pb | p92% ✅ |
+| 31/03 | prazo | +10,90% | +10,69% | +20 pb | p84% ✅ |
+| 30/06 | liquidez | +7,43% | +7,13% | +31 pb | p100% ✅ |
+| 30/06 | prazo | +7,36% | +7,16% | +20 pb | p97% ✅ |
+| 30/09 | liquidez | +3,49% | +3,39% | +10 pb | p98% ✅ |
+| 30/09 | prazo | +3,32% | +3,39% | −8 pb | p51% ❌ |
+
+**Veredito: validado.** Liquidez 3 de 3, prazo 2 de 3; o critério exigia 2 de 3.
+
+### Dois erros meus, corrigidos antes de escrever o veredito — ambos contra mim
+
+**1. Eu estava aplicando o critério mais frouxo do que ele foi escrito.** O texto congelado diz
+"2 das 3 datas". Com dois perfis são seis resultados, e eu contei **5 de 6** — o que torna o
+teste trivialmente mais fácil. Passou a ser aplicado **por perfil**: cada um clareia sozinho.
+A leitura mais dura, e ainda passa.
+
+É exatamente o que a regra 11 existe para pegar, com a diferença de que o erro estava na
+*aplicação* do critério, não no critério.
+
+**2. Percentil alto contra distribuição estreita não é ganho grande.** p98% soa forte; a
+vantagem real é de **10 a 31 pontos-base**. Fundos pós-fixados rendem todos perto do CDI, então
+a distribuição aleatória é apertada — ficar no percentil 98 é ganhar de quase todos **por
+pouco**. O relatório agora traz pontos-base ao lado do percentil.
+
+### Por que o resultado é mais crível justamente por ser pequeno
+
+Se tivesse aparecido +5% de vantagem em renda fixa, o certo seria desconfiar do próprio código.
+Some-se que um caso **falhou** (p51%, praticamente moeda) e está na tabela, que o critério está
+commitado desde a Fase 2 com data no histórico do git, e que fundos que pararam de publicar
+foram mantidos pelo último valor, conforme política também congelada.
+
+### O que não prova
+
+Três recortes do mesmo ano, com um regime de juros só, **não são três observações
+independentes**.
+
+### E uma promessa da Fase 1 que se cumpriu
+
+Escrevi na D-017 que o teste seria quase de graça *se* o point-in-time estivesse correto, e que
+se fosse difícil de rodar seria sinal de que estava furado. Rodou como um comando.
+
+---
+
 # Material para a apresentação
 
 *Seção viva — vou alimentando conforme o projeto anda.*
@@ -946,7 +999,9 @@ mais que uma tentativa apressada de otimizar pesos.
 | CDI 2025 = 14,3242% | em exatamente 252 dias úteis — bate com a constante de anualização |
 | **37%** | dos 975 fundos elegíveis bateram o CDI. A mediana ficou **0,22% abaixo** |
 | 58% do varejo é D+0 | por isso um ranking único de varejo não serve |
-| 169 testes verdes | cobertura de 93% nos módulos de cálculo |
+| 223 testes verdes | cobertura de 93% nos módulos de cálculo |
+| p92 · p100 · p98 / p84 · p97 · p51 | o Top 5 contra mil carteiras aleatórias, em três datas de corte |
+| +10 a +31 pontos-base | a vantagem real sobre a mediana — pequena, e é por isso que é crível |
 
 ## Esqueleto do vídeo (5 min)
 
