@@ -12,26 +12,10 @@ import json
 from pathlib import Path
 
 from ranking.contracts.schemas import RankedFund, RankingOutput
+from ranking.publish.format import money as _money
+from ranking.publish.format import percent as _percent
 
 SCHEMA_VERSION = "1.0.0"
-
-
-def _percent(value: object, places: int = 2) -> str:
-    """Anything that is not a number prints as a dash rather than crashing the
-    report — a missing figure is information, not a failure."""
-    if not isinstance(value, int | float) or isinstance(value, bool):
-        return "—"
-    return f"{value * 100:.{places}f}%"
-
-
-def _money(value: object) -> str:
-    if not isinstance(value, int | float) or isinstance(value, bool):
-        return "—"
-    if value >= 1e9:
-        return f"R$ {value / 1e9:.1f} bi"
-    if value >= 1e6:
-        return f"R$ {value / 1e6:.0f} mi"
-    return f"R$ {value:,.0f}"
 
 
 def describe(fund: RankedFund) -> str:
@@ -179,19 +163,34 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
         "que mais sobreviveram a esse teste, não os de maior nota pontual. A taxa de "
         "sobrevivência de cada um:",
         "",
-        "| Fundo | Perfil | Nota | Apareceu no top 5 em |",
-        "|---|---|---:|---:|",
+        "| Fundo | Perfil | Nota | Apareceu no top 5 | Só pelo desempenho |",
+        "|---|---|---:|---:|---:|",
     ]
     for profile in payload.profiles:
         for fund in profile.top:
+            honest = (
+                f"{fund.appearance_rate_variable_only:.0%}"
+                if fund.appearance_rate_variable_only is not None
+                else "—"
+            )
             lines.append(
                 f"| {fund.name[:40]} | {profile.profile_id} | {fund.score:.1f} "
-                f"| {fund.appearance_rate:.0%} |"
+                f"| {fund.appearance_rate:.0%} | {honest} |"
             )
     lines += [
         "",
-        "Taxas e prazos não variam entre simulações, então parte dessa estabilidade é "
-        "mecânica. Todos os números por fundo estão em `ranking.json`.",
+        "**A última coluna responde outra pergunta:** este fundo continuaria no top 5 se "
+        "fosse pontuado **só pelo desempenho** — retorno, ganho sobre o CDI, oscilação e "
+        "pior queda — ignorando taxa e prazo de resgate?",
+        "",
+        "Para a maioria, a resposta é não. Isso não é defeito: é a consequência deliberada "
+        "de dar à taxa o maior peso, porque ela é o único número que se sabe com certeza "
+        "sobre o ano que vem, e porque apenas 40% dos fundos bateram o CDI em 2025. "
+        "**Mas quem lê esta lista tem o direito de saber que ela é, em grande parte, um "
+        "ranking de custo e liquidez** — e que os fundos escolhidos não seriam os mesmos "
+        "se o critério fosse desempenho passado.",
+        "",
+        "Todos os números por fundo estão em `ranking.json`.",
         "",
     ]
 

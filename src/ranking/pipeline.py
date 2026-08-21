@@ -288,14 +288,10 @@ def run(
     )
     slot_of = {cnpj: index for index, cnpj in enumerate(order)}
 
-    rankings = []
+    rankings: list[schemas.ProfileRanking] = []
     eligible_by_profile: dict[str, list[str]] = {}
     for profile_id, profile in profiles_config.profiles.items():
-        pool = eligibility.for_profile(funds, profile.eligibility)
-        eligible_by_profile[profile_id] = pool["cnpj_classe"].to_list()
-
-    _unused = [
-        _rank_profile(
+        ranking, eligible = _rank_profile(
             funds,
             profile_id,
             profile,
@@ -305,9 +301,8 @@ def run(
             draws,
             slot_of,
         )
-        for profile_id, profile in profiles_config.profiles.items()
-    ]
-    rankings = _unused
+        rankings.append(ranking)
+        eligible_by_profile[profile_id] = eligible
 
     payload = schemas.RankingOutput(
         schema_version=writers.SCHEMA_VERSION,
@@ -379,18 +374,22 @@ def _rank_profile(
     simulations: int | None = None,
     draws: dict[str, np.ndarray] | None = None,
     slot_of: dict[str, int] | None = None,
-) -> schemas.ProfileRanking:
+) -> tuple[schemas.ProfileRanking, list[str]]:
     """Eligibility first, then percentiles — never the other way round."""
     pool = eligibility.for_profile(funds, profile.eligibility)
     top_n = profiles_config.robustness.top_n
+    eligible = pool["cnpj_classe"].to_list() if not pool.is_empty() else []
     if pool.is_empty():
-        return schemas.ProfileRanking(
-            profile_id=profile_id,
-            label=profile.label,
-            eligible_universe_size=0,
-            weights=profile.weights,
-            top=[],
-            top_n=top_n,
+        return (
+            schemas.ProfileRanking(
+                profile_id=profile_id,
+                label=profile.label,
+                eligible_universe_size=0,
+                weights=profile.weights,
+                top=[],
+                top_n=top_n,
+            ),
+            eligible,
         )
 
     grouped = scoring.merge_small_groups(
@@ -417,6 +416,10 @@ def _rank_profile(
         scored,
         weights=profile.weights,
         jitter=profile.jitter,
+        # The metrics that move between simulations are the ones derived from
+        # the return series. Naming them lets the report separate real
+        # robustness from the mechanical kind that a constant fee provides.
+        varying_metrics=list(profile_draws) if profile_draws else None,
         metric_draws=profile_draws,
         metrics_config={name: directions[name] for name in profile.weights},
         group="peer_group_effective",
@@ -440,6 +443,11 @@ def _rank_profile(
             peer_group=row.get("peer_group_effective"),
             score=float(row["score"]),
             appearance_rate=float(row.get("appearance_rate") or 0.0),
+            appearance_rate_variable_only=(
+                float(row["appearance_rate_variable_only"])
+                if row.get("appearance_rate_variable_only") is not None
+                else None
+            ),
             metrics={
                 key: row.get(key)
                 for key in (
@@ -467,13 +475,16 @@ def _rank_profile(
         fund.rationale = writers.describe(fund)
         ranked.append(fund)
 
-    return schemas.ProfileRanking(
-        profile_id=profile_id,
-        label=profile.label,
-        eligible_universe_size=len(pool),
-        weights=profile.weights,
-        top=ranked,
-        top_n=top_n,
+    return (
+        schemas.ProfileRanking(
+            profile_id=profile_id,
+            label=profile.label,
+            eligible_universe_size=len(pool),
+            weights=profile.weights,
+            top=ranked,
+            top_n=top_n,
+        ),
+        eligible,
     )
 
 

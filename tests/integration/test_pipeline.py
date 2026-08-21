@@ -56,6 +56,17 @@ def test_pipeline_produces_both_outputs(result, output_dir) -> None:
     assert (output_dir / "ranking.md").exists()
 
 
+def test_pipeline_produces_the_visual_page(result, output_dir) -> None:
+    """The page is a deliverable, not a side effect. Without this test someone
+    could remove the call and the suite would stay green — which is exactly the
+    silent failure this project exists to prevent."""
+    page = output_dir / "ranking.html"
+    assert page.exists()
+    body = page.read_text(encoding="utf-8")
+    assert "<!doctype html>" in body
+    assert "https://" not in body, "the page must open with no network"
+
+
 def test_pipeline_produces_a_quality_report(result, output_dir) -> None:
     """Whoever needs to trust the numbers reads this file first."""
     assert (output_dir / "relatorio_qualidade.md").exists()

@@ -53,6 +53,7 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-035](#d-035) | 20/08 | 5 | **Revisão do primeiro resultado: seis conclusões, nenhuma implementada agora** | 🎥 |
 | [D-036](#d-036) | 20/08 | 5.5 | **O teste no passado validou o método — e corrigi dois erros contra mim** | 🎥📊 |
 | [D-037](#d-037) | 20/08 | 6 | Extrato multi-ano ampliou o universo; o guardrail pegou e o resultado não mudou | 📊 |
+| [D-038](#d-038) | 21/08 | 6 | **Publicar a taxa só-desempenho revelou que a lista é, sobretudo, de custo** | 🎥📊 |
 
 ---
 
@@ -966,6 +967,41 @@ para "poucas gestoras".
 
 ---
 
+## D-038 — Publicar a taxa "só desempenho" revelou o que a lista realmente é 🎥📊
+**Quando:** 21/08, Fase 6
+
+Numa revisão do repositório com olhar externo, apareceu que a `appearance_rate_variable_only`
+era calculada, testada — e **nunca publicada**. Era uma promessa de docstring não cumprida no
+produto. Decidi publicá-la.
+
+Publicar mudou o entendimento do próprio resultado:
+
+| Fundo | Aparição total | Só pelo desempenho |
+|---|---:|---:|
+| Itaú Crédito Bancário | 100% | **100%** |
+| BTG Pactual CDB I | 98% | **4%** |
+| Itaú Janeiro (1º do perfil de prazo) | 100% | **3%** |
+| Daycoval Títulos Públicos | 74% | **0%** |
+
+A coluna responde: *este fundo continuaria no top 5 se fosse pontuado só por retorno, ganho
+sobre o CDI, oscilação e pior queda, ignorando taxa e prazo?* Para quase todos, **não**.
+
+**Isso não é defeito — é a D-012 funcionando exatamente como projetada.** A taxa é o maior
+peso, de propósito. Mas a magnitude é muito maior do que eu esperava, e leva a uma frase que
+precisa estar na entrega:
+
+> Esta é, em grande parte, uma lista de **custo e liquidez**. Os cinco fundos não seriam os
+> mesmos se o critério fosse desempenho passado.
+
+**Correção de redação que fiz junto:** eu tinha descrito a coluna como medida de "estabilidade
+mecânica". Está errado. Ela não mede quanto da robustez é artefato — mede se o fundo sobrevive
+a um critério diferente. Descrever mal um número publicado é pior que não publicá-lo.
+
+**Um fundo passou nas duas:** o Itaú Crédito Bancário, com 100% nas duas colunas. É o único da
+lista que é escolhido tanto por custo quanto por desempenho.
+
+---
+
 # Material para a apresentação
 
 *Seção viva — vou alimentando conforme o projeto anda.*
@@ -1024,6 +1060,7 @@ para "poucas gestoras".
 | 223 testes verdes | cobertura de 93% nos módulos de cálculo |
 | p92 · p100 · p98 / p84 · p97 · p51 | o Top 5 contra mil carteiras aleatórias, em três datas de corte |
 | +10 a +31 pontos-base | a vantagem real sobre a mediana — pequena, e é por isso que é crível |
+| 100% vs 3% | o 1º do perfil de prazo some do top 5 quando pontuado só por desempenho: a lista é de custo |
 
 ## Esqueleto do vídeo (5 min)
 

@@ -17,6 +17,9 @@ from html import escape
 from pathlib import Path
 
 from ranking.contracts.schemas import RankedFund, RankingOutput
+from ranking.publish.format import count as _count
+from ranking.publish.format import money as _money
+from ranking.publish.format import percent as _pct
 
 _STYLE = """
 :root {
@@ -71,22 +74,6 @@ footer { margin-top: 2.5rem; color: var(--soft); font-size: .78rem;
 """
 
 
-def _pct(value: object, places: int = 2) -> str:
-    if not isinstance(value, int | float) or isinstance(value, bool):
-        return "—"
-    return f"{value * 100:.{places}f}%"
-
-
-def _money(value: object) -> str:
-    if not isinstance(value, int | float) or isinstance(value, bool):
-        return "—"
-    if value >= 1e9:
-        return f"R$ {value / 1e9:.1f} bi"
-    if value >= 1e6:
-        return f"R$ {value / 1e6:.0f} mi"
-    return f"R$ {value:,.0f}"
-
-
 def _card(fund: RankedFund) -> str:
     numbers = fund.metrics
     days = numbers.get("dias_resgate")
@@ -99,7 +86,7 @@ def _card(fund: RankedFund) -> str:
         ("resgate", prazo),
         ("pior queda", _pct(numbers.get("pior_queda"))),
         ("patrimônio", _money(numbers.get("patrimonio_medio"))),
-        ("cotistas", f"{int(holders):,}".replace(",", ".") if isinstance(holders, int) else "—"),
+        ("cotistas", _count(holders)),
     ]
     nums = "".join(
         f'<div class="num"><span class="k">{escape(key)}</span>'

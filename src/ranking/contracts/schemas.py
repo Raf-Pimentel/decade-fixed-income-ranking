@@ -166,6 +166,15 @@ class RankedFund(BaseModel):
     appearance_rate: float = Field(
         description="share of simulations in which this fund stayed in the top 5"
     )
+    appearance_rate_variable_only: float | None = Field(
+        default=None,
+        description=(
+            "the same count, scored only on the metrics that actually move between "
+            "simulations. Fees and redemption terms are constant, so a fund ranked "
+            "largely on cost looks more stable than the evidence supports; this is "
+            "that stability with the mechanical part removed"
+        ),
+    )
     metrics: dict[str, float | int | str | None] = Field(default_factory=dict)
     percentiles: dict[str, float] = Field(default_factory=dict)
     rationale: str = ""
