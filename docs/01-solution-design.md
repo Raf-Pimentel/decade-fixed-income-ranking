@@ -26,29 +26,31 @@ Parti de todas as classes registradas na CVM e fui cortando. Todos os números a
 
 | Corte | Sobram | Por que corto |
 |---|---:|---|
-| Todas as classes registradas na CVM | 36.598 | ponto de partida |
+| Todas as classes registradas na CVM | 36.594 | ponto de partida |
 | Só renda fixa | 7.759 | é o escopo do case |
 | Em funcionamento normal | 7.337 | fundo cancelado ou liquidado não serve |
 | Condomínio aberto | 6.580 | fundo fechado não aceita aplicação nova |
 | Não exclusivo | 3.498 | fundo exclusivo é de um único dono |
-| Tem série de cota em dez/25 | 3.268 | sem cota não dá para medir nada |
-| Patrimônio ≥ R$ 10 milhões | 2.944 | fundo minúsculo não é recomendável |
-| Pelo menos 10 cotistas | 1.801 | corta fundos que são exclusivos na prática |
-| **Tem taxa e prazo de resgate publicados** | **1.003** | **ver abaixo** |
+| Tem série de cota | 3.270 | sem cota não dá para medir nada |
+| Pelo menos 200 dias de série no ano | 2.924 | 44 dias não permitem medir risco |
+| Patrimônio ≥ R$ 10 milhões | 2.690 | fundo minúsculo não é recomendável |
+| **Pelo menos 500 cotistas** | **787** | **ver abaixo** |
+| Tem taxa e prazo de resgate publicados | **520** | não se recomenda o que não se consegue precificar |
 
-O último corte merece explicação. **Eu não recomendo um fundo se não consigo dizer ao cliente quanto ele custa e em quantos dias o dinheiro volta.** Isso não é conveniência de dados — é o mínimo de uma recomendação responsável.
+**Universo final: 520 fundos, R$ 1,51 trilhão, mediana de 3.616 cotistas.** Destes, 502 são
+acessíveis ao varejo, 16 restritos a qualificado e 2 a profissional.
 
-Esse corte tem um efeito desigual, e ele é explicável:
+Dois desses cortes merecem explicação.
 
-| Público-alvo | Fundos | Com taxa e prazo | Cobertura |
-|---|---:|---:|---:|
-| Público Geral | 1.369 | 871 | **64%** |
-| Qualificado | 278 | 79 | 28% |
-| Profissional | 154 | 53 | 34% |
+**Taxa e prazo publicados.** Não recomendo um fundo se não consigo dizer ao cliente quanto ele
+custa e em quantos dias o dinheiro volta. Não é conveniência de dados, é o mínimo de uma
+recomendação responsável. A lacuna que isso revela não é aleatória: fundos de varejo são
+obrigados por lei a publicar lâmina, os restritos a qualificado não. É desenho da regulação.
 
-A cobertura do varejo é boa porque **fundos de varejo são obrigados por lei a publicar lâmina**. Fundos para investidor qualificado têm obrigação de divulgação mais leve. Ou seja: a lacuna não é um defeito dos dados, é o desenho da regulação. Isso limita o ranking do perfil qualificado, e eu digo isso na entrega em vez de esconder.
-
-**Universo final: ~1.000 fundos, sendo ~870 acessíveis ao varejo.**
+**Quinhentos cotistas.** O corte começou em 10, e o primeiro ranking real trouxe fundos com
+17, 31 e 70 cotistas e dezenas de bilhões de patrimônio — veículos institucionais rotulados
+"Público Geral". Medindo o universo de varejo: o percentil 10 tem **31 cotistas** e a mediana
+**924**. Um corte em 10 não excluía nada. Ver D-034.
 
 ---
 
@@ -66,17 +68,19 @@ Tudo é público e baixável sem cadastro. Três fontes:
 
 Volume total para rodar o projeto: **cerca de 15 arquivos, ~200 MB**. Cabe em qualquer notebook.
 
-**Sobre a ANBIMA.** Cheguei a descartar essa fonte porque a base de fundos (`data.anbima.com.br`) exige credencial. Mas os índices IMA são públicos e baixam sem cadastro — e são justamente o que faltava. Comparar **todo** fundo com o CDI é errado: um fundo indexado à inflação tem que ser comparado ao IMA-B, e um prefixado ao IRF-M. Contra o CDI, um fundo de IMA-B parece péssimo num ano de juros altos, quando na verdade só está fazendo o trabalho dele.
+**Sobre a ANBIMA, e uma promessa que não foi cumprida.** Na Fase 1 constatei que os índices IMA
+baixam sem credencial e planejei escolher o benchmark por grupo: CDI para pós-fixado, IMA-B para
+indexado à inflação, IRF-M para prefixado. Comparar todo fundo com o CDI é conceitualmente
+errado — um fundo de IMA-B parece péssimo contra o CDI num ano de juros altos, quando está
+apenas fazendo o que promete.
 
-Então o benchmark passa a ser **escolhido por grupo**:
+**Isso não entrou.** O arquivo do IMA é Excel binário, e a alternativa em texto que a ANBIMA
+publica é a foto do dia corrente, não a série histórica — inútil para uma data de referência em
+dezembro de 2025. Medi antes de desistir: **91,8% do universo de varejo é corretamente servido
+pelo CDI, 8,2% precisaria de IMA-B, e prefixado puro é zero.** Ver D-030.
 
-| Grupo do fundo | Comparado com |
-|---|---|
-| Pós-fixado / soberano curto / crédito | CDI |
-| Indexado à inflação | IMA-B |
-| Prefixado | IRF-M |
-
-A classificação ANBIMA que define o grupo já vem dentro do registro da CVM, então não dependo da API autenticada para nada.
+O que a ANBIMA de fato fornece, e é o mais importante, é a **classificação** que define os grupos
+de comparação — e ela chega dentro do registro da CVM, sem depender da API autenticada.
 
 ---
 

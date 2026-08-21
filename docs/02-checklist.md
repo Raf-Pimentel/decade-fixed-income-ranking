@@ -132,19 +132,24 @@ fora do código. Falta a conferência humana independente.
 
 **Entregável:** Top 5 por perfil, com grau de confiança.
 
-- [ ] Percentil dentro do grupo ANBIMA, com winsorização a 1%/99%
-- [ ] Grupo com menos de 20 fundos é fundido ao grupo pai (senão o percentil é ruído)
-- [ ] Pesos lidos de `configs/perfis.yaml`, soma validada em 100
-- [ ] Elegibilidade por perfil aplicada **antes** do percentil, não depois
-- [ ] Reamostragem em blocos: 1.000 simulações, semente fixa
-- [ ] Sorteio de pesos dentro das faixas configuradas
-- [ ] **Estabilidade reportada separando** o que varia do que não varia
+- [x] Percentil dentro do grupo ANBIMA, com winsorização a 1%/99%
+- [x] Grupo com menos de 20 fundos é comparado contra o **universo inteiro**, não contra um
+      grupo pai inventado — a saída registra qual dos dois aconteceu
+- [x] Pesos lidos de `configs/perfis.yaml`, soma validada em 100
+- [x] Elegibilidade por perfil aplicada **antes** do percentil, não depois
+- [x] Reamostragem em blocos: 1.000 simulações, semente fixa
+- [x] Sorteio de pesos dentro das faixas configuradas
+- [x] **Estabilidade reportada separando** o que varia do que não varia
       (a taxa é constante e infla a aparência de robustez — declarar isso)
-- [ ] `ranking.json` validado contra o schema Pydantic de saída
-- [ ] `ranking.md` legível, com um parágrafo real por fundo
-- [ ] CLI funciona; funções importáveis funcionam
+- [x] `ranking.json` validado contra o schema Pydantic de saída
+- [x] `ranking.md` legível, com um parágrafo real por fundo
+- [x] CLI funciona; funções importáveis funcionam
 
-**Verificação:** golden file — rodar duas vezes produz JSON idêntico.
+**Verificação:** rodar duas vezes produz JSON idêntico, exceto `generated_at`, que é
+proveniência e não resultado. Verificado por teste.
+
+**Pendente da revisão (D-035), a fazer na Fase 6:** o `ranking.md` volta a ser lista simples,
+com a taxa de aparição no JSON e na seção técnica.
 
 ---
 
