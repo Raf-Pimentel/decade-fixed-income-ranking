@@ -41,6 +41,11 @@ class RunResult:
     output_dir: Path
     quarantined_share: float = 0.0
     notes: list[str] = field(default_factory=list)
+    # Who each profile could have chosen from. The backtest draws its random
+    # portfolios from exactly this set, so that the comparison is against the
+    # choices the method actually had, not against a different universe.
+    eligible_by_profile: dict[str, list[str]] = field(default_factory=dict)
+    series: pl.DataFrame | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -154,7 +159,15 @@ def _download(
         raise RuntimeError("the CVM registry archive is missing its expected members")
     registry = readers.read_registry(classes, funds_file)
 
-    statement = readers.read_statement(fetch("statement", year=end.year))
+    # Every year the window touches, not just the last one. A statement filed
+    # in 2024 is still in force in March 2025 if the fund has not refiled, and
+    # fetching only the reference year would make the earlier cut dates of the
+    # backtest look as though half the universe had never disclosed anything.
+    years = sorted({year for year, _ in months})
+    statement = pl.concat(
+        [readers.read_statement(fetch("statement", year=year)) for year in years],
+        how="diagonal",
+    )
 
     factsheets = []
     for year, month in months:
@@ -275,7 +288,13 @@ def run(
     )
     slot_of = {cnpj: index for index, cnpj in enumerate(order)}
 
-    rankings = [
+    rankings = []
+    eligible_by_profile: dict[str, list[str]] = {}
+    for profile_id, profile in profiles_config.profiles.items():
+        pool = eligibility.for_profile(funds, profile.eligibility)
+        eligible_by_profile[profile_id] = pool["cnpj_classe"].to_list()
+
+    _unused = [
         _rank_profile(
             funds,
             profile_id,
@@ -288,6 +307,7 @@ def run(
         )
         for profile_id, profile in profiles_config.profiles.items()
     ]
+    rankings = _unused
 
     payload = schemas.RankingOutput(
         schema_version=writers.SCHEMA_VERSION,
@@ -309,6 +329,8 @@ def run(
         max_observation_date=_latest_date(series, reference_date),
         output_dir=output_dir,
         quarantined_share=validated.quarantined_share,
+        eligible_by_profile=eligible_by_profile,
+        series=eligible_series,
     )
 
 

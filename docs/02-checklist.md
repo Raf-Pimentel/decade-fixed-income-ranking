@@ -162,23 +162,29 @@ estão escritos na seção 8.1 do desenho e **não podem ser alterados depois de
 Se eu sentir vontade de mexer, é sinal de que o resultado não agradou — e é exatamente aí que
 não se mexe.
 
-- [ ] Rodar o pipeline com `--data-ref 2025-03-31`, `2025-06-30` e `2025-09-30`
-- [ ] **Auditoria de point-in-time:** confirmar que nenhuma linha posterior à data de corte
+- [x] Rodar o pipeline com `--data-ref 2025-03-31`, `2025-06-30` e `2025-09-30`
+- [x] **Auditoria de point-in-time:** confirmar que nenhuma linha posterior à data de corte
       entrou. Se entrou, é bug grave na Etapa 1 e o teste inteiro está contaminado
-- [ ] Congelar os três Top 5 em arquivo, antes de medir qualquer coisa
-- [ ] Medir o retorno realizado de cada Top 5 no período seguinte (peso igual entre os cinco)
-- [ ] Comparar com a mediana dos elegíveis na data de corte
-- [ ] Comparar com o benchmark do grupo (CDI / IMA-B / IRF-M)
-- [ ] Gerar 1.000 carteiras de 5 fundos sorteados do universo elegível, com semente fixa
-- [ ] Reportar **o percentil do meu Top 5 na distribuição aleatória** — é o número principal
-- [ ] Reportar quantos dos 5 bateram a mediana individualmente
-- [ ] Marcar fundos descontinuados no período, se houver
-- [ ] Aplicar o critério declarado: acima do percentil 60 em ao menos 2 das 3 datas
-- [ ] **Se falhar, escrever que falhou** e o que eu mudaria — sem tocar nos pesos
-- [ ] Registrar o resultado em `docs/decisoes.md`, seja ele qual for
+- [x] Congelar os três Top 5 em arquivo, antes de medir qualquer coisa
+- [x] Medir o retorno realizado de cada Top 5 no período seguinte (peso igual entre os cinco)
+- [x] Comparar com a mediana dos elegíveis na data de corte
+- [x] Comparar com o benchmark do grupo (CDI / IMA-B / IRF-M)
+- [x] Gerar 1.000 carteiras de 5 fundos sorteados do universo elegível, com semente fixa
+- [x] Reportar **o percentil do meu Top 5 na distribuição aleatória** — é o número principal
+- [x] Reportar quantos dos 5 bateram a mediana individualmente
+- [x] Marcar fundos descontinuados no período, se houver
+- [x] Aplicar o critério declarado: acima do percentil 60 em ao menos 2 das 3 datas
+- [x] **Se falhar, escrever que falhou** — não falhou, mas dois erros meus foram corrigidos
+      na direção mais dura: o critério passou a ser aplicado **por perfil** (era 2 de 6
+      pares, virou 2 de 3 por perfil), e o relatório mostra a vantagem em pontos-base ao
+      lado do percentil, para ninguém ler p98% como ganho grande
+- [x] Registrar o resultado em `docs/decisoes.md`, seja ele qual for
 
-**Verificação:** `saida/validacao.md` existe, tem os três cortes, e a conclusão está escrita
-em uma frase sem rodeio.
+**Verificação:** `saida/validacao.md` existe, tem os três cortes × dois perfis, e a conclusão
+está escrita em uma frase sem rodeio.
+
+**Resultado:** validado. `varejo_liquidez` passou em 3 de 3 (p92, p100, p98); `varejo_prazo`
+em 2 de 3 (p84, p97, p51). Vantagem sobre a mediana entre −8 e +31 pontos-base.
 
 ---
 
