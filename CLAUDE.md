@@ -13,7 +13,7 @@ Entrega: repositório GitHub + `ranking.md` + `ranking.json` + README + vídeo d
 Prazo: **28/08/2026, 20h**.
 
 Desenho completo: `docs/01-solution-design.md`. Checklist executável: `docs/02-checklist.md`.
-Diário de decisões: `docs/decisoes.md`.
+Diário de decisões: `docs/decisoes.md`. Guia de defesa: `docs/03-guia-de-defesa.md`.
 
 **Fases:** 1 ✓ · 2 ✓ · 3 ✓ · 4 ✓ · 5 ✓ · 5.5 teste no passado ✓ (**validado**) ·
 6 documentação ✓ — **entrega pronta**, falta só o vídeo.

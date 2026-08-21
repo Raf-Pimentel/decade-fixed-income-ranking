@@ -118,6 +118,7 @@ Deliberately not used, and why, is documented in [`configs/sources.yaml`](config
 
 | | |
 |---|---|
+| [`docs/03-guia-de-defesa.md`](docs/03-guia-de-defesa.md) | the short version: the numbers, the ten questions and their answers |
 | [`docs/01-solution-design.md`](docs/01-solution-design.md) | the design, in plain Portuguese |
 | [`docs/decisoes.md`](docs/decisoes.md) | every decision taken, including the six that were later reversed |
 | [`docs/02-checklist.md`](docs/02-checklist.md) | what was done, and what was deliberately not |
