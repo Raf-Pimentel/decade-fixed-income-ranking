@@ -5,43 +5,35 @@ Ao final de cada fase, apresento o resultado e espero aprovação antes de segui
 
 ---
 
-## Onde estamos — checkpoint de 20/08/2026 (terceiro)
+## Onde estamos — PROJETO ENTREGUE (20/08/2026)
 
-**Fases 2, 3, 4, 5 e 5.5 concluídas. Falta só a Fase 6 (documentação).**
+**Todas as fases concluídas.** Tag `v1.0.0` publicada.
 
 | | |
 |---|---|
-| Commits | 16, todos no GitHub (privado) |
-| Suíte | **223 testes verdes** |
-| Cobertura nos módulos de cálculo | 93% |
+| Suíte | **223 testes verdes** · cobertura 93% nos módulos de cálculo |
 | `ruff`, `ruff format`, `mypy` | limpos |
-| Universo final | 520 fundos · 502 varejo · R$ 1,51 tri |
-| Execução | `uv run ranking --reference-date 2025-12-31`, ~36 s |
-| **Teste no passado** | **validado** — liquidez 3/3, prazo 2/3 (ver D-036) |
+| Funil de qualidade | dentro do baseline, 0,00% de desvio |
+| Universo | **580 fundos** de 36.594 classes · 559 varejo |
+| Execução | `uv run ranking --reference-date 2025-12-31`, ~40 s |
+| Automação | rodando às segundas, 09:00 UTC |
+| **Teste no passado** | **validado** — liquidez 3/3, prazo 2/3 (D-036) |
 
-### Saídas geradas
+Entregáveis em `saida/`: `ranking.md` · `ranking.json` · `relatorio_qualidade.md` ·
+`validacao.md`. Mais `README.md`, `docs/` e o repositório.
 
-`saida/ranking.json` · `saida/ranking.md` · `saida/relatorio_qualidade.md` · `saida/validacao.md`
+### O que falta, e é tudo do Rafael
 
-### O que falta — Fase 6, tudo documentação
+- [ ] **Gravar o vídeo de 5 min.** Roteiro minutado e cinco frases prontas em `docs/decisoes.md`.
+- [ ] **Colocar o link do vídeo no README** depois de gravado.
+- [ ] **Conferir 3 fundos na planilha** — cota de 02/01/2025 e 30/12/2025 contra o
+      `ranking.json`. Única verificação do cálculo que não passa por mim.
+- [ ] **Decidir se o repositório vira público** antes de enviar à Decade.
 
-- [ ] `README.md` completo: o que é, como instalar, como rodar, o que sai, quanto demora
-- [ ] `ranking.md` como **lista simples** — taxa de aparição sai da vitrine, fica no JSON e na
-      seção técnica (D-035, ponto 4)
-- [ ] Destacar **duas** limitações acima das outras: risco de crédito escondido e doze meses
-      não preverem 2026
-- [ ] Declarar a concentração em uma gestora, com a explicação (taxas de casa baixas + custo é
-      o maior peso)
-- [ ] Nomear a **arbitrariedade dos pesos** como limitação de primeira ordem (D-035, ponto 1)
-- [ ] Ligar a execução semanal automática e confirmar que rodou sem ninguém
-- [ ] Página visual do ranking
-- [ ] Vídeo de 5 min — roteiro minutado pronto em `docs/decisoes.md`
-- [ ] Tag `v1.0.0`
+### Não feito, declarado
 
-### Pendente com o Rafael
-
-- [ ] **Conferir 3 fundos na planilha** — cota de 02/01/2025 e 30/12/2025, comparar com o
-      `ranking.json`. Única verificação verdadeiramente independente do cálculo.
+- [ ] **Página visual do ranking** — extra aprovado que não coube. O `ranking.md` cumpre o
+      entregável do case.
 
 ---
 
@@ -200,11 +192,11 @@ em 2 de 3 (p84, p97, p51). Vantagem sobre a mediana entre −8 e +31 pontos-base
 - [ ] Vídeo de 5 min — roteiro minutado pronto em `docs/decisoes.md`, gravação é do Rafael
 - [ ] Link do vídeo no README, depois de gravado
 
-## D8 — Folga e vídeo (27/08)
+## D8 — Vídeo e revisão final
 
 - [ ] Vídeo ≤ 5 min: desenho · a decisão que menos me convence · caminho para produção
 - [ ] Revisão final do repositório com olhar de quem nunca viu
-- [ ] Tag `v1.0.0`
+- [x] Tag `v1.0.0`
 
 ---
 
