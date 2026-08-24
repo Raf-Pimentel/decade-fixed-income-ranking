@@ -10,7 +10,7 @@ Escolhidos entre **218 fundos** que um investidor de varejo consegue de fato com
 
 | # | Fundo | Gestor | Taxa a.a. | Resgate | Rendeu em 12m | vs CDI |
 |---:|---|---|---:|---:|---:|---:|
-| 1 | ITAÚ CRÉDITO BANCÁRIO RENDA FIXA CRÉDITO PRIVA | ITAU UNIBANCO ASSET MA | 0.040% | D+0 | 14.32% | -0.00% |
+| 1 | ITAÚ CRÉDITO BANCÁRIO RENDA FIXA CRÉDITO PRIVA | ITAU UNIBANCO ASSET MA | 0.040% | D+0 | 14.32% | 0.00% |
 | 2 | ITAÚ JANEIRO RENDA FIXA LONGO PRAZO FUNDO DE I | ITAU UNIBANCO ASSET MA | 0.040% | D+0 | 17.16% | 2.84% |
 | 3 | ITAÚ GLOBAL DINÂMICO RENDA FIXA LONGO PRAZO FU | ITAU UNIBANCO ASSET MA | 0.040% | D+0 | 14.83% | 0.51% |
 | 4 | BTG PACTUAL CDB I FUNDO DE INVESTIMENTO RENDA  | BTG PACTUAL ASSET MANA | 0.150% | D+0 | 14.26% | -0.06% |
@@ -60,7 +60,7 @@ Escolhidos entre **390 fundos** que um investidor de varejo consegue de fato com
 
 **5. BB RENDA FIXA LONGO PRAZO CORPORATE FIC FIF CRÉDITO PRIVADO RESPONSABILIDADE LIMITADA** — Taxa de 0.200% ao ano, mediana do grupo; resgate no mesmo dia; 0.51% acima do CDI na janela; pior queda de 0.03%; patrimônio de R$ 16.1 bi. Apareceu no top 5 em 49% das simulações.
 
-> **De onde vem a concentração.** A maior gestora deste universo é Itau Unibanco Asset Management Ltda., com **20%** dos 390 fundos elegíveis. Uma lista que a repete não está concentrando mais do que o universo de onde ela saiu — está refletindo o mercado que o investidor de varejo tem.
+> **Concentração, de novo.** Como no perfil anterior, Itau Unibanco Asset Management Ltda. é a maior gestora deste universo, com **20%** dos 390 fundos elegíveis.
 
 ---
 

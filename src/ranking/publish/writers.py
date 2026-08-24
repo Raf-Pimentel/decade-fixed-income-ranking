@@ -69,7 +69,7 @@ def _weights(weights: dict[str, int]) -> str:
     return " · ".join(f"`{name}` {weight}" for name, weight in ordered)
 
 
-def _profile_footnotes(profile: ProfileRanking) -> list[str]:
+def _profile_footnotes(profile: ProfileRanking, explained: set[str]) -> list[str]:
     """What shaped this particular list, said next to the list itself.
 
     Three things a reader cannot infer from five names and their numbers: how
@@ -77,18 +77,34 @@ def _profile_footnotes(profile: ProfileRanking) -> list[str]:
     were passed over for duplicating one already on the list, and which
     weighted criterion turned out to have nothing to say once eligibility had
     done its work.
+
+    The document is read top to bottom, and the concentration behind both
+    profiles has the same cause, so the argument is made once and afterwards
+    only pointed at. `explained` carries what earlier lists already said. A
+    caveat repeated word for word reads as a generator with nothing to say,
+    and teaches the reader to skim the ones that appear only once.
     """
     lines: list[str] = []
 
     if profile.manager_share:
         biggest, share = max(profile.manager_share.items(), key=lambda item: item[1])
-        lines += [
-            f"> **De onde vem a concentração.** A maior gestora deste universo é "
-            f"{biggest.title()}, com **{share:.0%}** dos {profile.eligible_universe_size} fundos "
-            "elegíveis. Uma lista que a repete não está concentrando mais do que o universo "
-            "de onde ela saiu — está refletindo o mercado que o investidor de varejo tem.",
-            "",
-        ]
+        if "concentracao" in explained:
+            lines += [
+                f"> **Concentração, de novo.** Como no perfil anterior, {biggest.title()} é a "
+                f"maior gestora deste universo, com **{share:.0%}** dos "
+                f"{profile.eligible_universe_size} fundos elegíveis.",
+                "",
+            ]
+        else:
+            lines += [
+                f"> **De onde vem a concentração.** A maior gestora deste universo é "
+                f"{biggest.title()}, com **{share:.0%}** dos {profile.eligible_universe_size} "
+                "fundos elegíveis. Uma lista que a repete não está concentrando mais do que o "
+                "universo de onde ela saiu — está refletindo o mercado que o investidor de "
+                "varejo tem.",
+                "",
+            ]
+        explained.add("concentracao")
 
     if profile.displaced:
         lines += [
@@ -151,6 +167,7 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
     ]
 
     months = payload.lookback_months
+    explained: set[str] = set()
     for profile in payload.profiles:
         lines += [
             f"## {profile.label}",
@@ -173,7 +190,7 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
         lines += ["", "### Por que cada um", ""]
         for fund in profile.top:
             lines += [f"**{fund.rank}. {fund.name}** — {fund.rationale}", ""]
-        lines += _profile_footnotes(profile)
+        lines += _profile_footnotes(profile, explained)
 
     lines += [
         "---",

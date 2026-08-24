@@ -23,11 +23,20 @@ def _as_number(value: object) -> float | None:
 
 
 def percent(value: object, places: int = 2) -> str:
-    """A fraction as a percentage. `0.0004` becomes `0.040%`."""
+    """A fraction as a percentage. `0.0004` becomes `0.040%`.
+
+    A negative number too small to survive the rounding prints without its
+    sign. `-0.00%` is not a quantity, and a reader who meets it on the page
+    cannot tell an artefact of rounding from a broken formatter — which is a
+    reason to doubt every other figure beside it. The sign is dropped only
+    when the printed digits are all zero, so a fund that genuinely trailed its
+    benchmark still shows it.
+    """
     number = _as_number(value)
     if number is None:
         return "—"
-    return f"{number * 100:.{places}f}%"
+    text = f"{number * 100:.{places}f}%"
+    return text.removeprefix("-") if float(text[:-1]) == 0.0 else text
 
 
 def money(value: object) -> str:
