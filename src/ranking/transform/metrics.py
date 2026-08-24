@@ -43,11 +43,6 @@ def _as_quotas(values: Series) -> npt.NDArray[np.float64]:
     return array
 
 
-# ---------------------------------------------------------------------------
-# Return
-# ---------------------------------------------------------------------------
-
-
 def cumulative_return(quotas: Series) -> float:
     """Total return over the period, from the first quota to the last.
 
@@ -85,19 +80,15 @@ def compound(rates: Series) -> float:
 
 
 def excess_return(fund_return: float, benchmark_return: float) -> float:
-    """What the fund added over the benchmark it is supposed to track.
+    """What the fund added over the benchmark it is measured against.
 
-    Which benchmark that is depends on the fund: CDI for post-fixed, IMA-B for
-    inflation-linked, IRF-M for fixed-rate. Judging an inflation-linked fund
-    against CDI in a high-rate year makes it look terrible for doing exactly
-    what it promised.
+    Every group is measured against the CDI, including the inflation-linked
+    funds, which in a high-rate year look bad for doing exactly what they
+    promised. ANBIMA publishes the IMA as a snapshot of the current day rather
+    than as a series, so a window ending on a past date cannot be rebuilt from
+    it. Affects 8% of the universe; see D-030.
     """
     return fund_return - benchmark_return
-
-
-# ---------------------------------------------------------------------------
-# Risk
-# ---------------------------------------------------------------------------
 
 
 def annualised_volatility(returns: Series) -> float:
@@ -170,11 +161,6 @@ def downside_volatility(returns: Series, threshold: float = 0.0) -> float:
     if below.size < 2:
         return 0.0
     return float(np.std(below, ddof=1) * np.sqrt(BUSINESS_DAYS_PER_YEAR))
-
-
-# ---------------------------------------------------------------------------
-# Liability side
-# ---------------------------------------------------------------------------
 
 
 def flow_stability(subscriptions: Series, redemptions: Series, average_assets: float) -> float:

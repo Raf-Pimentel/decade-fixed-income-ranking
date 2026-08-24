@@ -270,11 +270,6 @@ def verdict(outcomes: list[Outcome], rules: Backtest) -> Verdict:
     )
 
 
-# ---------------------------------------------------------------------------
-# Running the whole thing
-# ---------------------------------------------------------------------------
-
-
 def run_all(
     end_date: dt.date,
     config_dir: Path = Path("configs"),

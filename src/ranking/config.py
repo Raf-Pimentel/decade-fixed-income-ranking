@@ -196,11 +196,6 @@ class TransferSettings(_Strict):
     cache: CacheSettings
 
 
-# ---------------------------------------------------------------------------
-# Loaders
-# ---------------------------------------------------------------------------
-
-
 def _read_yaml(path: Path) -> dict[str, Any]:
     with open(path, encoding="utf-8") as handle:
         loaded = yaml.safe_load(handle)

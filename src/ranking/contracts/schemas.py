@@ -47,10 +47,6 @@ class DailyReport(pa.DataFrameModel):
         strict = False  # extra columns are fine; missing declared ones are not
 
 
-# ---------------------------------------------------------------------------
-# Triage
-# ---------------------------------------------------------------------------
-
 NATURAL_KEY = ["cnpj_classe", "data"]
 
 

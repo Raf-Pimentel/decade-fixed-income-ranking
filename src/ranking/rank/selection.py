@@ -1,41 +1,22 @@
 """Choosing five funds rather than five scores.
 
-A score ranks funds one at a time. A list of five is consumed all at once, by
-someone who will hold all of them, and those are different questions. The gap
-between them shows up in the Brazilian market in a specific and very common
-shape: one manager runs a single portfolio and sells it through a row of
-distribution wrappers, each a separate class with its own name, its own CNPJ
-and its own entry in the CVM registry. Caixa alone offers a dozen of them over
-one fixed-income portfolio — Executivo, Clássico, Personal, Investidor,
-Especial — and every one of them is legitimately eligible, and every one earns
-nearly the same score, because they are nearly the same fund.
+A score ranks funds one at a time; a list of five is held all at once. One
+manager routinely runs a single portfolio and sells it through a row of
+distribution wrappers — Caixa offers a dozen over one fixed-income portfolio —
+each a separate class, each legitimately eligible, each earning nearly the
+same score. A top five holding two of them offers four exposures and does not
+say so.
 
-Scoring alone therefore returns a list whose length overstates its content: a
-top five holding two wrappers of one portfolio offers four exposures, and the
-reader has no way to tell. What follows walks the ranked funds in order and
-accepts one only if it adds something to what has already been accepted.
+Two funds count as one when the same manager runs both **and** their tracking
+difference — the annualised volatility of the difference between their daily
+returns — is near zero. Two wrappers of one portfolio differ only by their
+fee, a constant drag that contributes no variance.
 
-**What counts as the same fund.** Two conditions together, and neither alone.
-The funds must be run by the same manager, and the difference between their
-daily returns must barely move — measured as the annualised volatility of that
-difference, the tracking difference. Two wrappers of one portfolio differ only
-by their fee, which is a constant daily drag and contributes no variance, so
-their tracking difference is near zero. Two genuinely different funds from
-different houses do not qualify however similar they look.
-
-That second condition is what the obvious choice gets wrong. Correlation of
-daily returns cannot do this job in a post-fixed market: every fund tracking
-the overnight rate correlates above 0.99 with every other one, because they
-are all following the same curve. Measured on this universe, a correlation
-threshold high enough to be meaningful still marks half the funds as
-duplicates of something. The tracking difference asks the right question —
-*how much do these two disagree*, rather than *do they move together* — and it
-separates a Selic fund from another house's Selic fund while still collapsing
-two names for one portfolio.
-
-Nothing is hidden. A fund passed over this way is published beside the list,
-named, with the fund it duplicates and the tracking difference between them,
-so that a reader can see the sixth name was reached for a reason.
+Correlation cannot do this job here, which is why it is not used: every
+post-fixed fund follows the same overnight curve and correlates above 0.99
+with every other, so a threshold high enough to catch a twin marks half this
+universe as duplicated. The tracking difference asks *how much do these two
+disagree* rather than *do they move together*. See D-040.
 """
 
 from __future__ import annotations

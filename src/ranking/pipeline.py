@@ -625,15 +625,9 @@ def _rank_profile(
             )
     scored = scoring.total_score(scored, weights)
 
-    # The same weighted score, computed against the whole eligible pool instead
-    # of the peer group. Percentiles inside a category are the right way to ask
-    # whether a fund is good for what it is; they are also silent about whether
-    # the category itself is any good, because being first of eighteen in a
-    # weak group and first of eighteen in a strong one both score one. Putting
-    # the two numbers side by side is what lets a reader tell those apart, and
-    # it is the honest way to publish a list that mixes categories: the peer
-    # score decides the ranking, and the pool score says what that is worth
-    # against everything the profile could have bought.
+    # The same score against the whole eligible pool. The peer score decides
+    # the ranking; this one says what being first of eighteen is worth, which a
+    # percentile inside a category cannot tell you on its own.
     pool_scored = grouped.with_columns(
         pl.lit(scoring.GLOBAL_PEER_GROUP).alias("peer_group_effective")
     )
