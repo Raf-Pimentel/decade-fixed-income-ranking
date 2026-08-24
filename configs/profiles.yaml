@@ -129,6 +129,13 @@ robustness:
   seed: 20250101          # fixed, so runs are reproducible
   block_size_days: 21     # resample returns in ~monthly blocks
   top_n: 5
+  # A second, longer list is published beside the delivery, for comparing this
+  # ranking against the ones the market publishes. It is not a second answer:
+  # `pick_distinct` walks the ranked order once and takes the first N that are
+  # distinguishable, so the ten are the five plus what came next. The survival
+  # rate that decides the order is still measured against a top five, which is
+  # what keeps this number from changing the delivery.
+  comparison_size: 10
   # Fees and redemption terms do not vary between simulations. That inflates
   # apparent stability, so the report separates metrics that move from metrics
   # that do not. Do not remove this note.

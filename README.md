@@ -44,9 +44,15 @@ That is one command and it takes about 40 seconds from a cold cache. It download
 | [`ranking.html`](saida/ranking.html) | the same lists as a self-contained page |
 | [`relatorio_qualidade.md`](saida/relatorio_qualidade.md) | the eligibility funnel compared against its expected baseline |
 | [`validacao.md`](saida/validacao.md) | the out-of-sample test |
+| [`top10.md`](saida/top10.md) | ten funds per profile instead of five, for holding this ranking against the ones the market publishes |
 
 Those files are committed to the repository. A deliverable that only exists after someone
 runs the pipeline has not really been delivered.
+
+The answer is the top five. `top10.md` exists because comparing a list of five against a
+published ranking of twenty-five is awkward, and it is built from the same walk down the same
+ranked order, so it opens with exactly the five that were delivered. Anything past the fifth
+row is marked, and a test fails if the two lists ever disagree.
 
 If you add `--validate`, the pipeline also rebuilds the ranking as of each frozen cut date
 and measures what happened afterwards. This takes minutes instead of seconds, because it runs

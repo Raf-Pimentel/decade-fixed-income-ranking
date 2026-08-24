@@ -132,6 +132,10 @@ class Robustness(_Strict):
     seed: int
     block_size_days: int
     top_n: int
+    # How many funds the comparison list carries. It never touches the delivery:
+    # the same walk down the same ranked order produces both, so the delivered
+    # five are the first five of it.
+    comparison_size: int
     report_split_by_variability: bool
 
 

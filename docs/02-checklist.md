@@ -23,7 +23,7 @@ Ao final de cada fase, apresento o resultado e espero aprovação antes de segui
 | Taxa | **medida** contra o fundo master, não lida no extrato (D-047) |
 
 Entregáveis versionados em `saida/`: `ranking.md` · `ranking.json` · `ranking.html` ·
-`relatorio_qualidade.md` · `validacao.md`. Mais `README.md`, `docs/` e o repositório.
+`relatorio_qualidade.md` · `validacao.md` · `top10.md`. Mais `README.md`, `docs/` e o repositório.
 
 ### O que o veredito de "validado" quer dizer, e o que não quer
 

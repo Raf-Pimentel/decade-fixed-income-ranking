@@ -64,6 +64,7 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-046](#d-046) | 21/08 | 6 | Testes que leem o arquivo entregue | 🎥 |
 | [D-047](#d-047) | 24/08 | 6 | **A taxa declarada não é o preço do cliente. Passa a ser medida** | 🔄🎥📊 |
 | [D-048](#d-048) | 24/08 | 6 | Peso da taxa revisto para 25 e 23 | 📊 |
+| [D-049](#d-049) | 24/08 | 6 | Uma lista de dez ao lado da de cinco, para comparação | |
 
 ---
 
@@ -1376,6 +1377,38 @@ conjunto exato de pesos nunca chega à lista.
 Trust, saem o Galapagos Pinzon e o Bradesco FIF. O perfil de prazo não muda de nomes. O BNP
 Paribas Match é o único dos dez que aparece quase tanto pontuado só por desempenho quanto
 pontuado por tudo, 49% contra 50%.
+
+
+---
+
+## D-049: Uma lista de dez ao lado da de cinco
+
+**Quando:** 24/08, Fase 6
+
+**O problema.** Comparar este ranking com os que o mercado publica é difícil com cinco nomes,
+porque a lista do outro lado costuma ter vinte e cinco. Cinco nomes contra vinte e cinco dão
+pouca superfície de contato, e a ausência de sobreposição não distingue "o critério é
+diferente" de "a lista é curta".
+
+**Decisão:** `saida/top10.md`, com os dez primeiros de cada perfil. A entrega continua sendo
+de cinco.
+
+**O risco, e o que o desarma.** Publicar uma segunda lista ao lado da resposta vira passivo no
+instante em que as duas discordam. Elas saem de uma única caminhada pela mesma ordem
+ranqueada, e `pick_distinct` toma os primeiros N distinguíveis, então a lista longa é a curta
+mais o que veio depois. Um teste de produto abre os dois arquivos entregues e falha se a de
+dez não começar exatamente pelos cinco publicados, na mesma ordem.
+
+**Duas coisas ficam fora da caminhada longa, de propósito.** A taxa de sobrevivência continua
+medida contra um top cinco: é ela que decide a ordem, e medi-la contra dez mudaria a entrega.
+E os fundos descartados por repetir carteira que o `ranking.md` publica são os encontrados ao
+escolher cinco. Caminhar até dez encontra mais, e esses pertencem à outra lista. Foi um efeito
+colateral real: a primeira versão fez uma caminhada só e acrescentou uma linha ao arquivo
+entregue.
+
+**O sexto ao décimo não são recomendação**, e o arquivo marca cada um deles. Cinco é o tamanho
+que o método afirma sustentar, e a taxa de aparição da coluna final mostra por quê: no perfil
+de liquidez ela cai de 42% no quinto para 20% no décimo.
 
 ---
 

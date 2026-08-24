@@ -287,3 +287,63 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
 
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(chr(10).join(lines), encoding="utf-8")
+
+
+def write_comparison(
+    payload: RankingOutput,
+    profiles: list[tuple[str, list[RankedFund]]],
+    path: Path,
+) -> None:
+    """A longer list, for holding this ranking against the ones the market publishes.
+
+    Ten names rather than five, drawn from the same walk down the same ranked
+    order, so the first five are the five that were delivered. This is not a
+    second answer and it is not a recommendation: five is what the method says
+    it can defend, and the sixth to tenth are here so that a reader comparing
+    against a published ranking has more than five names to match on.
+
+    The delivery is `ranking.md`. Nothing in this file feeds back into it.
+    """
+    delivered = payload.profiles[0].top_n if payload.profiles else 5
+    lines: list[str] = [
+        f"# Os {max((len(f) for _, f in profiles), default=0)} primeiros, para comparação",
+        "",
+        f"Data de referência: **{payload.reference_date:%d/%m/%Y}**. Os **{delivered} primeiros "
+        f"de cada lista são o que foi entregue** em `ranking.md`, na mesma ordem. Os seguintes "
+        "existem para comparar este ranking com os que o mercado publica, e não são "
+        "recomendação: cinco é o tamanho que o método afirma sustentar.",
+        "",
+    ]
+    for label, funds in profiles:
+        lines += [
+            f"## {label}",
+            "",
+            "| # | Fundo | Gestor | Taxa a.a. | Resgate | Rendeu | vs CDI | Nota grupo | "
+            "Nota universo | Apareceu |",
+            "|---:|---|---|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+        for position, fund in enumerate(funds, start=1):
+            numbers = fund.metrics
+            days = numbers.get("dias_resgate")
+            prazo = f"D+{int(days)}" if isinstance(days, int | float) else "—"
+            mark = "" if position <= delivered else " *"
+            lines.append(
+                f"| {position}{mark} | {fund.name[:44]} | {(fund.manager or '—')[:20]} "
+                f"| {_percent(numbers.get('taxa_adm'), 3)} | {prazo} "
+                f"| {_percent(numbers.get('retorno'))} | {_percent(numbers.get('excesso'))} "
+                f"| {fund.score:.1f} | {fund.score_pool:.1f} "
+                f"| {fund.appearance_rate:.0%} |"
+            )
+        lines += ["", f"\* fora do Top {delivered} entregue.", ""]
+
+    lines += [
+        "---",
+        "",
+        "As mesmas ressalvas de `ranking.md` valem aqui, e uma a mais: a taxa de aparição na "
+        f"última coluna mede quantas vezes o fundo terminou entre os **{delivered} primeiros** "
+        "das mil simulações, não entre os dez. Um fundo em oitavo com aparição baixa não é um "
+        "oitavo estável, é um fundo que raramente chegou ao topo.",
+        "",
+    ]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines), encoding="utf-8")

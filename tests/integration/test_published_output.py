@@ -36,6 +36,7 @@ def payload(tmp_path_factory):
     )
     body = json.loads((result.output_dir / "ranking.json").read_text(encoding="utf-8"))
     body["_markdown"] = (result.output_dir / "ranking.md").read_text(encoding="utf-8")
+    body["_comparison"] = (result.output_dir / "top10.md").read_text(encoding="utf-8")
     return body
 
 
@@ -146,3 +147,32 @@ def test_the_universe_a_profile_chose_from_is_described(payload) -> None:
         assert profile["eligible_universe_size"] >= len(profile["top"])
         for share in profile["manager_share"].values():
             assert 0 < share <= 1
+
+
+# ---------------------------------------------------------------------------
+# The longer list never contradicts the delivered one
+# ---------------------------------------------------------------------------
+
+
+def test_the_comparison_list_opens_with_the_funds_that_were_delivered(payload) -> None:
+    """A second, longer list published beside the answer is a liability the
+    moment the two disagree. Both come from one walk down one ranked order, so
+    the long one has to open with the short one, in the same order."""
+    for profile in payload["profiles"]:
+        section = payload["_comparison"].split(f"## {profile['label']}")[1]
+        rows = [line for line in section.splitlines() if line.startswith("| ")][1:]
+        for position, fund in enumerate(profile["top"], start=1):
+            assert rows[position - 1].startswith(f"| {position} |")
+            assert fund["name"][:44] in rows[position - 1]
+
+
+def test_everything_past_the_delivered_five_is_marked_as_such(payload) -> None:
+    """The delivery is five. A reader who takes the sixth name for a
+    recommendation was misled by the file, not by their own carelessness."""
+    delivered = payload["profiles"][0]["top_n"]
+    for line in payload["_comparison"].splitlines():
+        if not line.startswith("| ") or "Fundo" in line:
+            continue
+        rank = line.split("|")[1].strip()
+        if rank.rstrip(" *").isdigit() and int(rank.rstrip(" *")) > delivered:
+            assert rank.endswith("*")

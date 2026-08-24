@@ -540,6 +540,20 @@ Que o método funciona **em 2026**. Ele mostra que funcionou em três recortes d
 | `saida/ranking.html` | Uma pessoa, de relance | As mesmas listas como página autocontida |
 | `saida/relatorio_qualidade.md` | Quem precisa confiar nos números | O funil de elegibilidade contra o baseline |
 | `saida/validacao.md` | Quem precisa confiar no método | O teste fora da amostra |
+| `saida/top10.md` | Quem quer comparar com outro ranking | Os dez primeiros de cada perfil |
+
+**Sobre o `top10.md`.** A entrega é de cinco fundos, porque cinco é o tamanho que o método
+afirma sustentar. O arquivo de dez existe para uma finalidade diferente: comparar este ranking
+com os que o mercado publica, o que fica difícil com cinco nomes quando a outra lista tem
+vinte e cinco. Ele não é uma segunda resposta e a ordem nunca pode divergir da primeira, então
+os dois saem de uma única caminhada pela mesma ordem ranqueada. Os cinco entregues são os
+cinco primeiros dele, e um teste de produto falha se deixarem de ser.
+
+Duas coisas ficam de fora dessa caminhada mais longa, de propósito. A taxa de sobrevivência
+continua medida contra um top **cinco**, não contra um top dez, porque é ela que decide a
+ordem e mudá-la mudaria a entrega. E os fundos descartados por repetir carteira que aparecem
+no `ranking.md` são os encontrados ao escolher cinco: caminhar até dez encontra mais, e esses
+pertencem à outra lista.
 | `README.md` | Quem for rodar | Como instalar e executar, o que cada etapa faz |
 | Código + testes | Quem for manter | Um comando para rodar tudo, funções importáveis |
 

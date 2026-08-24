@@ -148,3 +148,25 @@ def test_two_wrappers_of_one_portfolio_differ_only_by_a_constant() -> None:
     expensive = portfolio - 0.0150 / 252
 
     assert np.std(cheap - expensive) * np.sqrt(252) == pytest.approx(0.0, abs=1e-12)
+
+
+class TestALongerListContainsTheShortOne:
+    """The delivered five and the ten published for comparison come from one
+    walk down the same ranked order, so the longer list is the shorter one plus
+    what follows it. If that ever stopped being true, the comparison list would
+    be describing a different ranking from the one delivered."""
+
+    def test_the_first_five_of_ten_are_exactly_the_five(self) -> None:
+        ordered = [f"f{i}" for i in range(20)]
+        five, _ = selection.pick_distinct(ordered, {}, top_n=5)
+        ten, _ = selection.pick_distinct(ordered, {}, top_n=10)
+        assert ten[:5] == five
+        assert len(ten) == 10
+
+    def test_that_holds_when_duplicates_are_skipped_along_the_way(self) -> None:
+        ordered = ["a", "a_twin", "b", "c", "c_twin", "d", "e", "f", "g", "h", "i", "j"]
+        duplicates = {"a_twin": {"a": 0.0001}, "c_twin": {"c": 0.0002}}
+        five, _ = selection.pick_distinct(ordered, duplicates, top_n=5)
+        ten, _ = selection.pick_distinct(ordered, duplicates, top_n=10)
+        assert ten[:5] == five
+        assert "a_twin" not in ten and "c_twin" not in ten

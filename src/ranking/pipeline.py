@@ -444,9 +444,10 @@ def run(
     slot_of = {cnpj: index for index, cnpj in enumerate(order)}
 
     rankings: list[schemas.ProfileRanking] = []
+    comparison: list[tuple[str, list[schemas.RankedFund]]] = []
     eligible_by_profile: dict[str, list[str]] = {}
     for profile_id, profile in profiles_config.profiles.items():
-        ranking, eligible = _rank_profile(
+        ranking, eligible, extended = _rank_profile(
             funds,
             profile_id,
             profile,
@@ -458,6 +459,7 @@ def run(
             eligible_series,
         )
         rankings.append(ranking)
+        comparison.append((profile.label, extended))
         eligible_by_profile[profile_id] = eligible
 
     payload = schemas.RankingOutput(
@@ -481,6 +483,9 @@ def run(
     output_dir.mkdir(parents=True, exist_ok=True)
     writers.write_json(payload, output_dir / "ranking.json")
     writers.write_markdown(payload, output_dir / "ranking.md", notes=_NOTES)
+    # Beside the delivery, never inside it: a longer list for holding this
+    # ranking against the ones the market publishes.
+    writers.write_comparison(payload, comparison, output_dir / "top10.md")
     (output_dir / "relatorio_qualidade.md").write_text(funnel.to_markdown(), encoding="utf-8")
     # Regenerated on every run so the page can never be older than the numbers
     # beside it. The verdict is carried over from the last out-of-sample test
@@ -646,8 +651,12 @@ def _rank_profile(
     draws: dict[str, np.ndarray] | None = None,
     slot_of: dict[str, int] | None = None,
     pool_series: pl.DataFrame | None = None,
-) -> tuple[schemas.ProfileRanking, list[str]]:
-    """Eligibility first, then percentiles, and never the other way round."""
+) -> tuple[schemas.ProfileRanking, list[str], list[schemas.RankedFund]]:
+    """Eligibility first, then percentiles, and never the other way round.
+
+    Returns the delivered ranking, the identifiers it could have chosen from,
+    and the longer list published beside it for comparison.
+    """
     pool = eligibility.for_profile(funds, profile.eligibility)
     top_n = profiles_config.robustness.top_n
     eligible = pool["cnpj_classe"].to_list() if not pool.is_empty() else []
@@ -663,6 +672,7 @@ def _rank_profile(
                 top_n=top_n,
             ),
             eligible,
+            [],
         )
 
     # Weight only what can still discriminate. A criterion already enforced as
@@ -743,15 +753,24 @@ def _rank_profile(
     # classes of one portfolio are two rows here and one exposure in a client's
     # account. See decisions D-011 and D-040.
     ordered = scored.sort(["appearance_rate", "score"], descending=True)
-    chosen, displaced = selection.pick_distinct(
-        ordered["cnpj_classe"].to_list(), duplicates, top_n=top_n
-    )
+    # Two walks down the same order, which is cheap because the walk is the
+    # cheap part. The delivery gets its own, so that what it reports as passed
+    # over is what was passed over while choosing five: walking further to build
+    # the comparison list meets more duplicates, and those belong to that list
+    # and not to this one. Because the walk is a prefix, the longer list still
+    # opens with exactly the five that were delivered.
+    identifiers = ordered["cnpj_classe"].to_list()
+    _, displaced = selection.pick_distinct(identifiers, duplicates, top_n=top_n)
+    list_size = max(top_n, profiles_config.robustness.comparison_size)
+    extended, _ = selection.pick_distinct(identifiers, duplicates, top_n=list_size)
     names = dict(
         zip(ordered["cnpj_classe"].to_list(), ordered["denominacao_social"].to_list(), strict=True)
     )
     scores = dict(zip(ordered["cnpj_classe"].to_list(), ordered["score"].to_list(), strict=True))
-    best = ordered.filter(pl.col("cnpj_classe").is_in(chosen)).sort(
-        pl.col("cnpj_classe").replace_strict({c: i for i, c in enumerate(chosen)}, default=99)
+    best = ordered.filter(pl.col("cnpj_classe").is_in(extended)).sort(
+        pl.col("cnpj_classe").replace_strict(
+            {c: i for i, c in enumerate(extended)}, default=len(extended)
+        )
     )
 
     ranked: list[schemas.RankedFund] = []
@@ -829,10 +848,11 @@ def _rank_profile(
                 for item in displaced
             ],
             manager_share=_manager_share(pool),
-            top=ranked,
+            top=ranked[:top_n],
             top_n=top_n,
         ),
         eligible,
+        ranked,
     )
 
 
