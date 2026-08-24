@@ -19,6 +19,7 @@ on:
 
 permissions:
   contents: write
+  issues: write   # so a broken run can say so somewhere a person will see
 
 jobs:
   rank:
@@ -62,3 +63,53 @@ jobs:
         with:
           name: ranking-${{ github.run_number }}
           path: saida/
+
+      # An unattended job that fails silently is worse than no job at all: the
+      # repository keeps serving the last ranking that worked, with nothing on
+      # the page saying it is stale. A red cross on a tab nobody opens is not a
+      # signal, so a broken run opens an issue, which reaches a person.
+      #
+      # One issue, not one per week. A pipeline broken by a CVM schema change
+      # stays broken until someone fixes it, and seven identical issues teach
+      # the reader to ignore the eighth. Later failures comment on the open one
+      # instead, which also records how long the outage has been running.
+      #
+      # Worth knowing about the schedule this guards: GitHub disables cron
+      # workflows in a repository with no activity for 60 days, and disables
+      # them quietly. If this repository goes idle, the run to worry about is
+      # the one that never starts, and no failure handler can report that.
+      - name: Say so when the run breaks
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LABEL: publicacao-automatica
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          gh label create "$LABEL" --force \
+            --color d93f0b \
+            --description "The unattended ranking run needs a person"
+
+          body=$(cat <<EOF
+          The scheduled ranking run failed on $(date -u +%F) and **\`saida/\` still holds
+          the output of the last run that worked**. Nothing on the published files says so.
+
+          - Run: $RUN_URL
+          - Reference date: ${{ inputs.reference_date || '2025-12-31' }}
+          - Trigger: ${{ github.event_name }}
+
+          Where to look first, in the order these actually break: the eligibility funnel
+          drifting past its tolerance (the pipeline stops on purpose, and the step log names
+          the step that moved), a CVM column renamed or a file restated into a shape the
+          reader rejects, or the download failing outright. The \`saida/\` artefact attached
+          to the run holds whatever was written before the failure.
+          EOF
+          )
+
+          open=$(gh issue list --state open --label "$LABEL" --limit 1 --json number --jq '.[0].number // empty')
+          if [ -n "$open" ]; then
+            gh issue comment "$open" --body "$body"
+          else
+            gh issue create --label "$LABEL" --body "$body" \
+              --title "Publicação automática do ranking parou"
+          fi
