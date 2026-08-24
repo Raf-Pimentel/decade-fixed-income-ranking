@@ -86,7 +86,7 @@ _FACTSHEET: dict[str, str] = {
     "TAXA_ADM": "taxa_adm",
     "TAXA_PERFM": "taxa_performance",
     # The factsheet spells the redemption columns differently from the
-    # statement. Same idea, different names — a reminder that these are two
+    # statement. Same idea, different names, a reminder that these are two
     # separate filings, not two copies of one.
     "QT_DIA_CONVERSAO_COTA_RESGATE": "dias_conversao",
     "QT_DIA_PAGTO_RESGATE": "dias_pagamento",
@@ -113,8 +113,8 @@ def read_latin1_csv(path: Path, separator: str = ";") -> pl.DataFrame:
     anywhere machine-readable. Reading them as UTF-8 mangles every accented
     fund name, which is most of them.
 
-    Quoting is disabled on purpose. The CVM never quotes fields — every line
-    carries the same number of semicolons either way — but its free-text
+    Quoting is disabled on purpose. The CVM never quotes fields, and every
+    line carries the same number of semicolons either way. But its free-text
     columns do contain loose double quotes: `extrato_fi_2025.csv` has 194 of
     them, in investment-policy prose. A parser that reads them as delimiters
     opens a quoted region, swallows every newline until the next quote, and
@@ -152,7 +152,7 @@ def _deduplicate(frame: pl.DataFrame, key: str) -> pl.DataFrame:
 
     `registro_fundo.csv` ships 1,046 fund ids more than once, with byte
     identical rows. Joining against it multiplies every class that belongs to
-    one of those funds, inflating the universe by roughly two percent — small
+    one of those funds, inflating the universe by roughly two percent. Small
     enough to sit inside the funnel tolerance and therefore invisible.
     Later rows win, on the assumption that corrections are appended.
     """
@@ -242,7 +242,7 @@ def read_registry(class_path: Path, fund_path: Path) -> pl.DataFrame:
 
     # A left join must never produce more rows than it started with. If it
     # does, a key is repeated on the right and the universe is silently
-    # inflated — the exact failure this reader deduplicates to prevent.
+    # inflated. That is the failure this reader deduplicates to prevent.
     if len(joined) != len(classes):
         raise ValueError(
             f"registry join changed the row count: {len(classes)} classes became "
@@ -288,7 +288,7 @@ def read_statement(path: Path) -> pl.DataFrame:
     # And the two are not always quoted in the same unit. `TP_DIA_PAGTO_RESGATE`
     # says whether the term is in business days or calendar days, and a fund
     # quoting "5 business days" makes the client wait a week. Treating the two
-    # as interchangeable would flatter every fund that quotes business days —
+    # as interchangeable would flatter every fund that quotes business days,
     # which matters, because redemption speed carries the second-heaviest
     # weight in the retail profile.
     return _with_redemption_days(frame)
@@ -301,7 +301,7 @@ def _with_redemption_days(frame: pl.DataFrame) -> pl.DataFrame:
     `TP_DIA_PAGTO_RESGATE` says whether the term is quoted in business days or
     calendar days, and a fund quoting "5 business days" makes the client wait a
     week. Treating the two as interchangeable would flatter every fund that
-    quotes business days — which matters, because redemption speed carries the
+    quotes business days, which matters because redemption speed carries the
     second-heaviest weight in the retail profile.
     """
     raw_days = pl.col("dias_conversao").fill_null(0) + pl.col("dias_pagamento").fill_null(0)
@@ -381,7 +381,7 @@ def combine_terms(statement: pl.DataFrame, factsheet: pl.DataFrame) -> pl.DataFr
 
 
 def statement_in_force(frame: pl.DataFrame, reference_date: dt.date) -> pl.DataFrame:
-    """The statement that was in force on the reference date — one per fund.
+    """The statement that was in force on the reference date, one per fund.
 
     Taking the most recent statement instead would describe a December 2025
     fund with terms filed in 2026, which is exactly the kind of leak that makes
@@ -399,7 +399,7 @@ def read_cdi(path: Path) -> pl.DataFrame:
     """The Central Bank's daily CDI series, as fractions.
 
     Two conversions, both silent if wrong. The file publishes percent per day,
-    so 0.055 means 0.055% — carrying it through as 5.5% compounds to something
+    so 0.055 means 0.055%. Carrying it through as 5.5% compounds to something
     absurd over a year. And the dates are day-first: `05/12/2025` is the fifth
     of December, and reading it month-first would fetch a real but wrong
     window.

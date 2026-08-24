@@ -1,14 +1,13 @@
 """The whole thing, in one importable function.
 
 `run(reference_date=...)` is the entire programme. The command line is a thin
-wrapper over it, and another team can import it directly — which is the point
-of the exercise: the ranking has to be consumable without anyone explaining it
-first.
+wrapper over it, and another team can import it directly. That is the point of
+the exercise: the ranking has to be usable without anyone explaining it first.
 
 Point-in-time is enforced at three separate places: when the daily report is
 validated, when the statement in force is chosen, and again when the panel is
 built. That looks like belt and braces because it is. A single row from after
-the reference date would not raise anything — it would just make the backtest
+the reference date would not raise anything. It would simply make the backtest
 in phase 5.5 quietly optimistic, which is the one failure this project cannot
 afford.
 """
@@ -454,8 +453,8 @@ def _duplicate_map(
 
     Returns, per fund, the funds it duplicates and how far apart they are. Two
     funds qualify when the same manager runs both and the annualised volatility
-    of the difference between their daily returns falls below the threshold —
-    the reasoning for that pair of conditions is in `rank/selection.py`.
+    of the difference between their daily returns falls below the threshold.
+    The reasoning behind that pair of conditions is in `rank/selection.py`.
 
     Every pair is measured on the days both funds actually published a quota
     and on no others. Aligning the whole panel to its shortest member instead
@@ -519,7 +518,7 @@ def _tax_regime(name: str | None, peer_group: str | None, long_term: str | None)
 
     Debentures issued under the infrastructure incentive are exempt from income
     tax for individuals, so a fund built on them is not comparable, after tax,
-    to a fund that follows the ordinary regressive table — even though the two
+    to a fund that follows the ordinary regressive table, even though the two
     sit in the same ANBIMA category and the delivery reports both before tax.
     Naming the regime per fund is what keeps that difference visible instead of
     being absorbed into a sentence about relative order holding.
@@ -563,9 +562,9 @@ def _window_start(reference_date: dt.date, months: int) -> dt.date:
 
     Counting back to the first day of the month twelve months earlier would
     begin on 01/12/2024 and hand thirteen months of quotas to something
-    labelled twelve — a return the reader cannot reconcile against anything
-    the fund publishes, and a benchmark a full percentage point away from the
-    CDI of the calendar year.
+    labelled twelve. The reader could not reconcile that return against
+    anything the fund publishes, and the benchmark would sit a full percentage
+    point away from the CDI of the calendar year.
     """
     year = reference_date.year - (months // 12)
     month = reference_date.month - (months % 12)
@@ -586,7 +585,7 @@ def _rank_profile(
     slot_of: dict[str, int] | None = None,
     pool_series: pl.DataFrame | None = None,
 ) -> tuple[schemas.ProfileRanking, list[str]]:
-    """Eligibility first, then percentiles — never the other way round."""
+    """Eligibility first, then percentiles, and never the other way round."""
     pool = eligibility.for_profile(funds, profile.eligibility)
     top_n = profiles_config.robustness.top_n
     eligible = pool["cnpj_classe"].to_list() if not pool.is_empty() else []
@@ -788,35 +787,37 @@ def _manager_share(pool: pl.DataFrame) -> dict[str, float]:
 
 
 _NOTES = [
-    # Deliberately does NOT repeat the two headline limitations, nor the note
-    # about constant fees inflating apparent stability — the first two are
-    # stated in full above, and the third is now answered with a number by the
-    # "só pelo desempenho" column. A caveat restated twice reads as carelessness
-    # and makes the reader skim the ones that only appear once.
+    # Deliberately does not repeat the two headline limitations, nor the note
+    # about constant fees inflating apparent stability. The first two are
+    # stated in full above, and the third is answered with a number by the
+    # "só pelo desempenho" column. A caveat restated twice reads as
+    # carelessness, and it teaches the reader to skim the ones that appear
+    # only once.
     "**Só entra fundo que publica taxa e prazo de resgate.** Não se recomenda o que não se "
     "consegue precificar. Isso exclui 26% dos fundos que passariam nos demais filtros, e a "
     "exclusão não é aleatória: a obrigação de publicar lâmina alcança fundos de varejo e não "
     "os restritos a investidor qualificado.",
-    "**Todos os fundos são medidos contra o CDI**, inclusive os indexados à inflação. A ANBIMA "
-    "publica o IMA como foto do dia, não como série histórica, então uma janela que termina "
-    "numa data passada não se reconstrói a partir dele. Como a comparação é feita dentro do "
-    "grupo de pares, um benchmark deslocado move todo o grupo junto e não altera a ordem por "
-    "excesso; o que ele altera é o retorno por unidade de risco, que divide esse excesso por "
-    "volatilidades diferentes. Afeta 8% do universo e uma das duas métricas de desempenho.",
+    "**Todos os fundos são medidos contra o CDI**, inclusive os indexados à inflação. A "
+    "ANBIMA publica o IMA como foto do dia, e não como série histórica, então uma janela que "
+    "termina numa data passada não se reconstrói a partir dele. Como a comparação é feita "
+    "dentro do grupo de pares, um benchmark deslocado move todo o grupo junto e não altera a "
+    "ordem por excesso. O que ele altera é o retorno por unidade de risco, que divide esse "
+    "excesso por volatilidades diferentes. Afeta 8% do universo e uma das duas métricas de "
+    "desempenho.",
     "**O imposto de renda fica de fora, e isso não é neutro para todo mundo.** A maioria dos "
     "fundos segue a mesma tabela regressiva, e entre eles a ordem relativa se mantém. Fundos "
-    "incentivados de infraestrutura são **isentos para pessoa física**, então o que o cliente "
-    "leva para casa é maior do que a tabela mostra — e a comparação bruta os subestima. O "
-    "regime de cada fundo está no `ranking.json`, no campo `regime_tributario`.",
+    "incentivados de infraestrutura são **isentos para pessoa física**, então o que o "
+    "cliente leva para casa é maior do que a tabela mostra, e a comparação bruta os "
+    "subestima. O regime de cada fundo está no `ranking.json`, no campo `regime_tributario`.",
     "**Fundos que fecharam não estão na base.** O universo é, por construção, otimista: quem "
     "quebrou em 2025 não aparece para ser comparado.",
     "**A oscilação dos fundos de crédito é subestimada.** Dívida privada no Brasil não é "
-    "remarcada todo dia como uma ação, o que faz esses fundos parecerem mais tranquilos do que "
-    "são — e melhora artificialmente a nota de quem carrega mais risco.",
-    "**A taxa é contada duas vezes, de propósito.** A cota do informe diário já vem líquida, "
-    "então o retorno em excesso ali dentro já pune o fundo caro. Dar à taxa o maior peso conta "
-    "o mesmo custo de novo — e a segunda contagem é a que fala sobre 2026, enquanto a primeira "
-    "fala sobre 2025. É escolha, não descuido.",
+    "remarcada todo dia como uma ação, o que faz esses fundos parecerem mais tranquilos do "
+    "que são e melhora artificialmente a nota de quem carrega mais risco.",
+    "**A taxa é contada duas vezes, de propósito.** A cota do informe diário já vem "
+    "líquida, então o retorno em excesso ali dentro já pune o fundo caro. Dar à taxa o maior "
+    "peso conta o mesmo custo de novo. A segunda contagem é a que fala sobre 2026, enquanto "
+    "a primeira fala sobre 2025. É escolha, e não descuido.",
     "**Cada fundo é avaliado sozinho**, não como parte de uma carteira. Não há restrição de "
     "diversificação além de não repetir a mesma carteira duas vezes, então os cinco escolhidos "
     "podem ser parecidos entre si sem serem idênticos.",

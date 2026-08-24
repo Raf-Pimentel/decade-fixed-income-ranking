@@ -1,6 +1,6 @@
 """Which funds compete, and how many survive each cut.
 
-The counts are not diagnostics — they are the product. A pipeline that quietly
+The counts are not diagnostics. They are the product. A pipeline that quietly
 loses half the universe still emits valid rows, still passes every schema, and
 still produces a confident ranking of the wrong funds. Recording the size of
 the universe at every step, and comparing it against numbers measured in
@@ -41,7 +41,7 @@ def summarise_series(series: pl.DataFrame, reference_date: dt.date) -> pl.DataFr
 
     Sorting before taking the last value is deliberate. Grouping without an
     explicit order gives whichever row the engine happened to hold, so "the
-    latest net assets" would be arbitrary and would change between runs — which
+    latest net assets" would be arbitrary and would change between runs, which
     would break reproducibility in a way that is very hard to spot.
     """
     return (
@@ -64,7 +64,7 @@ def blank_undisclosed_fees(funds: pl.DataFrame) -> pl.DataFrame:
     A fifth of the funds with fewer than a hundred shareholders declare a fee
     of exactly zero, against six per cent everywhere else. These are master and
     institutional vehicles whose fee is charged at the feeder or by the
-    distributor — the money is taken, just not at this level.
+    distributor. The money is taken, just not at this level.
 
     Cost carries the heaviest weight in both profiles, so a zero taken at face
     value hands the best possible percentile to whoever disclosed the least.

@@ -1,6 +1,6 @@
 """How numbers are written, in one place.
 
-Both outputs — the Markdown and the page — showed the same figures through
+Both outputs, the Markdown and the page, showed the same figures through
 their own private copies of these two functions. Two copies is two places to
 fix a currency bug, and one of them would eventually be missed.
 
@@ -27,7 +27,7 @@ def percent(value: object, places: int = 2) -> str:
 
     A negative number too small to survive the rounding prints without its
     sign. `-0.00%` is not a quantity, and a reader who meets it on the page
-    cannot tell an artefact of rounding from a broken formatter — which is a
+    cannot tell an artefact of rounding from a broken formatter, which is a
     reason to doubt every other figure beside it. The sign is dropped only
     when the printed digits are all zero, so a fund that genuinely trailed its
     benchmark still shows it.

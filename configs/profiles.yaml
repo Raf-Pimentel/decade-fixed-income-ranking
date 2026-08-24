@@ -27,12 +27,12 @@ profiles:
   # the money tomorrow and to someone investing for three years.
   #
   # The universes overlap on purpose. Someone with a long horizon can happily
-  # buy a same-day fund — spare liquidity is not a defect — so the horizon
+  # buy a same-day fund, since spare liquidity is not a defect, so the horizon
   # profile is the wider one. The same fund appearing in both lists is the
   # right answer, not a duplication.
 
   varejo_liquidez:
-    label: "Retail — emergency reserve"
+    label: "Retail: emergency reserve"
     description: >
       Money that may be needed at any moment. Capital preservation and cost
       dominate; return is a secondary criterion.
@@ -56,7 +56,7 @@ profiles:
       redemption_days:  3
 
   varejo_prazo:
-    label: "Retail — two years or more"
+    label: "Retail: two years or more"
     description: >
       Money with a horizon. Risk-adjusted return matters properly here, but
       cost still carries the single largest weight. Every fund the liquidity
@@ -81,8 +81,8 @@ profiles:
       redemption_days:  3
 
   # Not delivered: funds restricted to qualified investors. Only 79 of the 278
-  # eligible ones publish fees and redemption terms — 28%, against 64% for
-  # retail — because the duty to publish a factsheet reaches retail funds and
+  # eligible ones publish fees and redemption terms, 28% against 64% for
+  # retail, because the duty to publish a factsheet reaches retail funds and
   # not restricted ones. Ranking that sample would produce a list biased by
   # regulation rather than by quality. See D-032. Re-enabling it is a matter of
   # adding a profile block here; the eligibility machinery already supports it.
@@ -104,7 +104,7 @@ scoring:
 # How five funds are chosen, rather than five scores.
 #
 # One manager routinely sells one portfolio through a row of distribution
-# wrappers — Caixa offers a dozen over a single fixed-income portfolio. Each is
+# wrappers. Caixa offers a dozen over a single fixed-income portfolio. Each is
 # a separate class in the registry, each is eligible, and each scores almost
 # the same. A top five holding two of them offers four exposures and does not
 # say so.

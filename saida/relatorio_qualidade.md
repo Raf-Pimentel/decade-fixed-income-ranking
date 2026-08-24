@@ -1,4 +1,4 @@
-# Data quality — eligibility funnel
+# Data quality: the eligibility funnel
 
 Tolerance: 3%. Verdict: **within baseline**.
 

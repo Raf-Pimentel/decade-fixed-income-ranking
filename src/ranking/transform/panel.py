@@ -6,7 +6,7 @@ apply it to real data, which means dealing with funds that started mid-period,
 series that stop early, and the point-in-time rule.
 
 A fund is dropped here rather than scored badly when its numbers cannot be
-computed honestly — a quota that never moved has no volatility, and a
+computed honestly. A quota that never moved has no volatility, and a
 return-per-risk of infinity would put it straight at the top.
 """
 
@@ -40,7 +40,7 @@ def build(
     """Collapse a daily panel into one row per fund.
 
     `benchmark_rate` is the benchmark's compounded return over the same window,
-    already computed — passing the number rather than the series keeps this
+    already computed. Passing the number rather than the series keeps this
     function honest about using exactly one window for both sides.
     """
     windowed = series.filter(pl.col("data") <= reference_date).sort("cnpj_classe", "data")

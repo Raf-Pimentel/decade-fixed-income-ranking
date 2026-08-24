@@ -100,34 +100,34 @@ def _profile_footnotes(profile: ProfileRanking, explained: set[str]) -> list[str
                 f"> **De onde vem a concentração.** A maior gestora deste universo é "
                 f"{biggest.title()}, com **{share:.1%}** dos {profile.eligible_universe_size} "
                 "fundos elegíveis. Uma lista que a repete não está concentrando mais do que o "
-                "universo de onde ela saiu — está refletindo o mercado que o investidor de "
-                "varejo tem.",
+                "universo de onde ela saiu. Ela está refletindo o mercado que o investidor "
+                "de varejo tem.",
                 "",
             ]
         explained.add("concentracao")
 
     if profile.displaced:
         lines += [
-            "**Fundos deixados de fora por repetirem outro da lista.** Mesma gestora e séries "
-            "de cota que diferem por menos de 0,10% ao ano de oscilação: é uma carteira só, "
-            "vendida com dois nomes. O cliente que comprasse os dois teria uma exposição, não "
-            "duas.",
+            "**Fundos deixados de fora por repetirem outro da lista.** Mesma gestora, e "
+            "séries de cota que diferem por menos de 0,10% ao ano de oscilação. É uma "
+            "carteira só, vendida com dois nomes. O cliente que comprasse os dois teria uma "
+            "exposição, e não duas.",
             "",
         ]
         for item in profile.displaced:
             lines += [
-                f"- *{item.name}* (nota {item.score:.1f}) — repete **{item.duplicate_of}**; "
-                f"as duas séries diferem em {item.tracking_difference:.4%} ao ano.",
+                f"- *{item.name}* (nota {item.score:.1f}) repete **{item.duplicate_of}**. "
+                f"As duas séries diferem em {item.tracking_difference:.4%} ao ano.",
             ]
         lines += [""]
 
     if profile.inert_metrics:
         named = ", ".join(f"`{name}`" for name in profile.inert_metrics)
         lines += [
-            f"**Peso redistribuído.** {named} não separa nada dentro deste universo — a "
-            "elegibilidade já filtrou por esse critério, e quase todos os fundos que sobraram "
-            "empatam nele. O peso foi para os critérios que ainda distinguem, e os pesos de "
-            f"fato aplicados são {_weights(profile.effective_weights)}.",
+            f"**Peso redistribuído.** {named} não separa nada dentro deste universo. A "
+            "elegibilidade já filtrou por esse critério, e quase todos os fundos que "
+            "sobraram empatam nele. O peso foi para os critérios que ainda distinguem, e os "
+            f"pesos de fato aplicados são {_weights(profile.effective_weights)}.",
             "",
         ]
     return lines
@@ -143,10 +143,10 @@ def write_json(payload: RankingOutput, path: Path) -> None:
 def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None = None) -> None:
     """The readable version.
 
-    A plain list. The robustness simulation still decides the order — it runs
-    on every fund and the five published are the ones that survived it — but
-    "appeared in 42% of simulations" next to a fund name is noise for someone
-    choosing where to put their emergency reserve. That number lives in
+    A plain list. The robustness simulation still decides the order, since it
+    runs on every fund and the five published are the ones that survived it.
+    But "appeared in 42% of simulations" next to a fund name is noise for
+    someone choosing where to put their emergency reserve. That number lives in
     `ranking.json` and in the technical section at the bottom, where the people
     who want to audit the method will look for it.
     """
@@ -189,7 +189,7 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
             )
         lines += ["", "### Por que cada um", ""]
         for fund in profile.top:
-            lines += [f"**{fund.rank}. {fund.name}** — {fund.rationale}", ""]
+            lines += [f"**{fund.rank}. {fund.name}.** {fund.rationale}", ""]
         lines += _profile_footnotes(profile, explained)
 
     lines += [
@@ -201,9 +201,9 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
         "",
         "**1. Este ranking não olha o que os fundos têm dentro.** Ele mede resultado, não "
         "conteúdo. Dois fundos com rentabilidade, oscilação e pior queda praticamente "
-        "idênticos podem carregar riscos de crédito completamente diferentes — e crédito "
-        "privado no Brasil paga um prêmio pequeno e constante por muitos meses e devolve tudo "
-        "de uma vez quando o emissor quebra. Nada na série de cotas antecipa isso.",
+        "idênticas podem carregar riscos de crédito bem diferentes. Crédito privado no Brasil "
+        "paga um prêmio pequeno e constante por muitos meses, e devolve tudo de uma vez "
+        "quando o emissor quebra. Nada na série de cotas antecipa isso.",
         "",
         f"**2. {payload.lookback_months} meses de histórico não dizem o que acontece em 2026.** "
         "O método foi testado fora da amostra e funcionou em 2025 (ver `validacao.md`), mas "
@@ -212,14 +212,16 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
         "### E três coisas que valem ser ditas",
         "",
         "**Os pesos são uma escolha, não uma dedução.** Custo pesa mais que rentabilidade "
-        "passada porque a taxa é o único número que se sabe com certeza sobre o ano que vem — "
-        "e porque apenas 40% dos fundos bateram o CDI em 2025. Mas não há demonstração de que "
-        "esses pesos sejam ótimos. O que o projeto garante é que, informados outros pesos, o "
-        "resultado sai coerente com eles: os pesos vivem em um arquivo de configuração.",
+        "passada por dois motivos: a taxa é o único número que se sabe com certeza sobre o "
+        "ano que vem, e apenas 40% dos fundos bateram o CDI em 2025. Ainda assim, não há "
+        "demonstração de que esses pesos sejam os melhores possíveis. O que o projeto "
+        "garante é que, informados outros pesos, o resultado sai coerente com eles. Os pesos "
+        "ficam em um arquivo de configuração.",
         "",
         "**A lista concentra em poucas gestoras.** É consequência coerente do critério: as "
         "gestoras dos grandes bancos praticam taxas muito baixas nos fundos de casa, e custo "
-        "é o maior peso. Não é recomendação de concentrar — é o que o critério devolve.",
+        "é o maior peso. Isso não é uma recomendação de concentrar. É o que o critério "
+        "devolve.",
         "",
         f"**A ordem entre os cinco não é forte.** Com {payload.lookback_months} meses de dados "
         "diários, a incerteza sobre o retorno ajustado ao risco é maior que a distância entre "
@@ -263,21 +265,21 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
         "não premiar quem simplesmente tomou mais risco de crédito. Ela é também silenciosa "
         "sobre a qualidade da categoria: ser o primeiro de dezoito vale 1 num grupo forte e "
         "num grupo fraco. A segunda nota refaz a conta contra **todo o universo elegível do "
-        "perfil**. Quando as duas se afastam, o fundo é o melhor de um grupo que não é bom — "
+        "perfil**. Quando as duas se afastam, o fundo é o melhor de um grupo que não é bom, "
         "e quem lê tem o direito de saber disso antes de comprar.",
     ]
     lines += [
         "",
         "**A última coluna responde outra pergunta:** este fundo continuaria no top 5 se "
-        "fosse pontuado **só pelo desempenho** — retorno, ganho sobre o CDI, oscilação e "
-        "pior queda — ignorando taxa e prazo de resgate?",
+        "fosse pontuado **só pelo desempenho**, ou seja, por retorno, ganho sobre o CDI, "
+        "oscilação e pior queda, ignorando taxa e prazo de resgate?",
         "",
         "Para a maioria, a resposta é não. Isso não é defeito: é a consequência deliberada "
         "de dar à taxa o maior peso, porque ela é o único número que se sabe com certeza "
         "sobre o ano que vem, e porque apenas 40% dos fundos bateram o CDI em 2025. "
         "**Mas quem lê esta lista tem o direito de saber que ela é, em grande parte, um "
-        "ranking de custo e liquidez** — e que os fundos escolhidos não seriam os mesmos "
-        "se o critério fosse desempenho passado.",
+        "ranking de custo e liquidez**, e que os fundos escolhidos não seriam os mesmos se "
+        "o critério fosse desempenho passado.",
         "",
         "Todos os números por fundo estão em `ranking.json`.",
         "",

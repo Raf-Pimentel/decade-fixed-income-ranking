@@ -64,7 +64,8 @@ def block_bootstrap(returns: np.ndarray, block_size: int, rng: np.random.Generat
     """Resample a return series in contiguous blocks.
 
     Drawing single days independently would break the autocorrelation that
-    matters here — credit funds post long runs of small positive returns —
+    matters here, because credit funds post long runs of small positive
+    returns,
     and would make every fund look better behaved than it is.
     """
     length = returns.size

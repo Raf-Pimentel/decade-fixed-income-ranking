@@ -14,8 +14,24 @@ on:
         description: "Reference date (YYYY-MM-DD)"
         required: false
         default: "2025-12-31"
-  schedule:
-    - cron: "0 9 * * MON"   # Mondays, 09:00 UTC
+  # The scheduled trigger is switched off while the case study is being read,
+  # and it is left here rather than deleted because how it worked is part of
+  # the answer.
+  #
+  # Turned on, this line runs the job every Monday at 09:00 UTC with nobody
+  # watching. GitHub starts a clean machine, installs the locked dependencies,
+  # downloads the current CVM and Central Bank files, runs the pipeline and
+  # commits the result into `saida/`. Commit 76102a4 in this repository was
+  # written that way, by github-actions[bot] and not by a person.
+  #
+  # It is off for one reason: `saida/` holds the delivered ranking for
+  # 31/12/2025, which was checked by hand, and a weekly run would overwrite it
+  # with numbers nobody had looked at. The CVM keeps registering new classes,
+  # so the funnel moves a little every week even for the same reference date.
+  # Uncomment the two lines below to start it again.
+  #
+  # schedule:
+  #   - cron: "0 9 * * MON"
 
 permissions:
   contents: write

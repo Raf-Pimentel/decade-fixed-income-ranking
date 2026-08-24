@@ -8,12 +8,12 @@ done instead.
 
 Four comparisons, in increasing order of how much they hurt:
 
-1. the median of the funds that were eligible on the day — did we beat the
+1. the median of the funds that were eligible on the day. Did we beat the
    typical fund of the same universe?
-2. the benchmark — the CDI compounded over exactly the days being measured,
+2. the benchmark, meaning the CDI compounded over exactly the days measured,
    so that the answer is a real number rather than a placeholder;
 3. **a thousand portfolios of five funds drawn at random from that same
-   universe** — did we beat chance? This is the one that decides the frozen
+   universe**. Did we beat chance? This is the one that decides the frozen
    criterion. A method that cannot outperform a coin toss over the funds it
    had available is not a method, however defensible its reasoning;
 4. **a thousand portfolios drawn from the cheapest quarter of that universe.**
@@ -27,7 +27,8 @@ Four comparisons, in increasing order of how much they hurt:
 What every fund is measured on is the full validated panel, not the funds that
 were still eligible at the end. A fund chosen in March that shrank below the
 shareholder floor by December still had a return, and reading outcomes from
-the surviving universe would silently drop it from the average — survivorship
+the surviving universe would silently drop it from the average, which is the
+survivorship
 bias inside the very test written to avoid it.
 
 The success criterion and the rule for funds that stop reporting were written
@@ -99,7 +100,7 @@ class Verdict:
         )
         return (
             f"Método {state}. Acima do percentil {self.threshold:.0%} das carteiras "
-            f"aleatórias em — {detail}."
+            f"aleatórias em {detail}."
         )
 
 
@@ -167,7 +168,7 @@ def cheapest_quartile(returns: dict[str, float], fees: dict[str, float]) -> dict
     """The quarter of the universe that charges least, by admin fee.
 
     A ranking whose heaviest weight is cost will beat the median fund partly
-    because cheap funds keep more of the same gross return — that is
+    because cheap funds keep more of the same gross return. That is
     arithmetic, known before any test is run, and it would show up as apparent
     skill in a comparison against the whole universe. Drawing the control from
     funds that are already cheap holds that constant and leaves the question
@@ -206,7 +207,7 @@ def evaluate(
     survivorship bias this test exists to avoid, applied to the test itself: a
     fund that shrank, closed to new money or stopped disclosing is exactly the
     outcome a method should be charged for. A fund with no quota published
-    after the cut at all is held at its last known value — flat — which is the
+    after the cut at all is held flat at its last known value, which is the
     policy frozen in configuration before any of this ran.
     """
     outcomes = forward_returns_all or eligible_returns
@@ -245,7 +246,7 @@ def verdict(outcomes: list[Outcome], rules: Backtest) -> Verdict:
     """Apply the criterion exactly as it was written down beforehand.
 
     Applied **per profile**. The frozen wording speaks of cut dates, and with
-    two profiles across three dates there are six results — requiring two of
+    two profiles across three dates there are six results, and requiring two of
     six would be a far weaker claim than the one that was committed to, and
     weakening a criterion after seeing the numbers is the failure this whole
     phase exists to avoid. Every profile has to clear the bar on its own.
@@ -290,8 +291,9 @@ def run_all(
 
     # The forward window is read once from the final run, so that every cut
     # date is measured against the same series and the same end date. It is the
-    # whole validated panel — every fund that published a quota, eligible or
-    # not — because the outcome of a fund that fell out of the universe is part
+    # whole validated panel, meaning every fund that published a quota,
+    # eligible or not, because the outcome of a fund that fell out of the
+    # universe is part
     # of the result, not something to be excused from it.
     final = pipeline.run(
         reference_date=end_date,
@@ -398,7 +400,7 @@ def to_markdown(outcomes: list[Outcome], result: Verdict, end_date: dt.date) -> 
         f"Contra o CDI, o Top 5 ficou à frente em **{beat_benchmark} dos {tested} recortes**. "
         + (
             "Nenhum. Os fundos escolhidos renderam menos que o CDI em todos os cortes, o que "
-            "não é surpresa num universo em que só 40% dos fundos bateram o CDI no ano — mas "
+            "não é surpresa num universo em que só 40% dos fundos bateram o CDI no ano, mas "
             "precisa estar escrito, porque é a comparação que o cliente faz de cabeça."
             if beat_benchmark == 0
             else "É a comparação que o cliente faz de cabeça, e por isso está na tabela."
@@ -407,10 +409,10 @@ def to_markdown(outcomes: list[Outcome], result: Verdict, end_date: dt.date) -> 
         "Isso convive com percentis altos contra o sorteio sem contradição: fundos de renda "
         "fixa pós-fixados rendem todos perto do CDI, então a distribuição das carteiras "
         "aleatórias é muito estreita. Ficar num percentil alto de uma distribuição apertada "
-        "significa ganhar de quase todo mundo **por muito pouco** — e ficar num percentil "
+        "significa ganhar de quase todo mundo **por muito pouco**, e ficar num percentil "
         "baixo significa perder de quase todo mundo, também por muito pouco. Nos dois casos, "
         "o que está em jogo são dezenas de pontos-base ao ano. Em renda fixa, onde a taxa "
-        "mediana é 0,50% ao ano, é exatamente a ordem de grandeza do que há para ganhar — e "
+        "mediana é 0,50% ao ano, é exatamente a ordem de grandeza do que há para ganhar, e "
         "é também pequeno o bastante para que três recortes não distingam método de sorte.",
         "",
         "### Contra os baratos: separando o que é seleção do que é aritmética",
@@ -468,7 +470,7 @@ def to_markdown(outcomes: list[Outcome], result: Verdict, end_date: dt.date) -> 
         "## O que este teste não prova",
         "",
         "Que o método funciona em 2026. Ele mostra o que aconteceu em três recortes de um ano "
-        "só, com um regime de juros só. É evidência, não garantia — e três datas de corte "
+        "só, com um regime de juros só. É evidência, e não garantia. Três datas de corte "
         "dentro do mesmo ano não são três observações independentes.",
         "",
     ]

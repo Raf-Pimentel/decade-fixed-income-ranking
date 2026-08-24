@@ -21,7 +21,7 @@ class _Strict(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# universe.yaml — which funds compete
+# universe.yaml: which funds compete
 # ---------------------------------------------------------------------------
 
 
@@ -71,7 +71,7 @@ class UniverseConfig(_Strict):
 
 
 # ---------------------------------------------------------------------------
-# profiles.yaml — what "best" means
+# profiles.yaml: what "best" means
 # ---------------------------------------------------------------------------
 
 
@@ -129,7 +129,7 @@ class Robustness(_Strict):
 
 class Backtest(_Strict):
     """Frozen before the backtest runs. Changing any of this after seeing a
-    result would be fitting the method to the answer — see rule 11."""
+    result would be fitting the method to the answer. See rule 11."""
 
     cut_dates: list[dt.date]
     random_portfolios: int
@@ -157,7 +157,7 @@ class ProfilesConfig(_Strict):
 
 
 # ---------------------------------------------------------------------------
-# sources.yaml — where the data comes from
+# sources.yaml: where the data comes from
 # ---------------------------------------------------------------------------
 
 
@@ -219,6 +219,6 @@ def load_sources(path: Path) -> dict[str, Source]:
 
 
 def load_transfer_settings(path: Path) -> TransferSettings:
-    """Retry, circuit breaker and cache behaviour — read from the same file."""
+    """Retry, circuit breaker and cache behaviour, read from the same file."""
     raw = _read_yaml(path)
     return TransferSettings.model_validate({"download": raw["download"], "cache": raw["cache"]})

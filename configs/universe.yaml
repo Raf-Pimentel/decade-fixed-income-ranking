@@ -19,12 +19,12 @@ filters:
   # Raised from 10 to 500 after the first real ranking came back holding funds
   # with 17, 31 and 70 shareholders and tens of billions in assets. Those are
   # master and institutional vehicles labelled "Público Geral", not products a
-  # retail investor can buy — and Decade asked for recommendations that are
+  # retail investor can buy, and Decade asked for recommendations that are
   # actionable for retail.
   #
   # Measured across the retail universe: the 10th percentile holds 31
   # shareholders and the median 924. Funds with fewer than a hundred declare a
-  # zero admin fee 22% of the time, against 6% everywhere else — the same
+  # zero admin fee 22% of the time, against 6% everywhere else, the same
   # institutional vehicles, disclosing least. A cut at 500 keeps 59% of the
   # universe and sits above the band where those two artefacts live.
   min_shareholders: 500
@@ -40,8 +40,8 @@ data_quality:
 # ranking does not automatically reward whoever took the most credit risk.
 #
 # The benchmark is the CDI, for every group, and the output says so group by
-# group rather than leaving the reader to assume it. The alternative — IMA-B
-# for inflation-linked funds, IRF-M for fixed-rate ones — is the textbook
+# group rather than leaving the reader to assume it. The alternative, IMA-B
+# for inflation-linked funds and IRF-M for fixed-rate ones, is the textbook
 # answer and is not available: ANBIMA publishes the IMA series as a snapshot
 # of the current day, not as history, so a window ending on a past date cannot
 # be reconstructed from it. Comparing within the peer group absorbs most of
@@ -54,7 +54,7 @@ peer_groups:
   field: Classificacao_Anbima
   min_size: 20                     # smaller groups merge into the parent
 
-# Expected funnel — this is the data regression test (decision D-015).
+# Expected funnel. This is the data regression test (decision D-015).
 # A run that deviates beyond the tolerance stops and asks for investigation.
 expected_funnel:
   tolerance: 0.03
@@ -67,7 +67,7 @@ expected_funnel:
     # The Phase 1 numbers were measured by an exploratory script that used one
     # month of daily data and a 20-observation floor. The pipeline applies the
     # 200-observation rule this file has always declared, over twelve months.
-    # So the two are not the same quantity — and where they differ, the weaker
+    # So the two are not the same quantity, and where they differ the weaker
     # measurement was the reconnaissance one, not the pipeline.
     #
     # Steps unchanged from the independent Phase 1 measurement:
@@ -85,7 +85,7 @@ expected_funnel:
     # not only the reference year. A fund that filed in 2024 and never refiled is in
     # force in 2025, and fetching one year made it look as though it had never
     # disclosed anything. The change came from phase 5.5, which needs earlier cut
-    # dates to work at all — and it improves the reference-date run too.
+    # dates to work at all, and it improves the reference-date run too.
     with_fee_and_redemption: 580
   by_target_investor:
     retail: 559      # was 502 before the statement was fetched for every year

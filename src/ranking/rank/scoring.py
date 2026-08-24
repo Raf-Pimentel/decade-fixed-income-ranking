@@ -2,8 +2,8 @@
 
 The central choice is that a fund is compared **only against funds like it**.
 In 2025 the funds that returned most were the ones that took most credit risk,
-so a ranking by return — or even by return per unit of risk measured across
-the whole universe — would hand back the five riskiest names and call them
+so a ranking by return, or even by return per unit of risk measured across
+the whole universe, would hand back the five riskiest names and call them
 best. Their problem simply had not arrived yet.
 
 Comparing inside the ANBIMA category asks the question that can actually be
@@ -24,7 +24,7 @@ def merge_small_groups(funds: pl.DataFrame, group: str, min_size: int) -> pl.Dat
 
     A percentile among four funds is noise dressed as information. Those funds
     are compared against the whole eligible universe instead, and the output
-    says which of the two happened — inventing a peer group out of four names
+    says which of the two happened. Inventing a peer group out of four names
     would be worse than admitting there isn't one.
     """
     sizes = funds.group_by(group).len()
@@ -59,7 +59,7 @@ def peer_percentile(frame: pl.DataFrame, metric: str, group: str, direction: str
     looking entirely plausible.
 
     Funds pooled into the global group are ranked against the entire frame,
-    not against the other strays — which is the whole point of pooling them.
+    not against the other strays, which is the whole point of pooling them.
     """
     if direction not in {"high", "low"}:
         raise ValueError(f"direction must be 'high' or 'low', got {direction!r}")
@@ -116,7 +116,7 @@ def effective_weights(
     Rather than quietly carry a dead term, the weight is moved to the metrics
     that do vary, in proportion to what they already carried, and the metric is
     named in the output. This is a rule about the shape of the data, applied
-    identically to every profile and every reference date — not a judgement
+    identically to every profile and every reference date, and not a judgement
     about any particular number, which is what keeps the weights themselves
     frozen.
     """

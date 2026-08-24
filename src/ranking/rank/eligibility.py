@@ -23,7 +23,7 @@ def apply(
 ) -> pl.DataFrame:
     """Keep only the funds this profile can reach.
 
-    A `None` limit means no limit, which is different from a limit of zero —
+    A `None` limit means no limit, which is different from a limit of zero,
     the distinction matters because the qualified profile genuinely has no
     minimum-investment ceiling.
     """

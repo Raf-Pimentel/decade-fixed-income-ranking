@@ -12,7 +12,7 @@ import polars as pl
 
 
 def flag_implausible_moves(frame: pl.DataFrame, threshold: float = 0.20) -> pl.DataFrame:
-    """Mark unusually large daily moves — and mark only.
+    """Mark unusually large daily moves, and only mark them.
 
     Dropping these rows would be the obvious thing and the wrong one. A fund
     that amortises its quota shows a large fall with no loss to the investor,

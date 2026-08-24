@@ -5,7 +5,7 @@ Two brakes, doing different jobs.
 The **quarantine limit** catches a file that arrived broken: if a twentieth of
 it had to be thrown away, whatever is left is not a sample worth ranking.
 
-The **funnel comparison** catches the subtler failure — a run that produces
+The **funnel comparison** catches the subtler failure, a run that produces
 perfectly valid rows, just the wrong number of them. A join that silently
 matched half the universe raises nothing, passes every schema, and yields a
 confident ranking of the wrong funds. The only way to notice is to have
@@ -14,7 +14,7 @@ written down, in advance, how many funds should survive each step.
 One lesson is baked in here. During phase 3 a duplicated key in the CVM
 registry inflated the universe by 2%, and this comparison **passed**, because
 2% fits inside a 3% tolerance. So a percentage band is necessary and not
-sufficient: exact invariants — like a join never changing a row count — belong
+sufficient. Exact invariants, like a join never changing a row count, belong
 next to the operation itself, not here.
 """
 
@@ -79,10 +79,10 @@ class FunnelReport:
 
     def to_markdown(self) -> str:
         lines = [
-            "# Data quality — eligibility funnel",
+            "# Data quality: the eligibility funnel",
             "",
             f"Tolerance: {self.tolerance:.0%}. "
-            f"Verdict: **{'within baseline' if self.ok else 'DEVIATION — investigate'}**.",
+            f"Verdict: **{'within baseline' if self.ok else 'DEVIATION, investigate'}**.",
             "",
             "| Step | Observed | Baseline | Deviation | |",
             "|---|---:|---:|---:|:--|",

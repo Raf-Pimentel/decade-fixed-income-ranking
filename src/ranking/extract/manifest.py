@@ -3,7 +3,7 @@
 The CVM restates data by overwriting the published file in place. There is no
 version, no changelog, and no way to ask for yesterday's copy. So a ranking
 dated December 2025 cannot be reproduced three months later unless we wrote
-down what we actually read at the time — which is what this does.
+down what we actually read at the time, which is what this does.
 """
 
 from __future__ import annotations

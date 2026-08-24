@@ -1,7 +1,8 @@
 """The ranking as a page, regenerated on every run.
 
 Built from the same payload as `ranking.json`, so the two cannot drift apart.
-Entirely self-contained — no stylesheet, font or script from anywhere else —
+Entirely self-contained, with no stylesheet, font or script from anywhere
+else,
 because the moment someone needs it most is while presenting from a laptop
 with no network.
 
@@ -135,7 +136,7 @@ def write_html(payload: RankingOutput, path: Path, validation: str | None = None
   <h3>O que esta lista não sabe</h3>
   <p><span class="flag">Não olha a carteira dos fundos.</span> Mede resultado, não
      conteúdo. Dois fundos com números praticamente idênticos podem carregar riscos de
-     crédito completamente diferentes — e crédito privado paga um prêmio pequeno e constante
+     crédito bem diferentes. Crédito privado paga um prêmio pequeno e constante
      por muitos meses e devolve tudo de uma vez quando o emissor quebra.</p>
   <p><span class="flag">Doze meses não dizem o que acontece em 2026.</span> O método foi
      testado fora da amostra e funcionou em 2025, mas 2025 teve um único regime de juros.
@@ -143,7 +144,7 @@ def write_html(payload: RankingOutput, path: Path, validation: str | None = None
   <p><strong>Os pesos são uma escolha, não uma dedução.</strong> Custo pesa mais que
      rentabilidade passada porque a taxa é o único número que se sabe com certeza sobre o ano
      que vem, e porque apenas 40% dos fundos bateram o CDI em 2025. Não há demonstração de
-     que sejam ótimos — eles vivem em um arquivo de configuração, e o resultado acompanha
+     que sejam ótimos. Eles ficam em um arquivo de configuração, e o resultado acompanha
      quem os mudar.</p>
   <p><strong>A ordem entre os cinco não é forte.</strong> A incerteza sobre o retorno
      ajustado ao risco é maior que a distância entre os primeiros colocados. A lista afirma
@@ -151,14 +152,14 @@ def write_html(payload: RankingOutput, path: Path, validation: str | None = None
 </section>
 <footer>Gerado pelo pipeline a cada execução, a partir dos mesmos dados de
   <code>ranking.json</code>. Fontes públicas da CVM e do Banco Central.
-  Estudo de caso — não é recomendação de investimento.</footer>
+  Estudo de caso. Não é recomendação de investimento.</footer>
 </div>"""
 
     page = (
         "<!doctype html>\n"
         '<html lang="pt-BR"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'
-        f"<title>Ranking de fundos de renda fixa — {payload.reference_date:%d/%m/%Y}</title>"
+        f"<title>Ranking de fundos de renda fixa em {payload.reference_date:%d/%m/%Y}</title>"
         f"<style>{_STYLE}</style></head><body>{body}</body></html>\n"
     )
     path.parent.mkdir(parents=True, exist_ok=True)

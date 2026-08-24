@@ -20,7 +20,7 @@
     "Renda Fixa Simples": "CDI"
   },
   "benchmark_label": "CDI",
-  "generated_at": "2026-08-24T16:10:43.006424Z",
+  "generated_at": "2026-08-24T16:28:30.902436Z",
   "lookback_months": 12,
   "profiles": [
     {
@@ -44,7 +44,7 @@
       "inert_metrics": [
         "redemption_days"
       ],
-      "label": "Retail — emergency reserve",
+      "label": "Retail: emergency reserve",
       "manager_share": {
         "ARX INVESTIMENTOS LTDA": 0.0596,
         "BANCO BRADESCO S.A.": 0.0642,
@@ -252,7 +252,7 @@
       },
       "eligible_universe_size": 390,
       "inert_metrics": [],
-      "label": "Retail — two years or more",
+      "label": "Retail: two years or more",
       "manager_share": {
         "BANCO BRADESCO S.A.": 0.0897,
         "BB GESTAO DE RECURSOS DTVM S.A": 0.0974,

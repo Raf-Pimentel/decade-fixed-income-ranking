@@ -69,7 +69,7 @@ sources:
     note: >
       Percent per day, business days only, so it compounds rather than sums.
       The date range is mandatory: the API answers 406 Not Acceptable when the
-      window is too wide. Measured — eleven years is refused, fourteen months
+      window is too wide. Measured: eleven years is refused, fourteen months
       is served. An unbounded URL asks for everything since 1986 and always
       fails. A backfill longer than about ten years has to be chunked.
 

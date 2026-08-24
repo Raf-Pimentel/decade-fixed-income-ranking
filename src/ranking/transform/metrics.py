@@ -2,7 +2,7 @@
 
 This is the smallest module in the project and the one most worth getting
 right. A wrong formula here does not crash, does not look wrong, and does not
-show up in any log — it just produces a confident ranking of the wrong funds.
+show up in any log. It just produces a confident ranking of the wrong funds.
 Everything is a plain function over plain numbers so that each one can be
 checked against an invariant that must hold whatever the data is.
 
@@ -110,7 +110,7 @@ def max_drawdown(quotas: Series) -> float:
     """The worst peak-to-trough fall in the period, as a negative number.
 
     Measured from the running peak, not from the start. A fund that doubled
-    and then halved fell 50%, even though it ends above where it began — and
+    and then halved fell 50%, even though it ends above where it began, and
     the investor who bought at the top experienced exactly that.
 
     This is the risk number a client actually feels, which is why it carries
@@ -126,7 +126,7 @@ def negative_day_share(returns: Series) -> float:
 
     A useful tell for credit funds: they post small positive returns almost
     every day, right up until they do not. A fund with an unusually low share
-    here is not necessarily safe — it may simply not be marking its holdings.
+    here is not necessarily safe. It may simply not be marking its holdings.
     """
     array = np.asarray(returns, dtype=np.float64)
     if array.size == 0:
@@ -139,7 +139,7 @@ def return_per_risk(fund_return: float, benchmark_return: float, volatility: flo
 
     Zero volatility is refused rather than treated as infinitely good. A fixed
     income fund whose quota does not move is not a miracle, it is a fund that
-    has stopped being priced — and rewarding it would put exactly the wrong
+    has stopped being priced, and rewarding it would put exactly the wrong
     names at the top.
     """
     if volatility <= 0:

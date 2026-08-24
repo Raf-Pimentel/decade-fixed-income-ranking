@@ -2,14 +2,14 @@
 
 A score ranks funds one at a time; a list of five is held all at once. One
 manager routinely runs a single portfolio and sells it through a row of
-distribution wrappers — Caixa offers a dozen over one fixed-income portfolio —
-each a separate class, each legitimately eligible, each earning nearly the
-same score. A top five holding two of them offers four exposures and does not
-say so.
+distribution wrappers. Caixa offers a dozen over one fixed-income portfolio.
+Each is a separate class, each is legitimately eligible, and each earns
+nearly the same score. A top five holding two of them offers four exposures
+without saying so.
 
 Two funds count as one when the same manager runs both **and** their tracking
-difference — the annualised volatility of the difference between their daily
-returns — is near zero. Two wrappers of one portfolio differ only by their
+difference, meaning the annualised volatility of the difference between their
+daily returns, is near zero. Two wrappers of one portfolio differ only by their
 fee, a constant drag that contributes no variance.
 
 Correlation cannot do this job here, which is why it is not used: every
@@ -43,7 +43,7 @@ def pick_distinct(
 
     Order is never rearranged. The ranking decides who is considered first and
     this decides only whether a candidate adds anything to what is already on
-    the list, so a fund is never promoted over a better-ranked one — it is
+    the list, so a fund is never promoted over a better-ranked one. It is
     reached because the better-ranked one turned out to be a name for something
     already held.
 

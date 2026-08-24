@@ -34,7 +34,7 @@ def is_valid_cnpj(candidate: str) -> bool:
     """Check the two verification digits.
 
     Verified against every CNPJ in the CVM registry and in the December 2025
-    daily report — 62,058 values, none rejected — so this is safe to apply
+    daily report, across 62,058 values with none rejected, so it is safe to apply
     strictly. A validation that quietly discards real funds would be worse
     than no validation at all.
     """
@@ -61,7 +61,7 @@ def cnpj(raw: str | None) -> str:
 
 
 def fund_age_years(row: Mapping[str, Any], as_of: dt.date) -> float:
-    """Age in years, from the fund's constitution — never from the registry's
+    """Age in years, from the fund's constitution, and never from the registry's
     `Data_Inicio`, which is the resolution-175 adaptation date.
 
     Falls back to the first observed quota date when the constitution date is

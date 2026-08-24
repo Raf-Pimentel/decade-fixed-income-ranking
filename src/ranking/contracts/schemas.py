@@ -6,7 +6,7 @@ Two different jobs live here, and they are deliberately separate:
   written reason*. Nothing is dropped silently, because a filter you cannot
   inspect is indistinguishable from a bug.
 - **Guarantee.** What leaves the stage is then checked against a declared
-  schema. If the clean set ever fails that check, the triage rules are wrong —
+  schema. If the clean set ever fails that check, the triage rules are wrong,
   it is a second lock on the same door, pointing at a different suspect.
 
 The output contract at the bottom is the one another team depends on, so it
@@ -33,7 +33,7 @@ from ranking.transform import normalize
 class DailyReport(pa.DataFrameModel):
     """What a clean daily-report table looks like, by declaration.
 
-    This is not where rows are rejected — it is the assertion that the rows
+    This is not where rows are rejected. It is the assertion that the rows
     which survived rejection really are sound.
     """
 
@@ -139,14 +139,14 @@ def validate_daily_report(frame: pl.DataFrame, reference_date: dt.date) -> Valid
 def assert_matches_contract(frame: pl.DataFrame) -> None:
     """Belt and braces: the clean set must satisfy the declared schema.
 
-    If this raises, the triage rules let something through — the fault is in
+    If this raises, the triage rules let something through, and the fault is in
     `_rejection_reason`, not in the data.
     """
     DailyReport.validate(frame, lazy=True)
 
 
 # ---------------------------------------------------------------------------
-# The output contract — what another team consumes
+# The output contract: what another team consumes
 # ---------------------------------------------------------------------------
 
 

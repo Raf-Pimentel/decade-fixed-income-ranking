@@ -1,6 +1,6 @@
 """The command line.
 
-Deliberately thin. Everything it does, `pipeline.run` does — the command is a
+Deliberately thin. Everything it does, `pipeline.run` does. The command is a
 convenience, not the interface. Another team importing the function gets the
 same behaviour without shelling out.
 """
@@ -62,7 +62,7 @@ def main(
     typer.echo(f"Funil de qualidade: {verdict}.")
     typer.echo(f"Linhas em quarentena: {result.quarantined_share:.2%}.")
     for profile in result.payload.profiles:
-        typer.echo(f"\n{profile.label} — {profile.eligible_universe_size} fundos elegíveis")
+        typer.echo(f"\n{profile.label}: {profile.eligible_universe_size} fundos elegíveis")
         for fund in profile.top:
             typer.echo(
                 f"  {fund.rank}. {fund.name[:52]:<52} "
