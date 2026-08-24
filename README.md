@@ -10,6 +10,21 @@ reference date.
 
 It was built for a case study with a reference period of **31 December 2025**.
 
+## Video walkthrough
+
+<!-- Replace with: [Watch the 5-minute walkthrough](URL) -->
+**Link to be added.** Five minutes covering the design, the decision I am least sure about,
+and the path to production.
+
+The decision I am least sure about is **the weights**. Cost carries the heaviest weight in
+both profiles, and the argument for it is real: the fee is the only number known with
+certainty about next year, and only 40% of funds beat the CDI in 2025. But there is no
+demonstration that these particular weights are the best ones. What the project does
+guarantee is that the weights live in [`configs/profiles.yaml`](configs/profiles.yaml), that
+the ones actually applied are published next to the ones declared, and that the robustness
+simulation redraws them a thousand times, so a fund that only wins under one exact set of
+weights never reaches the list.
+
 ## Quick start
 
 You need [uv](https://github.com/astral-sh/uv) installed. Nothing else.

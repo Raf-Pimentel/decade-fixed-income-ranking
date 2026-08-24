@@ -308,7 +308,7 @@ da lista escolhido tanto por custo quanto por desempenho.
 | 3:35–4:05 | Onde meu próprio guardrail falhou | D-024 vs D-029 |
 | 4:05–4:20 | Uma carteira, cinco nomes, e por que correlação não pega | D-040 |
 | 4:20–4:40 | O que o projeto não vê: a carteira | seção 13 do desenho |
-| 4:40–5:00 | Caminho para produção, que já está rodando | o workflow semanal |
+| 4:40–5:00 | Caminho para produção, construída e comprovada | o commit `76102a4`, feito pelo bot |
 
 ### Frases prontas
 

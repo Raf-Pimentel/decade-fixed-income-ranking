@@ -316,28 +316,36 @@ Cada ano a mais de histórico custa cerca de 10% do universo. Além disso, 2021�
 
 ## 7. Dois perfis de cliente
 
-Não inventei personas. Usei **a divisão que a própria CVM faz**, o campo "público-alvo" do registro, porque é ela que determina o que o cliente pode legalmente comprar.
+Não inventei personas. O corte é **quando o cliente precisa do dinheiro de volta**, e sai do próprio dado: 58% do universo de varejo devolve o dinheiro no mesmo dia, então uma lista única entregaria os mesmos cinco fundos para quem está guardando dinheiro para uma viagem e para quem está guardando para três anos.
 
-| | **Varejo** | **Qualificado** |
+O enunciado sugere varejo contra investidor qualificado como exemplo de segmentação, e eu comecei por aí. **O dado não sustentou.** Dos fundos restritos a qualificado, apenas 79 publicam taxa e prazo de resgate, ou 28%, contra 64% no varejo. A lacuna não é aleatória: a obrigação de publicar lâmina alcança fundos de varejo e não os restritos. Ranquear sobre essa amostra produziria uma lista enviesada pela regulação e não pela qualidade, e o universo qualificado elegível cai para 19 fundos, o que é pouco para um Top 5 significar alguma coisa. Ver D-031 e D-032.
+
+Os dois perfis publicados são, então, dois recortes do varejo:
+
+| | **Reserva de emergência** | **Dois anos ou mais** |
 |---|---|---|
-| Quem é | Qualquer pessoa | Quem tem mais de R$ 1 milhão investido |
-| Fundos disponíveis | 871 | 1.003 |
-| Aplicação mínima aceita | até R$ 50 mil | qualquer |
-| Prazo de resgate aceito | até 30 dias | até 90 dias |
-| O que importa mais | não pagar caro e conseguir sacar | ganhar do CDI de forma consistente |
+| Público-alvo | Público Geral | Público Geral |
+| Aplicação mínima aceita | até R$ 5 mil | até R$ 50 mil |
+| Prazo de resgate aceito | até D+1 | até D+30 |
+| Fundos elegíveis em 31/12/2025 | 218 | 390 |
+| O que importa mais | não pagar caro e conseguir sacar | não pagar caro e ganhar do CDI de forma consistente |
+
+Os universos se sobrepõem de propósito. Quem tem horizonte longo pode perfeitamente comprar um fundo D+0, porque liquidez sobrando não é defeito, e por isso o perfil de prazo é o mais largo dos dois. O mesmo fundo aparecendo nas duas listas é a resposta certa, e não uma duplicação.
 
 ### Pesos
 
-| Número | Varejo | Qualificado |
+| Número | Reserva de emergência | Dois anos ou mais |
 |---|---:|---:|
-| Taxa de administração | **25** | 20 |
-| Prazo de resgate | **20** | 10 |
-| Ganho sobre o CDI | 15 | **25** |
-| Retorno por unidade de risco | 15 | 20 |
-| Pior queda | 10 | 15 |
-| Oscilação | 5 | |
-| Tamanho e estabilidade | 10 | 10 |
+| Taxa de administração | **30** | **25** |
+| Oscilação | 20 | |
+| Ganho sobre o CDI | 10 | 20 |
+| Retorno por unidade de risco | | 20 |
+| Pior queda | 15 | 15 |
+| Tamanho e estabilidade | 15 | 15 |
+| Prazo de resgate | 10 | 5 |
 | **Total** | **100** | **100** |
+
+Estes são os pesos **declarados**. Os de fato aplicados saem no `ranking.json` ao lado deles, porque um critério em que todo o universo elegível empata tem o peso redistribuído. A seção "Peso só vale para critério que separa", mais abaixo, explica quando isso acontece e por quê.
 
 **Por que a taxa é o maior peso do varejo, e não a rentabilidade.** Essa é a decisão menos óbvia do projeto, então vale a justificativa: em renda fixa, a taxa é o único número que se sabe com certeza sobre o **futuro**. A rentabilidade passada de 12 meses é, em boa parte, CDI, que todo fundo pegou igual, mais um prêmio de risco de crédito que ainda não deu problema. A taxa, ao contrário, vai ser cobrada em 2026 exatamente como foi em 2025. Dar peso maior ao que persiste é mais defensável do que dar peso maior ao que não persiste.
 
