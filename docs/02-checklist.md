@@ -11,7 +11,7 @@ Ao final de cada fase, apresento o resultado e espero aprovação antes de segui
 
 | | |
 |---|---|
-| Suíte | **283 testes verdes** · cobertura 93% nos módulos de cálculo |
+| Suíte | **288 testes verdes** · cobertura 93% nos módulos de cálculo |
 | `ruff`, `ruff format`, `mypy` | limpos |
 | Funil de qualidade | dentro do baseline, 0,00% de desvio |
 | Universo | **580 fundos** de 36.594 classes · 559 varejo |
@@ -54,9 +54,9 @@ justamente para que fundo que saiu do universo entre na conta. Ver D-044.
 - [x] `Dockerfile` — **desvio declarado:** a imagem é de execução, não de teste
       (`tests/` fica fora via `.dockerignore`). A CI builda a imagem e roda a CLI
       dentro dela; os testes rodam no job de qualidade, que é onde fazem sentido.
-- [x] `configs/universo.yaml`, `configs/perfis.yaml`, `configs/fontes.yaml` escritos
+- [x] `configs/universe.yaml`, `configs/profiles.yaml`, `configs/sources.yaml` escritos
 - [x] Fixtures reais e pequenas em `tests/fixtures/` (20 fundos × 60 dias, congeladas)
-- [x] **Testes escritos e falhando** para: as 8 armadilhas, as invariantes financeiras,
+- [x] **Testes escritos e falhando** para: as armadilhas conhecidas, as invariantes financeiras,
       os contratos de cada etapa, o pipeline ponta a ponta
 - [x] `README.md` esqueleto com o comando de execução
 - [x] Repositório Git iniciado, primeiro commit, branch `main` protegida mentalmente
@@ -125,7 +125,7 @@ fora do código. Falta a conferência humana independente.
 - [x] Percentil dentro do grupo ANBIMA, com winsorização a 1%/99%
 - [x] Grupo com menos de 20 fundos é comparado contra o **universo inteiro**, não contra um
       grupo pai inventado — a saída registra qual dos dois aconteceu
-- [x] Pesos lidos de `configs/perfis.yaml`, soma validada em 100
+- [x] Pesos lidos de `configs/profiles.yaml`, soma validada em 100
 - [x] Elegibilidade por perfil aplicada **antes** do percentil, não depois
 - [x] Reamostragem em blocos: 1.000 simulações, semente fixa
 - [x] Sorteio de pesos dentro das faixas configuradas

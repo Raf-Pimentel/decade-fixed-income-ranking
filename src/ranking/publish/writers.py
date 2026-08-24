@@ -91,14 +91,14 @@ def _profile_footnotes(profile: ProfileRanking, explained: set[str]) -> list[str
         if "concentracao" in explained:
             lines += [
                 f"> **Concentração, de novo.** Como no perfil anterior, {biggest.title()} é a "
-                f"maior gestora deste universo, com **{share:.0%}** dos "
+                f"maior gestora deste universo, com **{share:.1%}** dos "
                 f"{profile.eligible_universe_size} fundos elegíveis.",
                 "",
             ]
         else:
             lines += [
                 f"> **De onde vem a concentração.** A maior gestora deste universo é "
-                f"{biggest.title()}, com **{share:.0%}** dos {profile.eligible_universe_size} "
+                f"{biggest.title()}, com **{share:.1%}** dos {profile.eligible_universe_size} "
                 "fundos elegíveis. Uma lista que a repete não está concentrando mais do que o "
                 "universo de onde ela saiu — está refletindo o mercado que o investidor de "
                 "varejo tem.",

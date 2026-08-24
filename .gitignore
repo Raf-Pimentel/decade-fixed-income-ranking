@@ -31,3 +31,6 @@ Thumbs.db
 # OneDrive
 *.tmp
 ~$*
+
+# Material for the video, which is not part of the delivery.
+images/

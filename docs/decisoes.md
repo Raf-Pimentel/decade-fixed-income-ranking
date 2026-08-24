@@ -1300,7 +1300,7 @@ vazio, com o rótulo errado, ou repetido. É a fronteira que outro time consome.
 | **12 invólucros, 1 carteira** | classes de distribuição que a Caixa oferece sobre uma única carteira de renda fixa |
 | **0,062% a.a.** | a distância entre Itaú Janeiro e Itaú Private Janeiro: mesma carteira, dois nomes, dois CNPJs sequenciais |
 | 0,99 para todo mundo | por que correlação não identifica gêmeo em renda fixa pós-fixada: todos seguem a mesma curva |
-| 283 testes verdes | incluindo os que abrem o `ranking.json` entregue e testam o produto, não a função |
+| 288 testes verdes | incluindo os que abrem o `ranking.json` entregue e testam o produto, não a função |
 | **p68 · p99 · p22 / p71 · p94 · p72** | o Top 5 contra mil carteiras aleatórias, em três datas de corte, nos dois perfis |
 | **2 de 6 e 0 de 6** | recortes em que o Top 5 bateu a mediana dos elegíveis, e em que bateu o CDI |
 | −15 a +21 pontos-base | a vantagem real sobre a mediana: pequena nos dois sentidos, e é por isso que três cortes não distinguem método de sorte |

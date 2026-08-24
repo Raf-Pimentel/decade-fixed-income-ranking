@@ -60,7 +60,8 @@ Given a reference date, the pipeline:
    as long as its label says, from the daily quota, which already comes net of fees;
 5. **ranks** each fund against funds *like it*, weighted per profile, moving any weight
    whose criterion the eligible pool ties on to the criteria that still discriminate;
-6. **picks five funds**, using a scoring method based on picking arbitrary weights;
+6. **picks five funds rather than five scores**, passing over any fund that repeats a
+   portfolio already on the list;
 7. **tests whether the answer holds** by rebuilding the ranking a thousand times.
 
 Every number that decides anything lives in [`configs/`](configs), not in code.
@@ -81,7 +82,27 @@ holiday and someone saving for three years.
 | Then               | volatility, worst fall       | excess over CDI, return per unit of risk |
 
 Cost outweighs past return in both. The fee is the only number known with certainty about
-next year, and only 40% of funds beat the CDI in 2025.
+next year, and only 40% of funds beat the CDI in 2025. The weights are a declared choice
+rather than a derivation, and the ones actually applied are published beside the ones
+declared: a criterion the eligible pool ties on cannot separate anything, so its weight moves
+to the criteria that still can, and `ranking.json` names it.
+
+## One portfolio, one slot
+
+A manager routinely runs a single portfolio and sells it through a row of distribution
+wrappers — Caixa offers a dozen over one fixed-income portfolio. Each is a separate class,
+each is eligible, and each earns nearly the same score, so a top five holding two of them
+offers four exposures and does not say so.
+
+Two funds count as one when the same manager runs both **and** the annualised volatility of
+the difference between their daily returns is near zero — two wrappers of one portfolio
+differ only by their fee, a constant drag that contributes no variance. Correlation cannot do
+this job here and is deliberately not used: every post-fixed fund follows the same overnight
+curve and correlates above 0.99 with every other, so a threshold high enough to catch a twin
+marks half this universe as duplicated.
+
+A fund passed over is published beside the list, named, with the fund it repeats and the
+distance between them.
 
 ## Does it work?
 
@@ -100,7 +121,7 @@ portfolios drawn from that same universe.
 ## Development
 
 ```bash
-uv run pytest                     # 283 tests
+uv run pytest                     # 288 tests
 uv run pytest -m trap             # the CVM data-trap regressions
 uv run pytest -m invariant        # the financial invariants
 uv run ruff check . && uv run mypy src

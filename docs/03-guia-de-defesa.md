@@ -30,7 +30,7 @@ comando, em cerca de 40 segundos, e foi validado fora da amostra.
 | **0,50%** | Taxa de administração mediana do universo, ao ano |
 | **6,3 milhões** | Linhas de informe diário lidas e validadas, em ~4 segundos |
 | **0,55%** | Fração das linhas que foi para quarentena |
-| **283** | Testes automatizados, dos quais 11 abrem o `ranking.json` entregue e testam o produto |
+| **288** | Testes automatizados, dos quais 11 abrem o `ranking.json` entregue e testam o produto |
 | **214 de 218** | Fundos do perfil de liquidez que liquidam em D+0 — prazo é filtro, não critério |
 | **12 invólucros, 1 carteira** | Classes que a Caixa oferece sobre uma única carteira |
 | **p68 / p99 / p22** | Onde o Top 5 de liquidez ficou contra mil carteiras aleatórias, nas três datas |

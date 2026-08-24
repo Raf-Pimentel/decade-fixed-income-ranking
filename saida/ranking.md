@@ -28,7 +28,7 @@ Escolhidos entre **218 fundos** que um investidor de varejo consegue de fato com
 
 **5. BRADESCO FIF - CLASSE DE INVESTIMENTO RENDA FIXA REFERENCIADA DI FEDERAL EXTRA -RESP LIMITADA** — Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.39% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 11.5 bi. Apareceu no top 5 em 31% das simulações.
 
-> **De onde vem a concentração.** A maior gestora deste universo é Itau Unibanco Asset Management Ltda., com **28%** dos 218 fundos elegíveis. Uma lista que a repete não está concentrando mais do que o universo de onde ela saiu — está refletindo o mercado que o investidor de varejo tem.
+> **De onde vem a concentração.** A maior gestora deste universo é Itau Unibanco Asset Management Ltda., com **27.5%** dos 218 fundos elegíveis. Uma lista que a repete não está concentrando mais do que o universo de onde ela saiu — está refletindo o mercado que o investidor de varejo tem.
 
 **Fundos deixados de fora por repetirem outro da lista.** Mesma gestora e séries de cota que diferem por menos de 0,10% ao ano de oscilação: é uma carteira só, vendida com dois nomes. O cliente que comprasse os dois teria uma exposição, não duas.
 
@@ -60,7 +60,7 @@ Escolhidos entre **390 fundos** que um investidor de varejo consegue de fato com
 
 **5. BB RENDA FIXA LONGO PRAZO CORPORATE FIC FIF CRÉDITO PRIVADO RESPONSABILIDADE LIMITADA** — Taxa de 0.200% ao ano, mediana do grupo; resgate no mesmo dia; 0.51% acima do CDI na janela; pior queda de 0.03%; patrimônio de R$ 16.1 bi. Apareceu no top 5 em 49% das simulações.
 
-> **Concentração, de novo.** Como no perfil anterior, Itau Unibanco Asset Management Ltda. é a maior gestora deste universo, com **20%** dos 390 fundos elegíveis.
+> **Concentração, de novo.** Como no perfil anterior, Itau Unibanco Asset Management Ltda. é a maior gestora deste universo, com **20.0%** dos 390 fundos elegíveis.
 
 ---
 

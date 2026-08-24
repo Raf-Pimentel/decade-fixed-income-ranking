@@ -193,7 +193,7 @@ minha e manual.** Nunca declarar "pronto" sem ter rodado e colado a saída.
 
 ```bash
 uv sync                                  # instalar
-uv run pytest -q                         # 283 testes
+uv run pytest -q                         # 288 testes
 uv run pytest --cov=src --cov-report=term-missing
 uv run ruff check . && uv run mypy src   # qualidade
 uv run ranking --reference-date 2025-12-31             # o ranking
