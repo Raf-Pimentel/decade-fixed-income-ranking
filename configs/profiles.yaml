@@ -41,11 +41,11 @@ profiles:
       max_minimum_investment_brl: 5_000
       max_redemption_days: 1
     weights:            # must sum to 100
-      admin_fee:        30    # D-012: the only number we know for sure about 2026
+      admin_fee:        25    # D-012: the only number we know for sure about 2026
       volatility:       20
       max_drawdown:     15
       size:             15
-      excess_return:    10
+      excess_return:    15
       redemption_days:  10
     jitter:             # +/- range explored in the robustness simulation
       admin_fee:        5
@@ -66,8 +66,8 @@ profiles:
       max_minimum_investment_brl: 50_000
       max_redemption_days: 30
     weights:
-      admin_fee:        25
-      excess_return:    20
+      admin_fee:        23
+      excess_return:    22
       return_per_risk:  20
       max_drawdown:     15
       size:             15

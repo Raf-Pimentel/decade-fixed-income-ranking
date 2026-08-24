@@ -12,25 +12,25 @@ Escolhidos entre **195 fundos** que um investidor de varejo consegue de fato com
 |---:|---|---|---:|---:|---:|---:|
 | 1 | BTG PACTUAL CDB I FUNDO DE INVESTIMENTO RENDA  | BTG PACTUAL ASSET MANA | 0.150% | D+0 | 14.26% | -0.06% |
 | 2 | BB PREVIDENCIÁRIO RENDA FIXA REFERENCIADO DI L | BB GESTAO DE RECURSOS  | 0.202% | D+0 | 14.42% | 0.09% |
-| 3 | GALAPAGOS PINZON FUNDO DE INVESTIMENTO FINANCE | GALAPAGOS CAPITAL INVE | 0.140% | D+0 | 14.21% | -0.12% |
+| 3 | BNP PARIBAS MATCH CLASSE DE INVESTIMENTO DE RE | BNP PARIBAS ASSET MANA | 0.350% | D+0 | 14.39% | 0.06% |
 | 4 | TIVIO INSTITUCIONAL RENDA FIXA CRED PRIV FUNDO | TIVIO CAPITAL DISTRIBU | 0.200% | D+0 | 14.71% | 0.39% |
-| 5 | BRADESCO FIF - CLASSE DE INVESTIMENTO RENDA FI | BANCO BRADESCO S.A. | 0.150% | D+0 | 13.93% | -0.39% |
+| 5 | ITAÚ EMPRESA TRUST RF REFERENCIADO DI FIF DA C | ITAU UNIBANCO ASSET MA | 0.248% | D+0 | 14.35% | 0.02% |
 
 ### Por que cada um
 
 **1. BTG PACTUAL CDB I FUNDO DE INVESTIMENTO RENDA FIXA.** Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.06% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 6.8 bi. Apareceu no top 5 em 61% das simulações.
 
-**2. BB PREVIDENCIÁRIO RENDA FIXA REFERENCIADO DI LONGO PRAZO PERFIL FIC FIF RESPONSABILIDADE LIMITADA.** Taxa de 0.202% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.09% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 22.7 bi. Apareceu no top 5 em 48% das simulações.
+**2. BB PREVIDENCIÁRIO RENDA FIXA REFERENCIADO DI LONGO PRAZO PERFIL FIC FIF RESPONSABILIDADE LIMITADA.** Taxa de 0.202% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.09% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 22.7 bi. Apareceu no top 5 em 51% das simulações.
 
-**3. GALAPAGOS PINZON FUNDO DE INVESTIMENTO FINANCEIRO RENDA FIXA.** Taxa de 0.140% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.12% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 664 mi. Apareceu no top 5 em 43% das simulações.
+**3. BNP PARIBAS MATCH CLASSE DE INVESTIMENTO DE RENDA FIXA REFERENCIADA DI  CP RESPONSABILIDADE LIMITADA.** Taxa de 0.350% ao ano, mediana do grupo; resgate no mesmo dia; 0.06% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 8.7 bi. Apareceu no top 5 em 50% das simulações.
 
-**4. TIVIO INSTITUCIONAL RENDA FIXA CRED PRIV FUNDO DE INVESTIMENTO FINANCEIRO - RESP LIMITADA.** Taxa de 0.200% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.39% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 2.2 bi. Apareceu no top 5 em 41% das simulações.
+**4. TIVIO INSTITUCIONAL RENDA FIXA CRED PRIV FUNDO DE INVESTIMENTO FINANCEIRO - RESP LIMITADA.** Taxa de 0.200% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.39% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 2.2 bi. Apareceu no top 5 em 44% das simulações.
 
-**5. BRADESCO FIF - CLASSE DE INVESTIMENTO RENDA FIXA REFERENCIADA DI FEDERAL EXTRA -RESP LIMITADA.** Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.39% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 11.5 bi. Apareceu no top 5 em 40% das simulações.
+**5. ITAÚ EMPRESA TRUST RF REFERENCIADO DI FIF DA CLASSE DE INVESTIMENTO EM COTAS RESP LIMITADA.** Taxa de 0.248% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.02% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 37.4 bi. Apareceu no top 5 em 42% das simulações.
 
 > **De onde vem a concentração.** A maior gestora deste universo é Itau Unibanco Asset Management Ltda., com **26.2%** dos 195 fundos elegíveis. Uma lista que a repete não está concentrando mais do que o universo de onde ela saiu. Ela está refletindo o mercado que o investidor de varejo tem.
 
-**Peso redistribuído.** `redemption_days` não separa nada dentro deste universo. A elegibilidade já filtrou por esse critério, e quase todos os fundos que sobraram empatam nele. O peso foi para os critérios que ainda distinguem, e os pesos de fato aplicados são `admin_fee` 33 · `volatility` 22 · `max_drawdown` 17 · `size` 17 · `excess_return` 11.
+**Peso redistribuído.** `redemption_days` não separa nada dentro deste universo. A elegibilidade já filtrou por esse critério, e quase todos os fundos que sobraram empatam nele. O peso foi para os critérios que ainda distinguem, e os pesos de fato aplicados são `admin_fee` 27 · `volatility` 22 · `max_drawdown` 17 · `size` 17 · `excess_return` 17.
 
 ## Retail: two years or more
 
@@ -48,13 +48,13 @@ Escolhidos entre **348 fundos** que um investidor de varejo consegue de fato com
 
 **1. SICREDI - FIF RENDA FIXA LIQUIDEZ EMPRESARIAL DI - RESPONSABILIDADE LIMITADA.** Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.08% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 4.8 bi. Apareceu no top 5 em 97% das simulações.
 
-**2. SULAMÉRICA EXCLUSIVE FIF RENDA FIXA REFERENCIADO DI DE RESPONSABILIDADE LIMITADA.** Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.08% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 2.3 bi. Apareceu no top 5 em 83% das simulações.
+**2. SULAMÉRICA EXCLUSIVE FIF RENDA FIXA REFERENCIADO DI DE RESPONSABILIDADE LIMITADA.** Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.08% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 2.3 bi. Apareceu no top 5 em 82% das simulações.
 
-**3. BB RENDA FIXA LONGO PRAZO CORPORATE FIC FIF CRÉDITO PRIVADO RESPONSABILIDADE LIMITADA.** Taxa de 0.202% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.51% acima do CDI na janela; pior queda de 0.03%; patrimônio de R$ 16.1 bi. Apareceu no top 5 em 78% das simulações.
+**3. BB RENDA FIXA LONGO PRAZO CORPORATE FIC FIF CRÉDITO PRIVADO RESPONSABILIDADE LIMITADA.** Taxa de 0.202% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.51% acima do CDI na janela; pior queda de 0.03%; patrimônio de R$ 16.1 bi. Apareceu no top 5 em 77% das simulações.
 
-**4. ABSOLUTE ATENAS SELEÇÃO FIF DA CIC RENDA FIXA CRÉDITO PRIVADO RESPONSABILIDADE LIMITADA.** Taxa de 0.194% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.34% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 2.6 bi. Apareceu no top 5 em 43% das simulações.
+**4. ABSOLUTE ATENAS SELEÇÃO FIF DA CIC RENDA FIXA CRÉDITO PRIVADO RESPONSABILIDADE LIMITADA.** Taxa de 0.194% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.34% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 2.6 bi. Apareceu no top 5 em 42% das simulações.
 
-**5. SICREDI - FIF INSTITUCIONAL RENDA FIXA IRF-M LP - RESPONSABILIDADE LIMITADA.** Taxa de 0.180% ao ano, entre as mais baratas do grupo; resgate em D+2; 3.45% acima do CDI na janela; pior queda de 1.07%; patrimônio de R$ 445 mi. Apareceu no top 5 em 42% das simulações.
+**5. SICREDI - FIF INSTITUCIONAL RENDA FIXA IRF-M LP - RESPONSABILIDADE LIMITADA.** Taxa de 0.180% ao ano, entre as mais baratas do grupo; resgate em D+2; 3.45% acima do CDI na janela; pior queda de 1.07%; patrimônio de R$ 445 mi. Apareceu no top 5 em 40% das simulações.
 
 > **Concentração, de novo.** Como no perfil anterior, Itau Unibanco Asset Management Ltda. é a maior gestora deste universo, com **19.2%** dos 348 fundos elegíveis.
 
@@ -94,16 +94,16 @@ O ranking foi reconstruído **1.000 vezes**, reamostrando as séries de retorno 
 
 | Fundo | Perfil | Nota no grupo | Nota no universo | Apareceu no top 5 | Só pelo desempenho |
 |---|---|---:|---:|---:|---:|
-| BTG PACTUAL CDB I FUNDO DE INVESTIMENTO  | varejo_liquidez | 77.5 | 72.2 | 61% | 6% |
-| BB PREVIDENCIÁRIO RENDA FIXA REFERENCIAD | varejo_liquidez | 75.2 | 73.4 | 48% | 3% |
-| GALAPAGOS PINZON FUNDO DE INVESTIMENTO F | varejo_liquidez | 73.5 | 68.1 | 43% | 0% |
-| TIVIO INSTITUCIONAL RENDA FIXA CRED PRIV | varejo_liquidez | 70.9 | 65.5 | 41% | 0% |
-| BRADESCO FIF - CLASSE DE INVESTIMENTO RE | varejo_liquidez | 76.1 | 77.2 | 40% | 6% |
-| SICREDI - FIF RENDA FIXA LIQUIDEZ EMPRES | varejo_prazo | 82.3 | 64.3 | 97% | 0% |
-| SULAMÉRICA EXCLUSIVE FIF RENDA FIXA REFE | varejo_prazo | 82.6 | 63.6 | 83% | 0% |
-| BB RENDA FIXA LONGO PRAZO CORPORATE FIC  | varejo_prazo | 89.3 | 82.5 | 78% | 20% |
-| ABSOLUTE ATENAS SELEÇÃO FIF DA CIC RENDA | varejo_prazo | 79.8 | 77.2 | 43% | 0% |
-| SICREDI - FIF INSTITUCIONAL RENDA FIXA I | varejo_prazo | 84.4 | 80.3 | 42% | 5% |
+| BTG PACTUAL CDB I FUNDO DE INVESTIMENTO  | varejo_liquidez | 75.1 | 71.0 | 61% | 5% |
+| BB PREVIDENCIÁRIO RENDA FIXA REFERENCIAD | varejo_liquidez | 74.9 | 73.6 | 51% | 4% |
+| BNP PARIBAS MATCH CLASSE DE INVESTIMENTO | varejo_liquidez | 72.3 | 70.2 | 50% | 49% |
+| TIVIO INSTITUCIONAL RENDA FIXA CRED PRIV | varejo_liquidez | 70.4 | 65.9 | 44% | 1% |
+| ITAÚ EMPRESA TRUST RF REFERENCIADO DI FI | varejo_liquidez | 71.5 | 71.9 | 42% | 6% |
+| SICREDI - FIF RENDA FIXA LIQUIDEZ EMPRES | varejo_prazo | 82.3 | 63.6 | 97% | 0% |
+| SULAMÉRICA EXCLUSIVE FIF RENDA FIXA REFE | varejo_prazo | 82.6 | 63.0 | 82% | 0% |
+| BB RENDA FIXA LONGO PRAZO CORPORATE FIC  | varejo_prazo | 89.4 | 82.5 | 77% | 19% |
+| ABSOLUTE ATENAS SELEÇÃO FIF DA CIC RENDA | varejo_prazo | 79.7 | 77.1 | 42% | 0% |
+| SICREDI - FIF INSTITUCIONAL RENDA FIXA I | varejo_prazo | 84.3 | 80.5 | 40% | 5% |
 
 **Duas notas, porque o percentil é sempre relativo a alguma coisa.** A primeira compara o fundo com os pares da mesma categoria ANBIMA, que é a pergunta certa para não premiar quem simplesmente tomou mais risco de crédito. Ela é também silenciosa sobre a qualidade da categoria: ser o primeiro de dezoito vale 1 num grupo forte e num grupo fraco. A segunda nota refaz a conta contra **todo o universo elegível do perfil**. Quando as duas se afastam, o fundo é o melhor de um grupo que não é bom, e quem lê tem o direito de saber disso antes de comprar.
 

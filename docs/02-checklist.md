@@ -45,7 +45,7 @@ sucesso não se moveu, e a regra foi escrita antes desta execução. Ver D-047.
 - [ ] **Decidir se o repositório vira público** antes de enviar à Decade.
 
 Aberto e declarado, não pendente: o corte de 500 cotistas não pega veículo institucional com
-610 cotistas e R$ 11 bi de patrimônio. Um corte de patrimônio por cotista resolveria, e não
+1.360 cotistas e R$ 23 bi de patrimônio. Um corte de patrimônio por cotista resolveria, e não
 foi feito porque eu já vi quais fundos ele tiraria. Ver `docs/05-conferencia-externa.md`.
 
 ---

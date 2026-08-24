@@ -341,14 +341,20 @@ Os universos se sobrepõem de propósito. Quem tem horizonte longo pode perfeita
 
 | Número | Reserva de emergência | Dois anos ou mais |
 |---|---:|---:|
-| Taxa de administração | **30** | **25** |
+| Taxa de administração | **25** | **23** |
 | Oscilação | 20 | |
-| Ganho sobre o CDI | 10 | 20 |
+| Ganho sobre o CDI | 15 | 22 |
 | Retorno por unidade de risco | | 20 |
 | Pior queda | 15 | 15 |
 | Tamanho e estabilidade | 15 | 15 |
 | Prazo de resgate | 10 | 5 |
 | **Total** | **100** | **100** |
+
+A taxa é o maior peso individual nos dois perfis, e por pouco no de prazo. Custo é o único
+número que se sabe com certeza sobre o ano que vem, mas ele não é o que mais separa os fundos:
+medido no universo elegível, o excesso sobre o CDI vai de −2,46% a +0,29% entre o percentil 10
+e o 90, uma amplitude de 2,75 pontos, contra 1,60 ponto da taxa. O que sustenta o peso da taxa
+não é a dispersão, é a persistência dela.
 
 Estes são os pesos **declarados**. Os de fato aplicados saem no `ranking.json` ao lado deles, porque um critério em que todo o universo elegível empata tem o peso redistribuído. A seção "Peso só vale para critério que separa", mais abaixo, explica quando isso acontece e por quê.
 
@@ -554,7 +560,7 @@ Formato do `ranking.json`:
     "profile_id": "varejo_liquidez",
     "label": "Retail: emergency reserve",
     "eligible_universe_size": 195,
-    "weights":           { "admin_fee": 30, "volatility": 20, "redemption_days": 10 },
+    "weights":           { "admin_fee": 25, "volatility": 20, "redemption_days": 10 },
     "effective_weights": { "admin_fee": 33, "volatility": 22 },
     "inert_metrics": ["redemption_days"],
     "manager_share": { "ITAU UNIBANCO ASSET MANAGEMENT LTDA.": 0.2752 },
@@ -731,7 +737,7 @@ um resultado incômodo merece a mesma desconfiança que um número que o contrad
 ## 13. O que fica em aberto
 
 **O corte de cotistas não separa varejo de institucional.** Ele nasceu para tirar fundo com 17
-cotistas e dezenas de bilhões, e faz isso. Não pega um fundo com 610 cotistas e R$ 11 bi, que
+cotistas e dezenas de bilhões, e faz isso. Não pega um fundo com 1.360 cotistas e R$ 23 bi, que
 é o mesmo veículo com outro tamanho. A pergunta certa não é quantos cotistas há, é se quem
 está lá dentro é varejo, e patrimônio por cotista responde melhor. Não foi implementado porque
 a escolha do limite viria depois de eu já saber quais fundos ele removeria, o que a regra 11

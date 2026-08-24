@@ -44,13 +44,13 @@ Ninguém o vende para uma pessoa guardando dinheiro por três anos.
 
 | Fundo | Patrimônio por cotista |
 |---|---:|
-| Bradesco FIF Classe de Investimento | R$ 18,8 mi |
 | BB Previdenciário RF Referenciado DI | R$ 16,7 mi |
 | BB RF Longo Prazo Corporate | R$ 5,8 mi |
+| BTG Pactual CDB I | R$ 1,8 mi |
 | Tivio Institucional | R$ 0,11 mi |
 
 O corte de 500 cotistas nasceu na D-034 para tirar veículo institucional rotulado varejo. Ele
-pega fundo com 17 cotistas. Não pega fundo com 610 cotistas e R$ 11 bi.
+pega fundo com 17 cotistas. Não pega fundo com 1.360 cotistas e R$ 23 bi.
 
 É o mesmo defeito de antes: um critério que usa o campo disponível em vez do que se quer
 medir. A pergunta certa não é quantos cotistas o fundo tem, é se quem está lá dentro é varejo.

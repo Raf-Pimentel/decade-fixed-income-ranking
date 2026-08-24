@@ -63,6 +63,7 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-045](#d-045) | 21/08 | 6 | Os entregáveis moram no repositório | 📊 |
 | [D-046](#d-046) | 21/08 | 6 | Testes que leem o arquivo entregue | 🎥 |
 | [D-047](#d-047) | 24/08 | 6 | **A taxa declarada não é o preço do cliente. Passa a ser medida** | 🔄🎥📊 |
+| [D-048](#d-048) | 24/08 | 6 | Peso da taxa revisto para 25 e 23 | 📊 |
 
 ---
 
@@ -1338,6 +1339,43 @@ ao lado do master, a diferença carrega também essa parcela, o que faz da medid
 não um valor exato. O corte de 95% é o que limita esse erro.
 
 Trilha completa, com origem e hash de cada arquivo, em `docs/04-investigacao-taxa.md`.
+
+
+---
+
+## D-048: Peso da taxa revisto para 25 e 23 📊
+
+**Quando:** 24/08, Fase 6 · **Ajusta:** D-012
+
+**Decisão:** o peso da taxa de administração passa de 30 para **25** no perfil de reserva de
+emergência e de 25 para **23** no de dois anos ou mais. Os pontos liberados vão para o ganho
+sobre o CDI, que sobe de 10 para 15 e de 20 para 22.
+
+**O que a medição diz.** No universo elegível do perfil de liquidez, entre o percentil 10 e o
+90, a taxa vai de 0,200% a 1,801%, uma amplitude de 1,60 ponto. O excesso sobre o CDI vai de
+−2,46% a +0,29%, amplitude de 2,75 pontos. **O excesso separa mais os fundos do que a taxa.**
+
+Isso não derruba o argumento da D-012, mas o corrige. O que sustenta o peso da taxa não é ela
+ser o critério que mais distingue, é ela ser o único cuja distinção persiste: quem cobra 1,8%
+vai cobrar 1,8% em 2026, enquanto quem ficou 2,46% abaixo do CDI em 2025 não necessariamente
+repete. São 1,60 ponto de diferença conhecida contra 2,75 pontos de diferença já ocorrida.
+
+**A taxa segue como o maior peso individual nos dois perfis**, e no de prazo por pouco, 23
+contra 22. Baixá-la mais inverteria a ordem entre custo e desempenho, o que é uma decisão de
+desenho diferente desta e não foi tomada. Dois testes em `test_config.py` guardam essa
+propriedade e falhariam se ela caísse.
+
+**Os pesos são escolha declarada, não dedução.** Isso está dito no README, no desenho e na
+saída desde o começo, e continua sendo a decisão de que menos se tem certeza no projeto. O que
+o projeto garante não é que estes pesos sejam ótimos, e sim que estão num arquivo de
+configuração, que os de fato aplicados são publicados ao lado dos declarados, e que a simulação
+de robustez os sorteia mil vezes dentro de uma faixa, de modo que fundo que só vence com um
+conjunto exato de pesos nunca chega à lista.
+
+**Efeito na entrega.** No perfil de liquidez, entram o BNP Paribas Match e o Itaú Empresa
+Trust, saem o Galapagos Pinzon e o Bradesco FIF. O perfil de prazo não muda de nomes. O BNP
+Paribas Match é o único dos dez que aparece quase tanto pontuado só por desempenho quanto
+pontuado por tudo, 49% contra 50%.
 
 ---
 

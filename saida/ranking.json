@@ -20,14 +20,14 @@
     "Renda Fixa Simples": "CDI"
   },
   "benchmark_label": "CDI",
-  "generated_at": "2026-08-24T22:15:53.703577Z",
+  "generated_at": "2026-08-24T22:56:56.352784Z",
   "lookback_months": 12,
   "profiles": [
     {
       "displaced": [],
       "effective_weights": {
-        "admin_fee": 33,
-        "excess_return": 11,
+        "admin_fee": 27,
+        "excess_return": 17,
         "max_drawdown": 17,
         "size": 17,
         "volatility": 22
@@ -47,8 +47,8 @@
       "profile_id": "varejo_liquidez",
       "top": [
         {
-          "appearance_rate": 0.611,
-          "appearance_rate_variable_only": 0.058,
+          "appearance_rate": 0.613,
+          "appearance_rate_variable_only": 0.046,
           "cnpj_classe": "16565016000181",
           "manager": "BTG PACTUAL ASSET MANAGEMENT S/A DTVM",
           "metrics": {
@@ -80,12 +80,12 @@
           },
           "rank": 1,
           "rationale": "Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.06% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 6.8 bi. Apareceu no top 5 em 61% das simulações.",
-          "score": 77.54411764705883,
-          "score_pool": 72.21907216494846
+          "score": 75.07352941176471,
+          "score_pool": 70.98195876288659
         },
         {
-          "appearance_rate": 0.485,
-          "appearance_rate_variable_only": 0.029,
+          "appearance_rate": 0.514,
+          "appearance_rate_variable_only": 0.044,
           "cnpj_classe": "13077418000149",
           "manager": "BB GESTAO DE RECURSOS DTVM S.A",
           "metrics": {
@@ -116,50 +116,50 @@
             "volatility": 0.6078431372549019
           },
           "rank": 2,
-          "rationale": "Taxa de 0.202% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.09% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 22.7 bi. Apareceu no top 5 em 48% das simulações.",
-          "score": 75.2156862745098,
-          "score_pool": 73.37886597938144
+          "rationale": "Taxa de 0.202% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.09% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 22.7 bi. Apareceu no top 5 em 51% das simulações.",
+          "score": 74.86274509803921,
+          "score_pool": 73.62628865979381
         },
         {
-          "appearance_rate": 0.431,
-          "appearance_rate_variable_only": 0.002,
-          "cnpj_classe": "50821045000103",
-          "manager": "GALAPAGOS CAPITAL INVESTIMENTOS E PARTICIPAÇÕES LTDA.",
+          "appearance_rate": 0.496,
+          "appearance_rate_variable_only": 0.494,
+          "cnpj_classe": "09636393000107",
+          "manager": "BNP PARIBAS ASSET MANAGEMENT BRASIL LTDA",
           "metrics": {
-            "cotistas": 2573,
+            "cotistas": 132601,
             "dias_negativos": 0.0,
             "dias_resgate": 0,
-            "excesso": -0.001153662458413418,
+            "excesso": 0.0006128257363278156,
             "fonte_taxa": "EXTRATO",
             "observacoes": 252,
-            "patrimonio_medio": 663684950.8915873,
+            "patrimonio_medio": 8740267818.880674,
             "pior_queda": 0.0,
-            "regime_tributario": "tabela_regressiva",
-            "retorno": 0.14208860646407784,
-            "retorno_por_risco": -2.1200332180993517,
-            "taxa_adm": 0.0014000000000000002,
-            "taxa_adm_declarada": 0.0014000000000000002,
+            "regime_tributario": "tabela_regressiva_longo_prazo",
+            "retorno": 0.14385509465881907,
+            "retorno_por_risco": 1.196714860281552,
+            "taxa_adm": 0.0034999999999999996,
+            "taxa_adm_declarada": 0.0034999999999999996,
             "taxa_adm_medida": null,
             "taxa_zero_declarada": 0.0,
-            "volatilidade": 0.0005441718783291978
+            "volatilidade": 0.0005120900196590152
           },
-          "name": "GALAPAGOS PINZON FUNDO DE INVESTIMENTO FINANCEIRO RENDA FIXA",
-          "peer_group": "Renda Fixa Duração Livre Grau de Invest.",
+          "name": "BNP PARIBAS MATCH CLASSE DE INVESTIMENTO DE RENDA FIXA REFERENCIADA DI  CP RESPONSABILIDADE LIMITADA",
+          "peer_group": "Renda Fixa Duração Baixa Grau de Invest.",
           "percentiles": {
-            "admin_fee": 1.0,
-            "excess_return": 0.5294117647058824,
-            "max_drawdown": 0.3088235294117647,
-            "size": 0.5882352941176471,
-            "volatility": 0.8823529411764706
+            "admin_fee": 0.7254901960784313,
+            "excess_return": 0.803921568627451,
+            "max_drawdown": 0.43137254901960786,
+            "size": 0.9019607843137255,
+            "volatility": 0.7450980392156863
           },
           "rank": 3,
-          "rationale": "Taxa de 0.140% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.12% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 664 mi. Apareceu no top 5 em 43% das simulações.",
-          "score": 73.48529411764706,
-          "score_pool": 68.09536082474227
+          "rationale": "Taxa de 0.350% ao ano, mediana do grupo; resgate no mesmo dia; 0.06% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 8.7 bi. Apareceu no top 5 em 50% das simulações.",
+          "score": 72.31372549019608,
+          "score_pool": 70.22680412371135
         },
         {
-          "appearance_rate": 0.41,
-          "appearance_rate_variable_only": 0.003,
+          "appearance_rate": 0.435,
+          "appearance_rate_variable_only": 0.011,
           "cnpj_classe": "06866051000187",
           "manager": "TIVIO CAPITAL DISTRIBUIDORA DE TITULOS E VALORES MOBILIARIOS S.A.",
           "metrics": {
@@ -190,52 +190,52 @@
             "volatility": 0.5294117647058824
           },
           "rank": 4,
-          "rationale": "Taxa de 0.200% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.39% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 2.2 bi. Apareceu no top 5 em 41% das simulações.",
-          "score": 70.85294117647058,
-          "score_pool": 65.48453608247424
+          "rationale": "Taxa de 0.200% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.39% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 2.2 bi. Apareceu no top 5 em 44% das simulações.",
+          "score": 70.41176470588235,
+          "score_pool": 65.93298969072166
         },
         {
-          "appearance_rate": 0.403,
-          "appearance_rate_variable_only": 0.055,
-          "cnpj_classe": "03256793000100",
-          "manager": "BANCO BRADESCO S.A.",
+          "appearance_rate": 0.42,
+          "appearance_rate_variable_only": 0.063,
+          "cnpj_classe": "01129004000137",
+          "manager": "ITAU UNIBANCO ASSET MANAGEMENT LTDA.",
           "metrics": {
-            "cotistas": 610,
+            "cotistas": 29666,
             "dias_negativos": 0.0,
             "dias_resgate": 0,
-            "excesso": -0.003922468202307572,
-            "fonte_taxa": "LAMINA",
+            "excesso": 0.00023092311691241818,
+            "fonte_taxa": "EXTRATO",
             "observacoes": 252,
-            "patrimonio_medio": 11463519407.467777,
+            "patrimonio_medio": 37400692046.324356,
             "pior_queda": 0.0,
             "regime_tributario": "tabela_regressiva_longo_prazo",
-            "retorno": 0.13931980072018368,
-            "retorno_por_risco": -8.003489973910671,
-            "taxa_adm": 0.0015,
-            "taxa_adm_declarada": 0.0015,
-            "taxa_adm_medida": null,
+            "retorno": 0.14347319203940367,
+            "retorno_por_risco": 0.40754346473799286,
+            "taxa_adm": 0.0024762896973956616,
+            "taxa_adm_declarada": 0.0004,
+            "taxa_adm_medida": 0.0024762896973956616,
             "taxa_zero_declarada": 0.0,
-            "volatilidade": 0.0004900947230637902
+            "volatilidade": 0.0005666220584861475
           },
-          "name": "BRADESCO FIF - CLASSE DE INVESTIMENTO RENDA FIXA REFERENCIADA DI FEDERAL EXTRA -RESP LIMITADA",
-          "peer_group": "Renda Fixa Duração Baixa Soberano",
+          "name": "ITAÚ EMPRESA TRUST RF REFERENCIADO DI FIF DA CLASSE DE INVESTIMENTO EM COTAS RESP LIMITADA",
+          "peer_group": "Renda Fixa Duração Baixa Grau de Invest.",
           "percentiles": {
-            "admin_fee": 0.95,
-            "excess_return": 0.5,
-            "max_drawdown": 0.48333333333333334,
-            "size": 0.8333333333333334,
-            "volatility": 0.7666666666666667
+            "admin_fee": 0.8431372549019608,
+            "excess_return": 0.7450980392156863,
+            "max_drawdown": 0.43137254901960786,
+            "size": 0.9803921568627451,
+            "volatility": 0.5490196078431373
           },
           "rank": 5,
-          "rationale": "Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.39% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 11.5 bi. Apareceu no top 5 em 40% das simulações.",
-          "score": 76.10000000000001,
-          "score_pool": 77.1778350515464
+          "rationale": "Taxa de 0.248% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.02% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 37.4 bi. Apareceu no top 5 em 42% das simulações.",
+          "score": 71.50980392156863,
+          "score_pool": 71.94072164948454
         }
       ],
       "top_n": 5,
       "weights": {
-        "admin_fee": 30,
-        "excess_return": 10,
+        "admin_fee": 25,
+        "excess_return": 15,
         "max_drawdown": 15,
         "redemption_days": 10,
         "size": 15,
@@ -245,8 +245,8 @@
     {
       "displaced": [],
       "effective_weights": {
-        "admin_fee": 25,
-        "excess_return": 20,
+        "admin_fee": 23,
+        "excess_return": 22,
         "max_drawdown": 15,
         "redemption_days": 5,
         "return_per_risk": 20,
@@ -265,7 +265,7 @@
       "profile_id": "varejo_prazo",
       "top": [
         {
-          "appearance_rate": 0.974,
+          "appearance_rate": 0.968,
           "appearance_rate_variable_only": 0.0,
           "cnpj_classe": "24634187000143",
           "manager": "Sicredi Asset Management Ltda.",
@@ -300,10 +300,10 @@
           "rank": 1,
           "rationale": "Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.08% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 4.8 bi. Apareceu no top 5 em 97% das simulações.",
           "score": 82.28571428571429,
-          "score_pool": 64.27953890489913
+          "score_pool": 63.61959654178674
         },
         {
-          "appearance_rate": 0.832,
+          "appearance_rate": 0.816,
           "appearance_rate_variable_only": 0.0,
           "cnpj_classe": "04839017000198",
           "manager": "SUL AMÉRICA INVESTIMENTOS GESTORA DE RECURSOS S.A.",
@@ -336,13 +336,13 @@
             "size": 0.6857142857142857
           },
           "rank": 2,
-          "rationale": "Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.08% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 2.3 bi. Apareceu no top 5 em 83% das simulações.",
-          "score": 82.57142857142858,
-          "score_pool": 63.63112391930836
+          "rationale": "Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.08% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 2.3 bi. Apareceu no top 5 em 82% das simulações.",
+          "score": 82.62857142857143,
+          "score_pool": 62.976945244956774
         },
         {
-          "appearance_rate": 0.782,
-          "appearance_rate_variable_only": 0.195,
+          "appearance_rate": 0.772,
+          "appearance_rate_variable_only": 0.189,
           "cnpj_classe": "03298200000160",
           "manager": "BB GESTAO DE RECURSOS DTVM S.A",
           "metrics": {
@@ -374,12 +374,12 @@
             "size": 0.9444444444444444
           },
           "rank": 3,
-          "rationale": "Taxa de 0.202% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.51% acima do CDI na janela; pior queda de 0.03%; patrimônio de R$ 16.1 bi. Apareceu no top 5 em 78% das simulações.",
-          "score": 89.30555555555557,
-          "score_pool": 82.45677233429394
+          "rationale": "Taxa de 0.202% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.51% acima do CDI na janela; pior queda de 0.03%; patrimônio de R$ 16.1 bi. Apareceu no top 5 em 77% das simulações.",
+          "score": 89.41666666666667,
+          "score_pool": 82.52593659942363
         },
         {
-          "appearance_rate": 0.432,
+          "appearance_rate": 0.422,
           "appearance_rate_variable_only": 0.0,
           "cnpj_classe": "48084411000139",
           "manager": "ITAU UNIBANCO ASSET MANAGEMENT LTDA.",
@@ -412,13 +412,13 @@
             "size": 0.7222222222222222
           },
           "rank": 4,
-          "rationale": "Taxa de 0.194% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.34% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 2.6 bi. Apareceu no top 5 em 43% das simulações.",
-          "score": 79.79166666666666,
-          "score_pool": 77.21181556195965
+          "rationale": "Taxa de 0.194% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.34% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 2.6 bi. Apareceu no top 5 em 42% das simulações.",
+          "score": 79.65277777777777,
+          "score_pool": 77.05043227665706
         },
         {
-          "appearance_rate": 0.417,
-          "appearance_rate_variable_only": 0.053,
+          "appearance_rate": 0.396,
+          "appearance_rate_variable_only": 0.054,
           "cnpj_classe": "13081159000120",
           "manager": "Sicredi Asset Management Ltda.",
           "metrics": {
@@ -450,15 +450,15 @@
             "size": 0.6764705882352942
           },
           "rank": 5,
-          "rationale": "Taxa de 0.180% ao ano, entre as mais baratas do grupo; resgate em D+2; 3.45% acima do CDI na janela; pior queda de 1.07%; patrimônio de R$ 445 mi. Apareceu no top 5 em 42% das simulações.",
-          "score": 84.41176470588236,
-          "score_pool": 80.33861671469741
+          "rationale": "Taxa de 0.180% ao ano, entre as mais baratas do grupo; resgate em D+2; 3.45% acima do CDI na janela; pior queda de 1.07%; patrimônio de R$ 445 mi. Apareceu no top 5 em 40% das simulações.",
+          "score": 84.29411764705883,
+          "score_pool": 80.50576368876081
         }
       ],
       "top_n": 5,
       "weights": {
-        "admin_fee": 25,
-        "excess_return": 20,
+        "admin_fee": 23,
+        "excess_return": 22,
         "max_drawdown": 15,
         "redemption_days": 5,
         "return_per_risk": 20,

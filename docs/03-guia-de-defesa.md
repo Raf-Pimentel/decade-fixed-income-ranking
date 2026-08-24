@@ -51,38 +51,42 @@ grupos, declarado grupo a grupo no JSON.
 
 | # | Fundo | Taxa | Resgate | Rendeu | vs CDI | Nota grupo / universo |
 |---:|---|---:|---:|---:|---:|---:|
-| 1 | BTG Pactual CDB I RF | 0,150% | D+0 | 14,26% | −0,06% | 77,5 / 72,2 |
-| 2 | BB Previdenciário RF Referenciado DI | 0,202% | D+0 | 14,42% | +0,09% | 75,2 / 73,4 |
-| 3 | Galapagos Pinzon RF | 0,140% | D+0 | 14,21% | −0,12% | 73,5 / 68,1 |
-| 4 | Tivio Institucional RF Crédito Privado | 0,200% | D+0 | 14,71% | +0,39% | 70,9 / 65,5 |
-| 5 | Bradesco FIF Classe de Investimento RF | 0,150% | D+0 | 13,93% | −0,39% | 76,1 / 77,2 |
+| 1 | BTG Pactual CDB I RF | 0,150% | D+0 | 14,26% | −0,06% | 75,1 / 71,0 |
+| 2 | BB Previdenciário RF Referenciado DI | 0,202% | D+0 | 14,42% | +0,09% | 74,9 / 73,6 |
+| 3 | BNP Paribas Match RF | 0,350% | D+0 | 14,39% | +0,06% | 72,3 / 70,2 |
+| 4 | Tivio Institucional RF Crédito Privado | 0,200% | D+0 | 14,71% | +0,39% | 70,4 / 65,9 |
+| 5 | Itaú Empresa Trust RF Referenciado DI | 0,248% | D+0 | 14,35% | +0,02% | 71,5 / 71,9 |
 
 **Peso redistribuído:** `redemption_days` valia 10 e não separa nada aqui, porque quase todo
-fundo que sobra liquida em D+0. Os pesos de fato aplicados são taxa 33 · oscilação 22 ·
-pior queda 17 · tamanho 17 · ganho sobre CDI 11.
+fundo que sobra liquida em D+0. Os pesos de fato aplicados são taxa 27 · oscilação 22 ·
+ganho sobre CDI 17 · pior queda 17 · tamanho 17.
+
+**O 5º colocado declarou 0,040% e cobra 0,248%.** Ele entra na lista com a taxa medida, e o
+`ranking.json` publica os dois números.
 
 ### Varejo, dois anos ou mais · 348 elegíveis
 
 | # | Fundo | Taxa | Resgate | Rendeu | vs CDI | Nota grupo / universo |
 |---:|---|---:|---:|---:|---:|---:|
-| 1 | Sicredi FIF RF Liquidez Empresarial DI | 0,150% | D+0 | 14,24% | −0,08% | 82,3 / **64,3** |
-| 2 | SulAmérica Exclusive FIF RF Referenciado DI | 0,150% | D+0 | 14,24% | −0,08% | 82,6 / **63,6** |
-| 3 | BB RF Longo Prazo Corporate | 0,202% | D+0 | 14,83% | +0,51% | 89,3 / 82,5 |
-| 4 | Absolute Atenas Seleção RF Crédito Privado | 0,194% | D+0 | 14,66% | +0,34% | 79,8 / 77,2 |
-| 5 | Sicredi FIF Institucional RF IRF-M LP | 0,180% | D+2 | 17,78% | +3,45% | 84,4 / 80,3 |
+| 1 | Sicredi FIF RF Liquidez Empresarial DI | 0,150% | D+0 | 14,24% | −0,08% | 82,3 / **63,6** |
+| 2 | SulAmérica Exclusive FIF RF Referenciado DI | 0,150% | D+0 | 14,24% | −0,08% | 82,6 / **63,0** |
+| 3 | BB RF Longo Prazo Corporate | 0,202% | D+0 | 14,83% | +0,51% | 89,4 / 82,5 |
+| 4 | Absolute Atenas Seleção RF Crédito Privado | 0,194% | D+0 | 14,66% | +0,34% | 79,7 / 77,1 |
+| 5 | Sicredi FIF Institucional RF IRF-M LP | 0,180% | D+2 | 17,78% | +3,45% | 84,3 / 80,5 |
 
 **Repare nos dois primeiros.** 82,3 e 82,6 contra os pares, 64,3 e 63,6 contra o universo
 inteiro: são os melhores de uma categoria que não é boa. As duas notas existem para você
 poder dizer isso antes que perguntem.
 
-**Duas taxas na tabela não são as declaradas.** O BB Corporate declarou 0,200% e cobra
-0,202%; o Absolute Atenas declarou 0,080% e cobra 0,194%. As duas foram medidas contra o
-fundo que cada classe compra, e o `ranking.json` publica os dois números lado a lado.
+**Três taxas nas duas tabelas não são as declaradas.** O BB Corporate declarou 0,200% e cobra
+0,202%, o Absolute Atenas declarou 0,080% e cobra 0,194%, e o Itaú Empresa Trust declarou
+0,040% e cobra 0,248%. As três foram medidas contra o fundo que cada classe compra, e o
+`ranking.json` publica os dois números lado a lado.
 
 **Concentração:** o Itaú tem **26,2%** dos 195 fundos do perfil de liquidez e **19,2%** dos
-348 do perfil de prazo, e não aparece em nenhuma das duas listas. Até 24/08 aparecia em sete
-das dez posições, com taxas declaradas de 0,040% que a medição mostrou serem de 0,40% a
-1,81%. Ver D-047.
+348 do perfil de prazo, e ocupa uma das dez posições. Até 24/08 ocupava sete, com taxas
+declaradas de 0,040% que a medição mostrou serem de 0,40% a 1,81%. O único que sobrou entra
+com a taxa medida, não com a declarada. Ver D-047.
 
 ---
 
@@ -138,12 +142,19 @@ O critério, acima do percentil 60 em pelo menos 2 de 3 por perfil, estava **com
 da execução, com data no histórico do git.
 
 **Estes números melhoraram em 24/08, e diga por quê antes que perguntem.** Até essa data eram
-2 de 3 e 3 de 3, com vantagem de −15 a +21 pb. O que mudou não foi o critério nem os pesos: a
-taxa deixou de ser lida no extrato e passou a ser medida contra o fundo que cada classe
-compra. Um método que melhora logo depois de o autor mexer em alguma coisa é exatamente o que
-um critério congelado existe para vigiar, então o essencial é a ordem dos fatos: a regra foi
-escrita e argumentada antes desta execução, e o critério não se moveu desde que foi commitado.
-Ver D-047.
+2 de 3 e 3 de 3, com vantagem de −15 a +21 pb. O que mudou foi a taxa: ela deixou de ser lida
+no extrato e passou a ser medida contra o fundo que cada classe compra, o que corrigiu erros de
+até 45 vezes. Um método que melhora logo depois de o autor mexer em alguma coisa é exatamente o
+que um critério congelado existe para vigiar, então o essencial é a ordem dos fatos: o critério
+de sucesso não se moveu desde que foi commitado, e a regra da taxa foi escrita e argumentada
+antes desta execução. Ver D-047.
+
+Os pesos foram revistos no mesmo dia, com a taxa caindo de 30 para 25 e de 25 para 23 (D-048).
+**Essa revisão não moveu esta tabela em nada:** os seis percentis e as seis vantagens saíram
+idênticos, até a segunda casa. A simulação de robustez já sorteia o peso da taxa dentro de uma
+faixa de ±5, então um deslocamento de 5 pontos cai dentro do que ela já explorava. Se
+perguntarem se os pesos foram ajustados para melhorar o resultado, a resposta é que mexer neles
+não muda este resultado.
 
 **Diga o resto da tabela antes que perguntem.** O Top 5 bateu a mediana dos elegíveis em **6 de
 6** recortes, por margens de 8 a 22 pontos-base, e ficou **abaixo do CDI nos 6**. As medições saem do painel validado inteiro, não do
@@ -291,11 +302,11 @@ só por desempenho, ignorando taxa e prazo?*
 
 | Fundo | Aparição total | Só desempenho |
 |---|---:|---:|
-| BB RF Longo Prazo Corporate (3º do prazo) | 78% | **20%** |
-| BTG Pactual CDB I (1º da liquidez) | 61% | **6%** |
-| Sicredi Institucional IRF-M LP | 42% | **5%** |
+| BNP Paribas Match (3º da liquidez) | 50% | **49%** |
+| BB RF Longo Prazo Corporate (3º do prazo) | 77% | **19%** |
+| Itaú Empresa Trust (5º da liquidez) | 42% | **6%** |
+| BTG Pactual CDB I (1º da liquidez) | 61% | **5%** |
 | Sicredi Liquidez Empresarial (1º do prazo) | 97% | **0%** |
-| SulAmérica Exclusive | 83% | **0%** |
 
 Para quase todos, a resposta é **não**. Isso não é defeito. É o peso da taxa funcionando como
 projetado. Mas leva a uma frase que precisa estar na entrega:
@@ -303,9 +314,10 @@ projetado. Mas leva a uma frase que precisa estar na entrega:
 > Esta é, em grande parte, uma lista de **custo e liquidez**. Os cinco fundos não seriam os
 > mesmos se o critério fosse desempenho passado.
 
-Um fundo se sustenta melhor que os outros nos dois critérios: o **BB RF Longo Prazo
-Corporate**, 78% e 20%. Nenhum dos dez sobrevive bem a um ranking só de desempenho, e é
-honesto dizer isso em vez de procurar o menos ruim.
+Um fundo é a exceção, e vale apontá-la: o **BNP Paribas Match** aparece em 50% das simulações
+e em **49%** quando a taxa e o prazo são ignorados. Ele é o único da lista que se sustenta
+igualmente pelos dois caminhos. Todos os outros caem para 20% ou menos, e é honesto dizer isso
+em vez de procurar o menos ruim.
 
 ---
 
