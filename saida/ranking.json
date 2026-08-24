@@ -20,7 +20,7 @@
     "Renda Fixa Simples": "CDI"
   },
   "benchmark_label": "CDI",
-  "generated_at": "2026-08-24T22:02:44.084564Z",
+  "generated_at": "2026-08-24T22:15:53.703577Z",
   "lookback_months": 12,
   "profiles": [
     {
@@ -469,6 +469,9 @@
   "reference_date": "2025-12-31",
   "schema_version": "1.1.0",
   "sources": {
+    "cda_fi_202503.zip": "e6280673476aec5a4fd8bf0f3b1cc7a3a20de836fa4852af15ef9b1da16ce57c",
+    "cda_fi_202506.zip": "d30214d30f6e0aa0b21e7d9fae92f1d5222124ff430fe9198dbb6e2247a183ee",
+    "cda_fi_202509.zip": "3f9e2f286ecc60ccfebcea2812a6a9eabe833b07fb9de6b6963d0a44ce4c7cd8",
     "cda_fi_202512.zip": "aa4c2d5bf24069bc223ff04be85452abf3ee5e69822c5b6b165e6fb99d07e8b1",
     "cdi_2025.json": "928546951a16620fa07a4a6b7be40429e6b4f4cf44f1375f5f78fb1a08c21da2",
     "extrato_fi_2023.csv": "c447b49fa4a42b10b4829f79662b4a024180f40640af62f33c31991b7e4fb925",

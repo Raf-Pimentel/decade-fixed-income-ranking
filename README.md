@@ -265,6 +265,8 @@ why, is recorded in [`configs/sources.yaml`](configs/sources.yaml).
 | [`docs/03-guia-de-defesa.md`](docs/03-guia-de-defesa.md) | the short version: the numbers, ten questions and their answers |
 | [`docs/01-solution-design.md`](docs/01-solution-design.md) | the design, in Portuguese |
 | [`docs/decisoes.md`](docs/decisoes.md) | every decision taken, including the ones later reversed |
+| [`docs/04-investigacao-taxa.md`](docs/04-investigacao-taxa.md) | why the declared fee is not the price the client pays, with every source |
+| [`docs/05-conferencia-externa.md`](docs/05-conferencia-externa.md) | the delivered ranking checked against what the market publishes |
 | [`docs/02-checklist.md`](docs/02-checklist.md) | what was done, and what was deliberately not |
 | `CLAUDE.md` | the working agreement: rules, the thirteen data traps, the quality baseline |
 

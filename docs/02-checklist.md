@@ -44,6 +44,10 @@ sucesso não se moveu, e a regra foi escrita antes desta execução. Ver D-047.
       `ranking.json`. Única verificação do cálculo que não passa por mim.
 - [ ] **Decidir se o repositório vira público** antes de enviar à Decade.
 
+Aberto e declarado, não pendente: o corte de 500 cotistas não pega veículo institucional com
+610 cotistas e R$ 11 bi de patrimônio. Um corte de patrimônio por cotista resolveria, e não
+foi feito porque eu já vi quais fundos ele tiraria. Ver `docs/05-conferencia-externa.md`.
+
 ---
 
 ## Fase 2: setup e esqueleto de testes (D1 · 20/08)

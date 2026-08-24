@@ -730,6 +730,13 @@ um resultado incômodo merece a mesma desconfiança que um número que o contrad
 
 ## 13. O que fica em aberto
 
+**O corte de cotistas não separa varejo de institucional.** Ele nasceu para tirar fundo com 17
+cotistas e dezenas de bilhões, e faz isso. Não pega um fundo com 610 cotistas e R$ 11 bi, que
+é o mesmo veículo com outro tamanho. A pergunta certa não é quantos cotistas há, é se quem
+está lá dentro é varejo, e patrimônio por cotista responde melhor. Não foi implementado porque
+a escolha do limite viria depois de eu já saber quais fundos ele removeria, o que a regra 11
+proíbe. Ver `docs/05-conferencia-externa.md`.
+
 **Eu ranqueio os fundos pelo resultado, não pelo que eles têm dentro.**
 
 Esta é a lacuna principal do projeto, e é honesto colocá-la na frente. Dois fundos podem ter rentabilidade, oscilação e pior queda praticamente idênticos, e um deles estar cheio de dívida de uma única empresa em dificuldade enquanto o outro só tem título público. **Pelos meus dez números, eles são gêmeos. No risco real, não são.**
