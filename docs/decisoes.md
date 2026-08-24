@@ -5,7 +5,7 @@ Serve para dois fins: impedir que se refaça discussão já encerrada, e deixar 
 material pronto para a apresentação final sem precisar reconstruir a trajetória de memória.
 
 **Como uso:** toda decisão não óbvia vira uma entrada, na hora. Se eu reverter uma decisão,
-**não apago a original** — abro uma nova entrada marcada como reversão e explico o que mudou.
+**não apago a original**. Abro uma nova entrada marcada como reversão e explico o que mudou.
 As reversões são a parte mais valiosa deste arquivo.
 
 **Legenda:** 🎥 = vale entrar no vídeo · 🔄 = reverte uma decisão anterior · 📊 = sustentada por número medido
@@ -51,7 +51,7 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-033](#d-033) | 20/08 | 5 | Só ligar a simulação de verdade mostrou que ela não estava ligada | 🎥 |
 | [D-034](#d-034) | 20/08 | 5 | **O primeiro Top 5 continha fundos institucionais. Dois defeitos meus** | 🎥📊 |
 | [D-035](#d-035) | 20/08 | 5 | **Revisão do primeiro resultado: seis conclusões, nenhuma implementada agora** | 🎥 |
-| [D-036](#d-036) | 20/08 | 5.5 | **O teste no passado validou o método — e corrigi dois erros contra mim** | 🎥📊 |
+| [D-036](#d-036) | 20/08 | 5.5 | **O teste no passado validou o método, e corrigi dois erros contra mim** | 🎥📊 |
 | [D-037](#d-037) | 20/08 | 6 | Extrato multi-ano ampliou o universo; o guardrail pegou e o resultado não mudou | 📊 |
 | [D-038](#d-038) | 21/08 | 6 | **Publicar a taxa só-desempenho revelou que a lista é, sobretudo, de custo** | 🎥📊 |
 | [D-039](#d-039) | 21/08 | 6 | A janela mede exatamente os meses que declara | 🎥📊 |
@@ -65,11 +65,11 @@ As reversões são a parte mais valiosa deste arquivo.
 
 ---
 
-## D-001 — A unidade de análise é a classe, não o fundo 🎥📊
+## D-001: A unidade de análise é a classe, não o fundo 🎥📊
 **Quando:** 19/08, Fase 1 · **Situação:** definir o grão do pipeline
 
 Abri o arquivo real antes de escrever qualquer código. O informe diário de dez/2025 tem as
-colunas `TP_FUNDO_CLASSE`, `CNPJ_FUNDO_CLASSE` e `ID_SUBCLASSE` — a Resolução CVM 175
+colunas `TP_FUNDO_CLASSE`, `CNPJ_FUNDO_CLASSE` e `ID_SUBCLASSE`. A Resolução CVM 175
 reorganizou os fundos em classes, e desde **janeiro de 2024** o dado é publicado por classe.
 
 **Decisão:** todo o pipeline trabalha no grão de classe, com `cnpj_classe` como chave.
@@ -80,12 +80,12 @@ invenção minha.
 **O que aceito perder:** séries anteriores a 2021 ficam menos acessíveis.
 
 **Por que importa para a apresentação:** quem escreve o código assumindo o formato antigo
-faz o cruzamento errado **e não recebe erro nenhum** — o programa roda e entrega números
+faz o cruzamento errado **e não recebe erro nenhum**. O programa roda e entrega números
 errados em silêncio. É o tipo de erro que só se evita indo olhar o arquivo.
 
 ---
 
-## D-002 — Taxas vêm do Extrato e da Lâmina 🎥📊
+## D-002: Taxas vêm do Extrato e da Lâmina 🎥📊
 **Quando:** 19/08, Fase 1 · **Situação:** de onde tirar taxa de administração
 
 Testei o `cad_fi.csv`, que é o arquivo que aparece em qualquer tutorial de dados da CVM.
@@ -94,11 +94,11 @@ Está obsoleto desde a RCVM 175.
 
 **Decisão:** taxa e prazo de resgate vêm de `extrato_fi_YYYY.csv` (117 colunas) e da lâmina.
 
-**Alternativa descartada:** insistir no `cad_fi.csv` com imputação — seria imputar 100% do dado.
+**Alternativa descartada:** insistir no `cad_fi.csv` com imputação, o que seria imputar 100% do dado.
 
 ---
 
-## D-003 — A idade do fundo não sai do `Data_Inicio` 🎥📊
+## D-003: A idade do fundo não sai do `Data_Inicio` 🎥📊
 **Quando:** 19/08, Fase 1 · **Situação:** definir filtro de maturidade mínima
 
 O campo `Data_Inicio` do registro de classes é idêntico ao `Data_Adaptacao_RCVM175`. Ou seja:
@@ -120,7 +120,7 @@ descartaria dois terços do universo, incluindo fundos de trinta anos.
 
 ---
 
-## D-004 — Janela de 12 meses 📊
+## D-004: Janela de 12 meses 📊
 **Quando:** 19/08, Fase 1 · **Situação:** quanto histórico usar
 
 Medi a cobertura real das 1.801 classes conforme estico a janela: 6m = 97% · **12m = 93%** ·
@@ -128,17 +128,17 @@ Medi a cobertura real das 1.801 classes conforme estico a janela: 6m = 97% · **
 
 **Decisão:** 12 meses para pontuar; 3, 6 e 24 meses reportados junto. Parâmetro em YAML.
 
-**Por quê:** além da cobertura, 2021–2023 teve a Selic indo de 2% a 13,75% — regime diferente
+**Por quê:** além da cobertura, 2021–2023 teve a Selic indo de 2% a 13,75%, um regime diferente
 do de 2025. Janela longa também enche a amostra de fundos velhos e grandes que sobreviveram.
 
 **Correção factual no meio do caminho:** eu havia afirmado que a quebra de layout era em
 nov/2024. Fui verificar mês a mês: é **jan/2024**. Existem três layouts (2000–2020, 2021–2023,
-2024 em diante), e converter o do meio para o atual é só renomear coluna — bem mais barato do
+2024 em diante), e converter o do meio para o atual é só renomear coluna, bem mais barato do
 que eu tinha dito. O limite da janela é estatístico, não técnico.
 
 ---
 
-## D-005 — Arquitetura elaborada *(revertida em D-009)*
+## D-005: Arquitetura elaborada *(revertida em D-009)*
 **Quando:** 19/08, Fase 1
 
 Propus camadas bronze/silver/gold, DuckDB junto com Polars, disjuntor, logging estruturado,
@@ -148,14 +148,14 @@ e um caminho de produção com orquestrador.
 
 ---
 
-## D-006 — Três perfis de cliente *(revertida em D-010)*
+## D-006: Três perfis de cliente *(revertida em D-010)*
 **Quando:** 19/08, Fase 1
 
 Varejo Liquidez, Varejo Rendimento e Qualificado.
 
 ---
 
-## D-007 — ANBIMA descartada *(revertida em D-014)*
+## D-007: ANBIMA descartada *(revertida em D-014)*
 **Quando:** 19/08, Fase 1
 
 Constatei que `data.anbima.com.br` exige credencial. Como a `Classificacao_Anbima` já vem
@@ -163,7 +163,7 @@ dentro do registro da CVM, concluí que dava para entregar sem a ANBIMA.
 
 ---
 
-## D-008 — Comparar cada fundo só dentro do seu grupo 🎥
+## D-008: Comparar cada fundo só dentro do seu grupo 🎥
 **Quando:** 20/08, Fase 1 · **Situação:** como normalizar métricas entre fundos diferentes
 
 **Decisão:** cada métrica vira a posição relativa do fundo **dentro do seu grupo ANBIMA**, não
@@ -171,7 +171,7 @@ uma nota absoluta comparada com todo mundo.
 
 **Por quê:** em 2025 os fundos que mais renderam foram os que tomaram mais risco de crédito.
 Um ranking por rentabilidade, ou até por Sharpe global, entregaria automaticamente os cinco
-fundos mais arriscados — e o problema deles simplesmente ainda não tinha aparecido. Comparar
+fundos mais arriscados, e o problema deles simplesmente ainda não tinha aparecido. Comparar
 um fundo de título público com um de dívida privada pela rentabilidade nominal não é comparar,
 é premiar risco.
 
@@ -180,7 +180,7 @@ menos de 20 fundos ao grupo pai.
 
 ---
 
-## D-009 — Cortar a infraestrutura 🔄
+## D-009: Cortar a infraestrutura 🔄
 **Quando:** 20/08, Fase 1 · **Reverte:** D-005
 
 A revisão apontou overengineering. Reavaliei e concordei.
@@ -189,16 +189,16 @@ A revisão apontou overengineering. Reavaliei e concordei.
 Polars, Parquet e uma pasta de saída.
 
 **Por quê:** são ~1.000 fundos e ~200 MB. O projeto roda em minutos num notebook. Eu tinha
-investido em infraestrutura de escala num problema que não tem problema de escala — e
+investido em infraestrutura de escala num problema que não tem problema de escala, e
 economizado em estatística num problema que é inteiramente estatístico. Construí o encanamento
 e não testei a água.
 
 **O que fica:** validação de dados, point-in-time, manifesto com hash e testes. Esses carregam
-peso de verdade — o dado da CVM é sujo e a CVM sobrescreve arquivo sem versionar.
+peso de verdade, porque o dado da CVM é sujo e a CVM sobrescreve arquivo sem versionar.
 
 ---
 
-## D-010 — Dois perfis, não três 🔄
+## D-010: Dois perfis, não três 🔄
 **Quando:** 20/08, Fase 1 · **Reverte:** D-006
 
 **Decisão:** Varejo e Qualificado.
@@ -209,7 +209,7 @@ trabalho de redação por ganho marginal.
 
 ---
 
-## D-011 — Simulação de robustez no ranking 🎥
+## D-011: Simulação de robustez no ranking 🎥
 **Quando:** 20/08, Fase 1 · **Situação:** o ranking é confiável o suficiente para ser publicado como lista ordenada?
 
 A revisão perguntou por que a simulação não tinha sido considerada. Foi ponto cego real: eu havia
@@ -217,7 +217,7 @@ escrito que a maior fraqueza do método era estimar qualidade com 12 meses de da
 propus nenhuma ferramenta para **medir** essa incerteza.
 
 Com 12 meses de dados diários, o erro sobre a medida de "retorno por unidade de risco" é da
-ordem de **±1,5** — maior que as diferenças que eu ia ranquear. A diferença entre o 1º e o
+ordem de **±1,5**, maior que as diferenças que eu ia ranquear. A diferença entre o 1º e o
 15º colocado, muitas vezes, não existe.
 
 **Decisão:** antes de publicar, mil simulações reembaralhando os retornos em blocos e sorteando
@@ -225,7 +225,7 @@ variações nos pesos. O Top 5 final são os cinco que mais aparecem no topo, e 
 o número: *"apareceu no Top 5 em 91% das simulações"*.
 
 **Alternativa descartada:** simular trajetórias futuras a partir dos parâmetros estimados nos
-mesmos 12 meses. Isso não adiciona informação — só reveste o número de falsa precisão.
+mesmos 12 meses. Isso não adiciona informação, só reveste o número de falsa precisão.
 
 **Limitação que declaro junto:** reembaralhar o que aconteceu nunca cria um evento que não
 aconteceu. Se nenhum fundo teve problema de crédito em 2025, nenhuma simulação vai produzir um.
@@ -233,7 +233,7 @@ A simulação mede azar de amostra, não risco de cauda.
 
 ---
 
-## D-012 — Taxa pesa mais que rentabilidade no varejo 🎥
+## D-012: Taxa pesa mais que rentabilidade no varejo 🎥
 **Quando:** 20/08, Fase 1 · **Situação:** definir os pesos
 
 **Decisão:** no perfil varejo, taxa de administração pesa 25 e prazo de resgate 20, contra 15
@@ -248,13 +248,13 @@ maior ao que persiste é mais defensável do que dar peso maior ao que não pers
 
 ---
 
-## D-013 — Só entra fundo com taxa e prazo publicados 📊
+## D-013: Só entra fundo com taxa e prazo publicados 📊
 **Quando:** 20/08, Fase 1 · **Situação:** o que fazer com 44% do universo sem dado de taxa
 
 **Decisão:** fundo sem taxa e prazo de resgate conhecidos não entra no ranking. Universo cai
 de 1.801 para **1.003**.
 
-**Por quê:** não é conveniência de dados — é o mínimo de uma recomendação responsável. Não dá
+**Por quê:** não é conveniência de dados. É o mínimo de uma recomendação responsável. Não dá
 para indicar um fundo sem dizer ao cliente quanto ele custa e em quantos dias o dinheiro volta.
 
 **Alternativa descartada:** imputar a taxa pela mediana do grupo. Rejeitada porque a taxa é o
@@ -273,7 +273,7 @@ e vai declarado na entrega.
 
 ---
 
-## D-014 — ANBIMA volta, pelos índices públicos 🔄🎥
+## D-014: ANBIMA volta, pelos índices públicos 🔄🎥
 **Quando:** 20/08, Fase 1 · **Reverte:** D-007
 
 Testei o download direto: o Excel dos índices IMA responde 200 e baixa 257 KB **sem credencial**.
@@ -296,7 +296,7 @@ alguma coisa se o benchmark for o certo.
 
 ---
 
-## D-015 — O funil medido vira teste de regressão 🎥
+## D-015: O funil medido vira teste de regressão 🎥
 **Quando:** 20/08, Fase 1 · **Situação:** como garantir qualidade sem ferramenta pesada
 
 Na Fase 1 medi o funil de elegibilidade nos arquivos reais: 36.598 classes → 7.759 renda fixa
@@ -311,13 +311,13 @@ código, mas grita num relatório que diz "esperado 1.003, obtido 412".
 
 ---
 
-## D-016 — Disjuntor restaurado na extração 🔄
+## D-016: Disjuntor restaurado na extração 🔄
 **Quando:** 20/08, Fase 1 · **Reverte:** parte de D-009
 
 Ao revisar o pedido original, encontrei "tolerância a falhas (circuit breakers/retries)"
 como requisito explícito. Eu tinha cortado o disjuntor junto com a infraestrutura.
 
-**Decisão:** volta, na versão mínima — após 5 falhas seguidas no mesmo servidor, para de insistir
+**Decisão:** volta, na versão mínima. Após 5 falhas seguidas no mesmo servidor, para de insistir
 e falha com mensagem clara. São ~15 linhas.
 
 **Lição registrada:** "sem overengineering" não autoriza remover requisito do cliente. Autoriza
@@ -325,21 +325,21 @@ implementá-lo da forma mais simples que funcione.
 
 ---
 
-## D-017 — Testar o método no passado, com o critério declarado antes 🎥
+## D-017: Testar o método no passado, com o critério declarado antes 🎥
 **Quando:** 20/08, Fase 1 · **Situação:** o plano diz que o método é razoável, mas não mostra que funciona
 
 Tudo o que eu tinha até aqui era argumento. Nada era evidência. É a primeira pergunta que
 alguém experiente faz: *"tá, mas funciona?"*
 
 **Decisão:** entra uma **Fase 5.5** entre o ranking e a documentação. Monto o ranking com dados
-até três datas de corte de 2025 — 31/03, 30/06 e 30/09 — e meço como cada Top 5 se comportou
+até três datas de corte de 2025, que são 31/03, 30/06 e 30/09, e meço como cada Top 5 se comportou
 no período seguinte, que o ranking não viu.
 
 **Contra o que comparo:** a mediana do grupo, o benchmark do grupo, e **1.000 carteiras de cinco
 fundos sorteados ao acaso**. A terceira é a que importa: responde se meu método bate o acaso.
 É o controle que quase ninguém faz.
 
-**Por que cabe no prazo:** se o point-in-time estiver correto, cada rodada é um comando —
+**Por que cabe no prazo:** se o point-in-time estiver correto, cada rodada é um comando,
 `uv run ranking --reference-date 2025-06-30`. Nenhum código novo. O custo está em medir e escrever,
 não em programar. Isso é o retorno concreto da disciplina de point-in-time, que até agora era
 só uma boa prática no papel. **E o teste audita a si mesmo:** se for difícil de rodar, é porque
@@ -349,7 +349,7 @@ o point-in-time está furado.
 > acima do percentil 60 da distribuição de carteiras aleatórias em pelo menos 2 das 3 datas.
 
 **Regra dura que vale mais que o resultado:** proibido mexer em pesos, cortes ou métricas depois
-de ver o teste. Ajustar até passar não valida nada — decora o segundo semestre de 2025. É a
+de ver o teste. Ajustar até passar não valida nada. Decora o segundo semestre de 2025. É a
 forma mais comum de fraudar a si mesmo em finanças quantitativas, e quase sempre é feita sem
 má intenção. Virou a regra 11 do `CLAUDE.md`.
 
@@ -365,16 +365,16 @@ ano só, com um regime de juros só.
 
 ---
 
-## D-018 — Automação real, aprovação por etapa, e o repositório precisa ser defensável 🎥
+## D-018: Automação real, aprovação por etapa, e o repositório precisa ser defensável 🎥
 **Quando:** 20/08, Fase 1 · **Situação:** como conduzir o desenvolvimento nos 8 dias
 
-**Decisão 1 — mostrar em vez de descrever.** O enunciado pede que o caminho para execução diária
+**Decisão 1: mostrar em vez de descrever.** O enunciado pede que o caminho para execução diária
 sem humano no loop seja "claro e viável". Quase todo candidato vai descrever isso num parágrafo.
 Vamos **rodar**: uma automação do GitHub executa o pipeline do zero semanalmente e publica o
 `ranking.json`. A diferença entre "seria viável" e "está rodando, olha o histórico" é grande, e
 é exatamente o critério de escalabilidade e robustez da avaliação. Custo: ~1h, e vira a CI.
 
-**Decisão 2 — aprovação por etapa, não por fase.** Dentro de cada fase, apresento cada bloco e
+**Decisão 2: aprovação por etapa, não por fase.** Dentro de cada fase, apresento cada bloco e
 espero o ok antes de seguir.
 
 **Por quê, e essa é a razão de verdade:** o maior risco do projeto não é entregar pouco. É chegar
@@ -383,7 +383,7 @@ perguntar por que tal escolha foi feita; se a resposta for "o assistente sugeriu
 ali, independente da qualidade do código. **Regra adotada: módulo que não se consegue explicar
 em duas frases é módulo para simplificar ou apagar.**
 
-**Decisão 3 — página visual do ranking** para a apresentação, feita na Fase 6.
+**Decisão 3: página visual do ranking** para a apresentação, feita na Fase 6.
 
 **Recusado:** gancho automático rodando testes a cada arquivo salvo. Era o guardrail que não
 dependia da minha disciplina; sem ele, rodar a suíte volta a ser responsabilidade manual minha.
@@ -394,7 +394,7 @@ comum é descrever a saída em vez de mostrá-la.
 
 ---
 
-## D-019 — Python 3.12 isolado pelo uv; Docker validado pela CI
+## D-019: Python 3.12 isolado pelo uv; Docker validado pela CI
 **Quando:** 20/08, Fase 2 · **Situação:** a máquina de desenvolvimento tem Python 3.14 e não tem Docker
 
 O 3.14 é recente demais: Polars e Pandera podem não ter pacote pronto, e descobrir isso na
@@ -409,11 +409,11 @@ no Linux da CI.
 
 **Sobre o Docker:** em vez de pedir a instalação do Docker Desktop, o `Dockerfile` é
 **construído e executado pela CI**. É evidência melhor que um teste local: prova que a imagem
-funciona numa máquina que nunca viu o projeto — que é exatamente o que o enunciado pede.
+funciona numa máquina que nunca viu o projeto, que é exatamente o que o enunciado pede.
 
 ---
 
-## D-020 — Código em inglês, documentos de trabalho em português
+## D-020: Código em inglês, documentos de trabalho em português
 **Quando:** 20/08, Fase 2 · **Situação:** em que idioma escrever o repositório
 
 **Decisão:** código, comentários, `README.md` e `ranking.md` em inglês. O desenho
@@ -423,12 +423,12 @@ funciona numa máquina que nunca viu o projeto — que é exatamente o que o enu
 consumir sem você". Já o desenho e o diário são material da apresentação final, que será
 defendê-los em português.
 
-**Custo aceito:** o repositório é bilíngue, o que é levemente estranho. A alternativa —
-tudo em português — tornaria o código menos consumível por quem avalia.
+**Custo aceito:** o repositório é bilíngue, o que é levemente estranho. A alternativa,
+tudo em português, tornaria o código menos consumível por quem avalia.
 
 ---
 
-## D-021 — Os valores esperados dos testes são calculados fora do código 🎥
+## D-021: Os valores esperados dos testes são calculados fora do código 🎥
 **Quando:** 20/08, Fase 2 · **Situação:** contra o que comparar o resultado das fórmulas
 
 **Decisão:** os números de referência foram calculados por um script independente, direto do
@@ -449,13 +449,13 @@ e já apareceu na fixture.
 
 ---
 
-## D-022 — A CI fica vermelha de propósito até a Fase 5 🎥
+## D-022: A CI fica vermelha de propósito até a Fase 5 🎥
 **Quando:** 20/08, Fase 2 · **Situação:** teste antes do código significa suíte falhando
 
 **Decisão:** a CI roda desde o primeiro push e **falha**, porque os 92 testes referenciam
 módulos que ainda não existem. O `README.md` explica isso na primeira tela.
 
-**Por quê:** a alternativa seria marcar tudo como "esperado falhar" ou não ligar a CI ainda —
+**Por quê:** a alternativa seria marcar tudo como "esperado falhar" ou não ligar a CI ainda,
 as duas escondem o estado real. Uma suíte vermelha por ausência de implementação é o estado
 correto de um projeto escrito com teste primeiro.
 
@@ -464,11 +464,11 @@ por dizer, em vez de esconder.
 
 ---
 
-## D-023 — Sem pre-commit
+## D-023: Sem pre-commit
 **Quando:** 20/08, Fase 2 · **Situação:** o checklist previa `.pre-commit-config.yaml`
 
-**Decisão:** não criar. A CI aplica exatamente os mesmos portões — ruff, format, mypy,
-pytest — a cada push.
+**Decisão:** não criar. A CI aplica exatamente os mesmos portões, ruff, format, mypy e
+pytest, a cada push.
 
 **Por quê:** um hook local que ninguém instalou não protege nada; só parece que protege.
 Duplicar a configuração em dois lugares cria a chance de eles divergirem.
@@ -479,13 +479,13 @@ CI pega no push o que eu deixar passar, mas o ciclo de retorno fica mais lento.
 
 ---
 
-## D-024 — O registro da CVM tem linhas repetidas, e o join inflava o universo 🎥📊
+## D-024: O registro da CVM tem linhas repetidas, e o join inflava o universo 🎥📊
 **Quando:** 20/08, Fase 3 · **Situação:** rodar os leitores contra os arquivos completos
 
 Ao validar os leitores nos 36.598 registros reais, o funil reproduziu o baseline **com um
 desvio consistente de +2% em todas as etapas**. Dois por cento não é ruído: é sinal.
 
-Causa: `registro_fundo.csv` tem **89.749 linhas para 88.617 ids únicos** — 1.046 fundos
+Causa: `registro_fundo.csv` tem **89.749 linhas para 88.617 ids únicos**, ou seja, 1.046 fundos
 aparecem repetidos, com linhas idênticas. `registro_classe.csv` repete outros 4. Um `left
 join` comum multiplica cada classe pertencente a um fundo duplicado.
 
@@ -504,35 +504,35 @@ de tolerância. Verificação de percentual não substitui invariante exata.
 **Resultado depois da correção:** seis das oito etapas do funil batem exatamente (0,00%),
 maior desvio 1,09%.
 
-**Efeito colateral:** o baseline de `registered_classes` passou de 36.598 para **36.594** —
+**Efeito colateral:** o baseline de `registered_classes` passou de 36.598 para **36.594**,
 o número correto de classes distintas. Não é ajuste para fazer passar; é correção de um erro
 de medição meu na Fase 1, onde contei linhas em vez de chaves.
 
 ---
 
-## D-025 — O disjuntor conta requisições, não arquivos
+## D-025: O disjuntor conta requisições, não arquivos
 **Quando:** 20/08, Fase 3 · **Situação:** um teste falhou e expôs ambiguidade no desenho
 
 Escrevi "para depois de 5 falhas seguidas no mesmo servidor" sem definir o que é uma falha.
-Um teste falhou por causa disso, e a falha estava no teste — mas revelou que a decisão nunca
+Um teste falhou por causa disso, e a falha estava no teste, mas ela revelou que a decisão nunca
 tinha sido tomada de verdade.
 
 **Decisão:** conta **requisições** falhas, não downloads falhos.
 
 **Por quê:** o servidor experimenta requisições. Contando arquivos, uma política de 3 tentativas
 dispararia 15 requisições contra um servidor morto antes do disjuntor perceber. O objetivo do
-disjuntor é parar de martelar — então a unidade tem que ser aquilo que o servidor vê.
+disjuntor é parar de martelar, então a unidade tem que ser aquilo que o servidor vê.
 
 ---
 
-## D-026 — O Banco Central recusa janelas longas 📊
+## D-026: O Banco Central recusa janelas longas 📊
 **Quando:** 20/08, Fase 3 · **Situação:** o primeiro download real falhou com HTTP 406
 
 A URL do CDI na configuração pedia a série inteira, sem intervalo. O Banco Central respondeu
 **406 Not Acceptable**. Medido: 11 anos é recusado, 14 meses é servido, série inteira sempre falha.
 
 **Decisão:** a URL do CDI passa a carregar `{start}` e `{end}`, preenchidos a partir da data de
-referência e da janela. As datas vão em formato dia-primeiro, que é o que o Banco Central espera —
+referência e da janela. As datas vão em formato dia-primeiro, que é o que o Banco Central espera.
 enviá-las mês-primeiro buscaria uma janela diferente **com sucesso**, que é pior que falhar.
 
 **Limitação registrada:** um backfill de mais de ~10 anos precisa ser fatiado em várias chamadas.
@@ -546,30 +546,30 @@ de arquivo na configuração.
 
 ---
 
-## D-027 — Aspas soltas quebravam a leitura do extrato 📊
+## D-027: Aspas soltas quebravam a leitura do extrato 📊
 **Quando:** 20/08, Fase 3 · **Situação:** `extrato_fi_2025.csv` falhava com "CSV malformed"
 
-Medido: o arquivo tem **194 aspas duplas soltas** em campos de texto livre — descrições de
+Medido: o arquivo tem **194 aspas duplas soltas** em campos de texto livre, em descrições de
 política de investimento, principalmente. Um leitor que trate aspas como delimitador abre uma
 região citada, engole todas as quebras de linha até a próxima aspa e morre no meio de um
 arquivo de 12 MB.
 
 **Decisão:** desligar o tratamento de aspas na leitura de arquivos da CVM.
 
-**Por que é seguro:** verifiquei antes de decidir — todas as 13.590 linhas têm exatamente 117
+**Por que é seguro:** verifiquei antes de decidir, e todas as 13.590 linhas têm exatamente 117
 campos separando por `;`, com ou sem aspas presentes. A CVM não usa aspas como delimitador,
 usa como caractere comum.
 
 ---
 
-## D-028 — Prazo de resgate em dias úteis vira dias corridos 🎥
+## D-028: Prazo de resgate em dias úteis vira dias corridos 🎥
 **Quando:** 20/08, Fase 3 · **Situação:** o extrato tem `TP_DIA_PAGTO_RESGATE`
 
 O campo diz se o prazo está em **dias úteis ou corridos**, e a base mistura os dois. Um fundo
 que anuncia "D+5 dias úteis" faz o cliente esperar uma semana.
 
 **Decisão:** tudo é convertido para dias corridos na leitura. Se a fonte parar de publicar a
-unidade, assume-se dias corridos — isso não penaliza ninguém por uma coluna que simplesmente
+unidade, assume-se dias corridos. Isso não penaliza ninguém por uma coluna que simplesmente
 não veio.
 
 **Por que importa:** prazo de resgate é o **segundo maior peso** do perfil varejo (20 de 100).
@@ -578,11 +578,11 @@ Tratar as duas unidades como iguais favoreceria sistematicamente todo fundo que 
 
 ---
 
-## D-029 — Baseline restabelecido: definição diferente, não dado diferente 🎥📊
+## D-029: Baseline restabelecido: definição diferente, não dado diferente 🎥📊
 **Quando:** 20/08, Fase 3 · **Situação:** o funil do pipeline divergiu do baseline em 3 etapas
 
 Rodando o pipeline completo contra os arquivos reais, seis das nove etapas bateram
-**exatamente**. Três não bateram, e o guardrail parou a execução — que é exatamente o que ele
+**exatamente**. Três não bateram, e o guardrail parou a execução, que é exatamente o que ele
 existe para fazer.
 
 Investiguei antes de mexer em qualquer número. As causas:
@@ -597,7 +597,7 @@ Investiguei antes de mexer em qualquer número. As causas:
 no `universe.yaml` o valor antigo, o novo e o motivo.
 
 **A distinção que me autoriza a mexer no alvo:** a definição nova é melhor pelos próprios
-méritos, decidida independentemente do número que produz — um fundo com 44 dias de série no ano
+méritos, decidida independentemente do número que produz. Um fundo com 44 dias de série no ano
 não deveria ser ranqueado, e a regra de 200 dias está no desenho desde a Fase 1. O que estava
 errado era a medição exploratória, não o pipeline. Isso é diferente de afrouxar um critério
 até o resultado passar, que é o que a regra 11 proíbe.
@@ -606,14 +606,14 @@ até o resultado passar, que é o que a regra 11 proíbe.
 
 ---
 
-## D-030 — IMA-B não entra: CDI para todos, com a limitação declarada 🔄📊
+## D-030: IMA-B não entra: CDI para todos, com a limitação declarada 🔄📊
 **Quando:** 20/08, Fase 4 · **Reverte parcialmente:** D-014
 
 Na Fase 1 eu descobri que os índices IMA da ANBIMA baixam sem credencial e usei isso para
 reincorporar a ANBIMA (D-014), prometendo benchmark por grupo: CDI para pós-fixado, IMA-B para
 indexado à inflação, IRF-M para prefixado. Fui implementar e medi duas coisas:
 
-**Primeira — quantos fundos isso afeta.** No universo de varejo (854 fundos):
+**Primeira: quantos fundos isso afeta.** No universo de varejo (854 fundos):
 
 | Grupo | Fundos | Benchmark correto |
 |---|---:|---|
@@ -621,18 +621,18 @@ indexado à inflação, IRF-M para prefixado. Fui implementar e medi duas coisas
 | Renda Fixa Indexados | 70 (8,2%) | IMA-B |
 | Prefixado puro | **0** | IRF-M |
 
-**Segunda — o arquivo não serve.** O `ima_completo.xls` é Excel binário de verdade (assinatura
+**Segunda: o arquivo não serve.** O `ima_completo.xls` é Excel binário de verdade (assinatura
 OLE `D0 CF 11 E0`), e lê-lo exigiria uma dependência nova. Achei um `ima_completo.txt`, delimitado
-por `@`, que responde 200 — mas é a **foto do dia de hoje**, não a série histórica. Para um
+por `@`, que responde 200, mas é a **foto do dia de hoje** e não a série histórica. Para um
 ranking datado de 31/12/2025 ele não serve: não dá para reconstruir a variação de 12 meses
 terminando naquela data.
 
 **Decisão:** CDI como benchmark de todos os fundos, com a limitação escrita na entrega. IMA-B
 volta para o backlog.
 
-**O que isso custa, com precisão — e a parte que eu quase deixei passar:** como a comparação é
+**O que isso custa, com precisão, e a parte que eu quase deixei passar:** como a comparação é
 feita **dentro do grupo de pares**, um deslocamento constante no benchmark não muda a ordem por
-`excesso` — todos os 70 fundos indexados se deslocam igual. Cheguei a concluir que era inócuo.
+`excesso`, porque todos os 70 fundos indexados se deslocam igual. Cheguei a concluir que era inócuo.
 **Está errado:** `retorno_por_risco` é `(retorno − benchmark) / volatilidade`, e dividir um
 numerador deslocado por volatilidades diferentes **muda a ordem**. Então o efeito não é nulo,
 é limitado a 8,2% do universo e a uma das duas métricas de desempenho.
@@ -643,14 +643,14 @@ etiquetado com o benchmark usado, para ninguém ler "-8% contra o benchmark" ach
 
 ---
 
-## D-031 — A Decade delegou universo e janela: o critério é varejo acionável 🎥
+## D-031: A Decade delegou universo e janela: o critério é varejo acionável 🎥
 **Quando:** 20/08, Fase 4 · **Situação:** chegou a resposta às perguntas enviadas
 
 A resposta foi: *"ambos os pontos ficam a seu critério. Provavelmente faz sentido focar no que
 for mais relevante para produzir recomendações acionáveis para investidores de varejo
 brasileiros."*
 
-Isso não é uma resposta vaga — é um critério. E ele confirma as escolhas de universo já feitas
+Isso não é uma resposta vaga. É um critério, e ele confirma as escolhas de universo já feitas
 (fora multimercado, FIDC, exclusivos e fechados; dentro só quem publica taxa e prazo) porque
 todas seguem do mesmo princípio: não se recomenda a um investidor de varejo o que ele não pode
 comprar ou o que não se consegue precificar.
@@ -659,7 +659,7 @@ Onde ele **muda** alguma coisa é na segmentação. Medi o universo de varejo:
 
 | Corte de liquidez | Fundos |
 |---|---:|
-| D+0 ou D+1 — reserva de emergência | **492 (58%)** |
+| D+0 ou D+1, reserva de emergência | **492 (58%)** |
 | D+2 a D+30 | 232 |
 | acima de D+30 | 130 |
 
@@ -671,11 +671,11 @@ amanhã e para quem investe por três anos. Com 58% do universo em D+0, o corte 
 
 ---
 
-## D-032 — Dois perfis de varejo por horizonte; o qualificado sai 🔄🎥📊
+## D-032: Dois perfis de varejo por horizonte; o qualificado sai 🔄🎥📊
 **Quando:** 20/08, Fase 5 · **Reverte:** D-010 · **Segue de:** D-031
 
 Esta é a segunda vez que a segmentação muda. Vale seguir a trajetória inteira, porque ela é o
-argumento — não o resultado.
+argumento, e não o resultado.
 
 | Momento | Perfis | Por quê |
 |---|---|---|
@@ -698,7 +698,7 @@ O perfil qualificado não é entregue.
 
 Com 58% concentrado em D+0, um ranking único de varejo entregaria **os mesmos cinco fundos**
 para quem precisa do dinheiro amanhã e para quem investe por três anos. Isso é o oposto de
-acionável. O corte por horizonte não é uma persona inventada — é a única divisão que o dado
+acionável. O corte por horizonte não é uma persona inventada. É a única divisão que o dado
 sustenta, e é a pergunta que o investidor de varejo de fato se faz.
 
 **2. O cliente pediu.** A Decade respondeu que universo e janela ficam a critério, sugerindo
@@ -707,9 +707,9 @@ varejo brasileiros"*. Um perfil dedicado ao investidor qualificado serve aproxim
 ninguém na base deles.
 
 **3. A amostra do qualificado não sustenta uma recomendação.** Dos 278 fundos restritos a
-qualificado, apenas **79 publicam taxa e prazo — 28%**, contra 64% no varejo. E a lacuna não é
+qualificado, apenas **79 publicam taxa e prazo, ou 28%**, contra 64% no varejo. E a lacuna não é
 aleatória: a obrigação de publicar lâmina alcança fundos de varejo, não os restritos. Ranquear
-sobre essa amostra produziria uma lista **enviesada pela regulação, não pela qualidade** — e eu
+sobre essa amostra produziria uma lista **enviesada pela regulação, e não pela qualidade**, e eu
 teria que desqualificá-la em três parágrafos logo abaixo do título.
 
 > Uma exclusão explicada com número é mais defensável que uma lista fraca publicada com
@@ -730,7 +730,7 @@ Os dois universos **se sobrepõem de propósito**:
 | Varejo Liquidez | resgate ≤ D+1 | 492 |
 | Varejo Prazo | resgate ≤ D+30 | **724** |
 
-Um investidor com horizonte de três anos pode perfeitamente comprar um fundo D+0 — liquidez
+Um investidor com horizonte de três anos pode perfeitamente comprar um fundo D+0, porque liquidez
 sobrando não é defeito. Quem é restrito é o perfil de liquidez, não o de prazo. Então o mesmo
 fundo pode aparecer nas duas listas, e isso é a resposta certa, não uma duplicação.
 
@@ -739,32 +739,32 @@ fundo pode aparecer nas duas listas, e isso é a resposta certa, não uma duplic
 | Métrica | Liquidez | Prazo |
 |---|---:|---:|
 | Taxa de administração | **30** | **25** |
-| Oscilação | 20 | — |
+| Oscilação | 20 | |
 | Pior queda | 15 | 15 |
 | Tamanho e estabilidade | 15 | 15 |
 | Ganho sobre o CDI | 10 | 20 |
-| Retorno por unidade de risco | — | 20 |
+| Retorno por unidade de risco | | 20 |
 | Prazo de resgate | 10 | 5 |
 
 Para a reserva de emergência, **preservar o capital e não pagar caro** dominam; retorno é
 critério secundário. Para o horizonte longo, retorno ajustado ao risco entra de verdade. A taxa
-segue como o **maior peso individual nos dois** — coerente com D-012, e agora sustentada pelo
+segue como o **maior peso individual nos dois**, coerente com D-012 e agora sustentada pelo
 dado de que só 37% dos fundos bateram o CDI em 2025.
 
 ### O que aceito perder
 
 O ranking do investidor qualificado não é entregue. Se a Decade quiser depois, é uma linha de
-configuração — a elegibilidade já é parametrizada e o universo de 69 fundos existe no pipeline.
+configuração, porque a elegibilidade já é parametrizada e o universo de 69 fundos existe no pipeline.
 
 ---
 
-## D-033 — Só ligar a simulação de verdade mostrou que ela não estava ligada 🎥
+## D-033: Só ligar a simulação de verdade mostrou que ela não estava ligada 🎥
 **Quando:** 20/08, Fase 5
 
 O primeiro ranking real saiu com **taxa de aparição de 100% em quase todos os fundos**. Um
 número desses não é um resultado forte, é um sintoma: significa que nada estava variando.
 
-E não estava. A reamostragem em blocos existia no código, com teste, e **nunca era chamada** —
+E não estava. A reamostragem em blocos existia no código, com teste, e **nunca era chamada**.
 o `metric_draws` não era passado pelo pipeline. A simulação estava variando apenas os pesos,
 que é metade do que a D-011 promete.
 
@@ -774,11 +774,11 @@ com o agravante de vir do módulo criado para combatê-la.
 **Decisão:** ligar a reamostragem sobre as séries diárias reais, com uma escolha de desenho
 que aproveitei para corrigir uma limitação já declarada: **todos os fundos são reamostrados
 com os mesmos índices de bloco dentro de cada simulação**. Fundos não vivem histórias
-independentes — vivem as mesmas semanas. Reamostrá-los separadamente assumiria que eles caem
+independentes, porque vivem as mesmas semanas. Reamostrá-los separadamente assumiria que eles caem
 em momentos diferentes, que é justamente o contrário do que acontece numa crise.
 
 **Resultado:** as taxas de aparição passaram de "100% para todos" para **100%, 97%, 93%, 45%,
-42%** — números que finalmente informam alguma coisa. E a ordem publicada deixou de ser a
+42%**, números que finalmente informam alguma coisa. E a ordem publicada deixou de ser a
 ordem da nota: o 2º colocado do perfil de prazo tem nota maior que o 1º, e mesmo assim vem
 depois, porque sobrevive menos.
 
@@ -787,21 +787,21 @@ para 36 s.
 
 ---
 
-## D-034 — O primeiro Top 5 continha fundos institucionais 🎥📊
+## D-034: O primeiro Top 5 continha fundos institucionais 🎥📊
 **Quando:** 20/08, Fase 5 · **Situação:** olhar o resultado real antes de entregá-lo
 
 O primeiro ranking com a simulação funcionando trouxe fundos com **17, 31 e 70 cotistas** e
 dezenas de bilhões de patrimônio. Um fundo com 31 cotistas e R$ 63 bilhões não é produto de
 varejo: é veículo institucional ou master rotulado "Público Geral".
 
-Investigando, achei **dois defeitos de especificação meus** — nenhum deles no código, ambos
+Investigando, achei **dois defeitos de especificação meus**. Nenhum deles no código, ambos
 nos critérios.
 
-**Defeito 1 — o corte de cotistas era decorativo.** Estava em 10, escolhido na Fase 1 para
+**Defeito 1: o corte de cotistas era decorativo.** Estava em 10, escolhido na Fase 1 para
 "excluir exclusivos de fato". Medi a distribuição do varejo: o percentil 10 tem **31 cotistas**
 e a mediana **924**. Um corte em 10 não exclui nada.
 
-**Defeito 2 — taxa zero declarada estava ganhando o percentil máximo.** 19,7% dos fundos
+**Defeito 2: taxa zero declarada estava ganhando o percentil máximo.** 19,7% dos fundos
 declaram taxa exatamente zero, e a distribuição não é aleatória:
 
 | Cotistas | Fundos | Com taxa zero |
@@ -810,7 +810,7 @@ declaram taxa exatamente zero, e a distribuição não é aleatória:
 | 100 a 1.000 | 245 | 6% |
 | > 1.000 | 409 | 6% |
 
-A anomalia mora nos mesmos veículos institucionais. O zero não significa fundo gratuito —
+A anomalia mora nos mesmos veículos institucionais. O zero não significa fundo gratuito.
 significa que a taxa é cobrada no fundo investidor ou pelo distribuidor. Como custo é o
 **maior peso dos dois perfis**, um zero aceito ao pé da letra entregava a melhor nota possível
 a quem divulgou menos.
@@ -820,7 +820,7 @@ a quem divulgou menos.
 1. Corte de cotistas de 10 para **500**. Fica acima da faixa onde os dois artefatos vivem e
    mantém 59% do universo de varejo. É julgamento, está em configuração, e a medição que o
    sustenta está no YAML ao lado do número.
-2. Taxa declarada como exatamente zero passa a ser tratada como **desconhecida** — pontua
+2. Taxa declarada como exatamente zero passa a ser tratada como **desconhecida**, e pontua
    neutro, não máximo. O valor declarado continua sendo reportado, com um sinalizador,
    porque a entrega deve dizer o que o fundo de fato informou.
 
@@ -835,18 +835,18 @@ reais de 0,02% a 0,15%. Nenhum fundo com taxa zero sobrou no Top 5.
 existir a etapa de revisão: o critério estava especificado errado, e o erro só ficou visível
 quando o resultado saiu. Afrouxar um corte para um fundo entrar seria fraude; apertar um corte
 porque ele estava deixando entrar quem o próprio critério dizia excluir é conserto. A distinção
-está na direção da mudança e na justificativa — e as duas ficaram registradas antes do backtest.
+está na direção da mudança e na justificativa, e as duas ficaram registradas antes do backtest.
 
 ---
 
-## D-035 — Revisão do primeiro resultado: seis conclusões 🎥
+## D-035: Revisão do primeiro resultado: seis conclusões 🎥
 **Quando:** 20/08, Fase 5, com o primeiro ranking pronto
 
 O primeiro Top 5 foi revisado com olhar externo, sem contexto do projeto. Seis conclusões.
 **Nenhuma implementada nesta fase**, por decisão: o objetivo aqui é registrar o que se aprendeu
 e reconhecer limitação, não sair consertando tudo a quatro dias da entrega.
 
-### 1. Os pesos são a limitação mais séria — e são arbitrários
+### 1. Os pesos são a limitação mais séria, e são arbitrários
 
 Não há como demonstrar que 30/20/15/15/10/10 é melhor que qualquer outro conjunto. A escolha
 tem argumento (a taxa é o único número conhecido sobre 2026, e só 40% dos fundos bateram o CDI
@@ -854,7 +854,7 @@ em 2025), mas argumento não é prova.
 
 **O que fica registrado como a postura defensável:** encontrar pesos ótimos é um problema
 quantitativamente muito difícil, e este projeto não o resolve. O que ele garante é outra coisa
-— que **se os pesos certos existirem e forem informados, o pipeline inteiro é robusto o
+de que **se os pesos certos existirem e forem informados, o pipeline inteiro é robusto o
 suficiente para produzir o ranking correto a partir deles.** Os pesos vivem em YAML, a
 simulação de robustez mede quanto o resultado depende deles, e trocá-los não exige tocar em
 uma linha de código.
@@ -866,7 +866,7 @@ da performance passada como proxy do futuro. As duas passam a ser nomeadas na en
 
 Oito dos dez recomendados são Itaú. A leitura: o Itaú pratica taxas artificialmente baixas nos
 fundos de casa, e como custo é o maior peso, ele naturalmente se destaca. É consequência
-coerente do critério, não sintoma de erro. Continua valendo declarar na entrega — quem lê
+coerente do critério, e não sintoma de erro. Continua valendo declarar na entrega, porque quem lê
 precisa saber que a lista concentra em uma gestora e por quê.
 
 ### 3. O corte de 500 cotistas está razoável, e poderia ser maior
@@ -887,7 +887,7 @@ uma **lista simples**. A ser implementado na Fase 6.
 
 De toda a lista declarada, duas se destacam:
 
-- **risco de crédito escondido** — o método não olha a carteira, e crédito privado no Brasil
+- **risco de crédito escondido**, porque o método não olha a carteira, e crédito privado no Brasil
   paga spread pequeno e constante até o dia em que não paga;
 - **12 meses não dizem o que acontece em 2026.**
 
@@ -897,12 +897,12 @@ lista de nove itens.
 ### 6. Reconhecer e seguir, em vez de consertar tudo
 
 A decisão de processo: nada disso vira mudança de método agora. Vira limitação declarada e
-backlog. A quatro dias da entrega, o que falta — o teste no passado e a documentação — vale
+backlog. A quatro dias da entrega, o que falta, o teste no passado e a documentação, vale
 mais que uma tentativa apressada de otimizar pesos.
 
 ---
 
-## D-036 — O teste no passado validou o método 🎥📊
+## D-036: O teste no passado validou o método 🎥📊
 **Quando:** 20/08, Fase 5.5
 
 O ranking foi reconstruído em 31/03, 30/06 e 30/09 de 2025, usando nada publicado depois de
@@ -920,10 +920,10 @@ e contra **mil carteiras de cinco fundos sorteados do mesmo universo**.
 
 **Veredito: validado.** Liquidez 3 de 3, prazo 2 de 3; o critério exigia 2 de 3.
 
-### Dois erros meus, corrigidos antes de escrever o veredito — ambos contra mim
+### Dois erros meus, corrigidos antes de escrever o veredito, ambos contra mim
 
 **1. Eu estava aplicando o critério mais frouxo do que ele foi escrito.** O texto congelado diz
-"2 das 3 datas". Com dois perfis são seis resultados, e eu contei **5 de 6** — o que torna o
+"2 das 3 datas". Com dois perfis são seis resultados, e eu contei **5 de 6**, o que torna o
 teste trivialmente mais fácil. Passou a ser aplicado **por perfil**: cada um clareia sozinho.
 A leitura mais dura, e ainda passa.
 
@@ -932,7 +932,7 @@ A leitura mais dura, e ainda passa.
 
 **2. Percentil alto contra distribuição estreita não é ganho grande.** p98% soa forte; a
 vantagem real é de **10 a 31 pontos-base**. Fundos pós-fixados rendem todos perto do CDI, então
-a distribuição aleatória é apertada — ficar no percentil 98 é ganhar de quase todos **por
+a distribuição aleatória é apertada, e ficar no percentil 98 é ganhar de quase todos **por
 pouco**. O relatório agora traz pontos-base ao lado do percentil.
 
 ### Por que o resultado é mais crível justamente por ser pequeno
@@ -954,11 +954,11 @@ se fosse difícil de rodar seria sinal de que estava furado. Rodou como um coman
 
 ---
 
-## D-037 — Extrato multi-ano ampliou o universo, e o resultado não mudou 📊
+## D-037: Extrato multi-ano ampliou o universo, e o resultado não mudou 📊
 **Quando:** 20/08, Fase 6
 
 A Fase 5.5 exigiu buscar o extrato de **todos os anos que a janela toca**, não só o do ano de
-referência — um fundo que protocolou em 2024 e não reprotocolou continua vigente em 2025, e
+referência. Um fundo que protocolou em 2024 e não reprotocolou continua vigente em 2025, e
 buscar um ano só fazia parecer que ele nunca tinha divulgado nada.
 
 Isso melhorou também a rodada da data de referência: **520 → 580 fundos**, varejo de 502 para
@@ -966,7 +966,7 @@ Isso melhorou também a rodada da data de referência: **520 → 580 fundos**, v
 foi restabelecido com o motivo escrito ao lado do número.
 
 **O que vale registrar:** com 60 fundos a mais no universo, o teste no passado deu **exatamente
-o mesmo resultado** — p92/p100/p98 e p84/p97/p51, mesmas vantagens em pontos-base. Um método
+o mesmo resultado**, com p92/p100/p98 e p84/p97/p51 e as mesmas vantagens em pontos-base. Um método
 cujo veredito virasse com 11% a mais de universo não seria um método. Este não virou.
 
 **Efeito colateral bem-vindo:** a concentração caiu de 8 em 10 fundos numa única gestora para
@@ -975,11 +975,11 @@ para "poucas gestoras".
 
 ---
 
-## D-038 — Publicar a taxa "só desempenho" revelou o que a lista realmente é 🎥📊
+## D-038: Publicar a taxa "só desempenho" revelou o que a lista realmente é 🎥📊
 **Quando:** 21/08, Fase 6
 
 Numa revisão do repositório com olhar externo, apareceu que a `appearance_rate_variable_only`
-era calculada, testada — e **nunca publicada**. Era uma promessa de docstring não cumprida no
+era calculada e testada, e **nunca publicada**. Era uma promessa de docstring não cumprida no
 produto. Decidi publicá-la.
 
 Publicar mudou o entendimento do próprio resultado:
@@ -994,7 +994,7 @@ Publicar mudou o entendimento do próprio resultado:
 A coluna responde: *este fundo continuaria no top 5 se fosse pontuado só por retorno, ganho
 sobre o CDI, oscilação e pior queda, ignorando taxa e prazo?* Para quase todos, **não**.
 
-**Isso não é defeito — é a D-012 funcionando exatamente como projetada.** A taxa é o maior
+**Isso não é defeito. É a D-012 funcionando exatamente como projetada.** A taxa é o maior
 peso, de propósito. Mas a magnitude é muito maior do que eu esperava, e leva a uma frase que
 precisa estar na entrega:
 
@@ -1002,7 +1002,7 @@ precisa estar na entrega:
 > mesmos se o critério fosse desempenho passado.
 
 **Correção de redação que fiz junto:** eu tinha descrito a coluna como medida de "estabilidade
-mecânica". Está errado. Ela não mede quanto da robustez é artefato — mede se o fundo sobrevive
+mecânica". Está errado. Ela não mede quanto da robustez é artefato. Mede se o fundo sobrevive
 a um critério diferente. Descrever mal um número publicado é pior que não publicá-lo.
 
 **Um fundo passou nas duas:** o Itaú Crédito Bancário, com 100% nas duas colunas. É o único da
@@ -1010,10 +1010,10 @@ lista que é escolhido tanto por custo quanto por desempenho.
 
 ---
 
-## D-039 — A janela mede exatamente os meses que ela declara 📊🎥
+## D-039: A janela mede exatamente os meses que ela declara 📊🎥
 
 **Situação:** uma janela de doze meses terminando em 31/12/2025 pode começar em dois
-lugares — no primeiro dia do mês doze meses atrás (01/12/2024) ou no dia seguinte à
+lugares: no primeiro dia do mês doze meses atrás (01/12/2024), ou no dia seguinte à
 mesma data doze meses atrás (01/01/2025). A diferença é um mês inteiro.
 
 **Decisão:** a janela é fechada nas duas pontas e contada a partir da própria data de
@@ -1028,7 +1028,7 @@ onde o ano-calendário fez 14,3242%. É o pior tipo de erro que este projeto pod
 invisível por dentro, checável por fora.
 
 **O que garante isso:** `tests/unit/test_window.py` verifica a propriedade para 1, 3, 6,
-12, 24 e 36 meses, incluindo os casos chatos — 31 de março menos um mês não tem 31 de
+12, 24 e 36 meses, incluindo os casos chatos, porque 31 de março menos um mês não tem 31 de
 fevereiro para cair, e 29 de fevereiro só existe em ano bissexto. E
 `test_published_output.py` refaz a conta a partir do `ranking.json` entregue: a distância
 entre `window_start` e `reference_date` tem que bater com `lookback_months`.
@@ -1038,11 +1038,11 @@ como conferir uma contagem de meses; tem como conferir duas datas.
 
 ---
 
-## D-040 — Cinco fundos, não cinco notas 🎥📊
+## D-040: Cinco fundos, não cinco notas 🎥📊
 
 **Situação:** uma gestora brasileira roda uma carteira só e a vende através de várias
 classes de distribuição. Medi: a Caixa oferece **doze** sobre uma única carteira de renda
-fixa — Executivo, Clássico, Personal, Investidor, Especial, Empreender. Cada uma é uma
+fixa: Executivo, Clássico, Personal, Investidor, Especial, Empreender. Cada uma é uma
 classe separada no registro da CVM, cada uma é elegível, e cada uma tira quase a mesma
 nota, porque são quase o mesmo fundo.
 
@@ -1054,7 +1054,7 @@ mesma carteira entrega quatro exposições sem avisar.
 Dois fundos contam como um quando a mesma gestora roda os dois **e** a diferença entre
 suas séries de retorno quase não oscila.
 
-**A medida é a diferença, não a correlação — e isso importa.** Correlação não resolve este
+**A medida é a diferença e não a correlação, e isso importa.** Correlação não resolve este
 problema neste mercado: todo fundo pós-fixado segue a mesma curva de um dia e correlaciona
 acima de 0,99 com todos os outros. Medi no universo elegível: mesmo a 0,999, a correlação
 marca 161 fundos como duplicata de alguma coisa. A pergunta certa não é *estes dois se
@@ -1062,8 +1062,8 @@ movem juntos* e sim *quanto estes dois discordam*. Dois invólucros de uma carte
 só pela taxa, que é um arrasto constante e não gera variância nenhuma.
 
 **O limiar, medido:** volatilidade anualizada da diferença abaixo de **0,10% ao ano**. Os
-gêmeos conhecidos — Itaú Janeiro e Itaú Private Janeiro, CNPJs sequenciais, mesma carteira
-— ficam em 0,062%. Os pares mais apertados do universo ficam em 0,0001%. Exigir a mesma
+gêmeos conhecidos, Itaú Janeiro e Itaú Private Janeiro, CNPJs sequenciais e mesma carteira,
+ficam em 0,062%. Os pares mais apertados do universo ficam em 0,0001%. Exigir a mesma
 gestora é o que separa "uma casa vendendo uma carteira duas vezes" de "duas casas rodando
 fundos Selic parecidos", que para o cliente é escolha de verdade.
 
@@ -1080,7 +1080,7 @@ vê.
 
 ---
 
-## D-041 — Peso só vale para critério que separa 📊
+## D-041: Peso só vale para critério que separa 📊
 
 **Situação:** o perfil de liquidez filtra para resgate em até um dia e depois dá peso 10
 ao prazo de resgate. Medido no universo elegível: **214 dos 218 fundos liquidam em D+0**.
@@ -1106,20 +1106,20 @@ inerte e os pesos aplicados são os declarados.
 
 ---
 
-## D-042 — Duas notas por fundo: dentro do grupo e contra o universo 🎥
+## D-042: Duas notas por fundo: dentro do grupo e contra o universo 🎥
 
 **Situação:** a D-008 estabeleceu que cada métrica vira posição relativa dentro do grupo
 ANBIMA, para não premiar quem tomou mais risco de crédito. Essa é a pergunta certa e ela é
 **silenciosa sobre o grupo**: ser o primeiro de dezoito vale 1 num grupo forte e num grupo
 fraco. O Top 5 final mistura grupos e soma esses percentis como se fossem comensuráveis.
 
-**Decisão:** todo fundo publica duas notas — a nota contra os pares da categoria, que
+**Decisão:** todo fundo publica duas notas. A nota contra os pares da categoria, que
 decide o ranking, e a mesma nota recalculada contra **todo o universo elegível do perfil**.
 
 **Por quê:** é a informação que falta para ler a lista, e ela é barata. Na entrega de
 31/12/2025 o Daycoval Títulos Públicos tira 83,2 no grupo e **66,9** no universo: é o
 melhor de uma categoria que não é boa. O Itaú Janeiro tira 89,9 e 86,8, e as duas notas
-próximas dizem outra coisa — ele é bom contra os pares e continua bom contra tudo.
+próximas dizem outra coisa: ele é bom contra os pares e continua bom contra tudo.
 
 **O que eu não faço:** inventar um termo de qualidade de grupo para "corrigir" a soma.
 Isso exigiria afirmar que uma categoria vale mais que outra, que é exatamente o julgamento
@@ -1128,43 +1128,43 @@ o julgamento a quem lê.
 
 ---
 
-## D-043 — A reamostragem sorteia por fundo, e o benchmark vai junto 🎥📊
+## D-043: A reamostragem sorteia por fundo, e o benchmark vai junto 🎥📊
 
 **Situação:** a simulação de robustez (D-011) responde quanto da vantagem de um fundo
 sobre outro é sorte de amostra. Três detalhes de implementação decidem se a resposta
 significa alguma coisa.
 
-**Decisão 1 — cada fundo sorteia os próprios blocos.** A grandeza estimada é
+**Decisão 1: cada fundo sorteia os próprios blocos.** A grandeza estimada é
 idiossincrática: quanto do resultado *deste* fundo é acaso. Dar a todos o mesmo calendário
-reamostrado preserva o comovimento do mercado, o que soa conservador e é o contrário —
+reamostrado preserva o comovimento do mercado, o que soa conservador e é o contrário:
 move a seção transversal inteira junta, deixa a ordem relativa quase intacta, e devolve
 taxas de sobrevivência perto de 100% para um ranking que ninguém estressou. O preço é que
 um ano simulado não contém crash comum; está declarado e é o erro mais barato dos dois.
 
-**Decisão 2 — o benchmark é reamostrado com o fundo.** Excesso é diferença entre duas
+**Decisão 2: o benchmark é reamostrado com o fundo.** Excesso é diferença entre duas
 séries compostas, então os dois lados precisam ser compostos sobre os mesmos dias. Medir um
-ano reamostrado do fundo contra o CDI do ano-calendário enviesa todo excesso — e como
+ano reamostrado do fundo contra o CDI do ano-calendário enviesa todo excesso. E como
 retorno por unidade de risco divide essa diferença pela volatilidade, um viés que se
 cancelaria num ranking por excesso **não se cancela ali**. Ele reordena, a favor dos fundos
 mais voláteis. É o mesmo mecanismo da D-030, aplicado a outro lugar.
 
-**Decisão 3 — cada fundo mantém o próprio comprimento de histórico.** Truncar o painel
+**Decisão 3: cada fundo mantém o próprio comprimento de histórico.** Truncar o painel
 inteiro no fundo mais curto jogaria fora um quinto da evidência de todo mundo para acomodar
 o mais novo. O painel é alinhado à esquerda e preenchido, e o preenchimento fica fora de
 toda estatística em vez de ser contado como calmaria.
 
 **Efeito medido:** as taxas de aparição saem do aglomerado de 97–100% e passam a ocupar a
-faixa de 31% a 99%. O ranking não ficou menos confiável — ele parou de afirmar uma
+faixa de 31% a 99%. O ranking não ficou menos confiável. Ele parou de afirmar uma
 confiança que não tinha.
 
 ---
 
-## D-044 — O teste no passado mede o universo inteiro, e diz contra o que 🎥📊
+## D-044: O teste no passado mede o universo inteiro, e diz contra o que 🎥📊
 
 **Situação:** a D-017 desenhou o teste fora da amostra com três comparações. Duas escolhas
 de implementação decidem se ele é um teste ou um espelho.
 
-**Decisão 1 — os retornos futuros são lidos do painel validado completo**, não do
+**Decisão 1: os retornos futuros são lidos do painel validado completo**, não do
 universo elegível na data final. Um fundo escolhido em março que encolheu abaixo do corte
 de cotistas até dezembro **continua tendo tido um retorno**. Ler o resultado do conjunto
 sobrevivente o descarta em silêncio da média, e a média passa a ser dividida pelos fundos
@@ -1176,21 +1176,21 @@ número de fundos que o método escolheu, nunca o número deles que era mensurá
 sem cota nenhuma depois do corte entra com o último valor conhecido, conforme a política
 congelada, e sai nomeado no relatório.
 
-**Decisão 2 — o CDI é composto sobre exatamente os dias medidos** e publicado na tabela.
+**Decisão 2: o CDI é composto sobre exatamente os dias medidos** e publicado na tabela.
 Uma comparação anunciada e não calculada é pior do que uma comparação ausente.
 
-**Decisão 3 — entra um controle casado por custo.** A taxa sai da cota antes de qualquer
+**Decisão 3: entra um controle casado por custo.** A taxa sai da cota antes de qualquer
 medição, então um ranking cujo maior peso é a taxa ganha parte de qualquer vantagem por
 aritmética conhecida antes do teste. O relatório repete o sorteio usando só o quartil mais
 barato do mesmo universo.
 
-**Esse controle é reportado, não faz parte do critério** — que foi congelado antes de ele
+**Esse controle é reportado e não faz parte do critério**, que foi congelado antes de ele
 existir. E ele **não é experimento limpo**: segurar o custo também muda a composição do
 grupo, porque o quartil mais barato é dominado por fundo de título público, que rende bruto
 menos que crédito. É um segundo ângulo, não uma decomposição entre custo e habilidade, e o
 relatório diz isso com essas palavras.
 
-**O resultado, como ele saiu:** veredito de aprovação — liquidez 2 de 3, prazo 3 de 3,
+**O resultado, como ele saiu:** veredito de aprovação, com liquidez 2 de 3, prazo 3 de 3,
 contra o critério de 2 de 3 por perfil. E, na mesma tabela: o Top 5 ficou acima da mediana
 dos elegíveis em **dois de seis** recortes, e **abaixo do CDI nos seis**. A vantagem sobre a
 mediana vai de −15 a +21 pontos-base. O texto do relatório é gerado a partir desses números
@@ -1199,16 +1199,16 @@ quando os números deixarem de ser.
 
 ---
 
-## D-045 — Os entregáveis moram no repositório 📊
+## D-045: Os entregáveis moram no repositório 📊
 
 **Situação:** o enunciado pede `ranking.md` no repositório GitHub. Um arquivo que só passa
-a existir depois que alguém roda o pipeline não está entregue — e um README que aponta para
+a existir depois que alguém roda o pipeline não está entregue, e um README que aponta para
 ele vira link quebrado para quem clona.
 
 **Decisão:** `saida/` é versionada. `dados/` não.
 
 **Por quê:** a distinção é entre o que prova o resultado e o que o reconstrói. Os dados
-brutos são pesados, reconstruíveis, e sujeitos a retificação silenciosa pela CVM — o que os
+brutos são pesados, reconstruíveis e sujeitos a retificação silenciosa pela CVM, o que os
 prende à execução não é o arquivo, é o hash SHA-256 de cada fonte, que já viaja dentro do
 `ranking.json`. O resultado é o produto.
 
@@ -1218,7 +1218,7 @@ duas respostas no repositório e nenhuma forma de saber qual é a atual.
 
 ---
 
-## D-046 — Testes que leem o arquivo entregue 🎥
+## D-046: Testes que leem o arquivo entregue 🎥
 
 **Situação:** a suíte cobre invariantes financeiras, contratos de fronteira e as doze
 armadilhas da CVM. Tudo isso testa **componentes contra fixtures**, e isso deixa passar uma
@@ -1227,7 +1227,7 @@ ainda assim errada.
 
 Uma janela rotulada com o número errado de meses, um Top 5 com a mesma carteira duas vezes,
 um critério com peso que empata para todo fundo do universo, um campo de contrato publicado
-vazio — nenhum quebra função nenhuma, e nenhum aparece numa suíte verde que só olha para
+vazio. Nenhum quebra função nenhuma, e nenhum aparece numa suíte verde que só olha para
 dentro.
 
 **Decisão:** `tests/integration/test_published_output.py` abre o `ranking.json` e o
@@ -1243,39 +1243,39 @@ vazio, com o rótulo errado, ou repetido. É a fronteira que outro time consome.
 
 # Material para a apresentação
 
-*Seção viva — vou alimentando conforme o projeto anda.*
+*Seção viva: vou alimentando conforme o projeto anda.*
 
 ## Surpresas (o que eu não esperava encontrar)
 
 **Nos dados**
 
 1. O arquivo de cadastro que todo tutorial usa está obsoleto: 10,3% de cobertura, zero taxas.
-2. A data de início do fundo no registro é mentira — diz 2025 para fundos de 1994.
+2. A data de início do fundo no registro é mentira: diz 2025 para fundos de 1994.
 3. A quebra de layout do informe diário é em jan/2024, não em nov/2024 como eu supunha.
 4. A ANBIMA não é fechada: os índices baixam sem credencial. Eu tinha desistido cedo demais.
-   *(E depois: baixam, mas só a foto do dia — não serve para uma data passada.)*
+   *(E depois: baixam, mas só a foto do dia, que não serve para uma data passada.)*
 5. A falta de dado de taxa não é aleatória, segue a regulação. Varejo é obrigado a publicar
    lâmina; qualificado não. Por isso a cobertura cai de 64% para 28%.
 6. O registro de fundos **repete 1.046 chaves**, com linhas idênticas.
 7. O extrato tem **194 aspas duplas soltas** em texto livre, que quebravam a leitura inteira.
 8. Extrato e lâmina nomeiam as mesmas colunas de formas diferentes.
 9. Prazo de resgate vem em dias úteis **ou** corridos, misturados na mesma base.
-10. O Banco Central recusa a série do CDI inteira com HTTP 406 — 11 anos é recusado,
+10. O Banco Central recusa a série do CDI inteira com HTTP 406: 11 anos é recusado,
     14 meses é servido.
-11. **Só 37% dos fundos bateram o CDI em 2025.** A mediana ficou 0,22% abaixo. O fundo mediano
-    de renda fixa brasileiro perdeu do CDI — o custo come o prêmio.
+11. **Só 40% dos fundos bateram o CDI em 2025.** A mediana ficou 0,19% abaixo. O fundo mediano
+    de renda fixa brasileiro perdeu do CDI, e o custo come o prêmio.
 
 **No próprio processo**
 
 12. Escrever o teste primeiro pegou um erro de desenho antes de virar código: dois testes
     especificavam leitura de arquivo dentro do módulo de cálculo.
-13. **Dois testes meus estavam errados e o código certo** — um fixava o estimador de desvio
+13. **Dois testes meus estavam errados e o código certo.** Um fixava o estimador de desvio
     padrão por acidente, outro esperava 1,7069 onde a resposta é 1,704814.
 14. O guardrail do funil **não pegou** um erro de 2% que cabia na tolerância (D-024), e
     **pegou** três desvios reais depois (D-029). Saber quando cada coisa acontece vale mais
     que dizer que ele funciona.
 15. Uma substituição de texto num script meu falhou em silêncio porque o formatador tinha
-    reformatado o bloco — o mesmo tipo de falha silenciosa que o projeto inteiro combate.
+    reformatado o bloco, o mesmo tipo de falha silenciosa que o projeto inteiro combate.
 
 ## Números que valem citar
 
@@ -1288,15 +1288,15 @@ vazio, com o rótulo errado, ou repetido. É a fronteira que outro time consome.
 | 7,4 anos | idade real mediana dos fundos |
 | ±1,5 | incerteza sobre a medida de retorno ajustado ao risco com 12 meses |
 | 93% → 61% | cobertura do universo conforme a janela vai de 12 para 60 meses |
-| 89.749 linhas / 88.617 ids | o registro repete 1.046 fundos — o join inflava o universo em 2% |
+| 89.749 linhas / 88.617 ids | o registro repete 1.046 fundos, e o join inflava o universo em 2% |
 | 194 aspas soltas | quebravam a leitura de um arquivo de 12 MB |
 | 31 MB em 2,7 s | as cinco fontes baixadas do zero, com repetição e disjuntor |
 | 6,3 milhões de linhas em ~4 s | um ano de informe diário lido, validado e reduzido a painel |
 | 0,55% em quarentena | por cota não positiva, com o motivo escrito linha a linha |
-| **CDI 2025 = 14,3242% em 252 dias úteis** | a janela de 12 meses tem 252 dias, não 273 — e é isso que faz o número bater com o que o fundo publica |
+| **CDI 2025 = 14,3242% em 252 dias úteis** | a janela de 12 meses tem 252 dias e não 273, e é isso que faz o número bater com o que o fundo publica |
 | **40%** | dos 580 fundos elegíveis bateram o CDI. A mediana ficou **0,19% abaixo** |
 | 58% do varejo é D+0 | por isso um ranking único de varejo não serve |
-| **214 de 218** | fundos do perfil de liquidez liquidam em D+0 — prazo de resgate é filtro, não critério, e o peso dele é redistribuído |
+| **214 de 218** | fundos do perfil de liquidez liquidam em D+0, então prazo de resgate é filtro e não critério, e o peso dele é redistribuído |
 | **12 invólucros, 1 carteira** | classes de distribuição que a Caixa oferece sobre uma única carteira de renda fixa |
 | **0,062% a.a.** | a distância entre Itaú Janeiro e Itaú Private Janeiro: mesma carteira, dois nomes, dois CNPJs sequenciais |
 | 0,99 para todo mundo | por que correlação não identifica gêmeo em renda fixa pós-fixada: todos seguem a mesma curva |
@@ -1304,7 +1304,7 @@ vazio, com o rótulo errado, ou repetido. É a fronteira que outro time consome.
 | **p68 · p99 · p22 / p71 · p94 · p72** | o Top 5 contra mil carteiras aleatórias, em três datas de corte, nos dois perfis |
 | **2 de 6 e 0 de 6** | recortes em que o Top 5 bateu a mediana dos elegíveis, e em que bateu o CDI |
 | −15 a +21 pontos-base | a vantagem real sobre a mediana: pequena nos dois sentidos, e é por isso que três cortes não distinguem método de sorte |
-| 83,2 no grupo, 66,9 no universo | o 1º do perfil de prazo é o melhor de uma categoria que não é boa — as duas notas dizem isso |
+| 83,2 no grupo, 66,9 no universo | o 1º do perfil de prazo é o melhor de uma categoria que não é boa, e as duas notas dizem isso |
 | 99% vs 1% | o mesmo fundo some do top 5 quando pontuado só por desempenho: a lista é de custo |
 
 ## Esqueleto do vídeo (5 min)
@@ -1313,10 +1313,10 @@ vazio, com o rótulo errado, ou repetido. É a fronteira que outro time consome.
 |---|---|---|
 | 0:00–0:35 | O problema, e o funil de 36.594 para 975 | `relatorio_qualidade.md` |
 | 0:35–1:35 | **Fui olhar o dado antes de codar.** As armadilhas que não geram erro nenhum | D-001, D-002, D-003 |
-| 1:35–2:15 | Como decido o que é "melhor": grupo de pares, perfil, e por que a **taxa pesa mais que a rentabilidade** — com o dado de que só 37% bateram o CDI | D-008, D-012 |
+| 1:35–2:15 | Como decido o que é "melhor": grupo de pares, perfil, e por que a **taxa pesa mais que a rentabilidade**, com o dado de que só 40% bateram o CDI | D-008, D-012 |
 | 2:15–2:55 | **Funciona?** O teste no passado e o percentil contra carteiras aleatórias | D-017, `validacao.md` |
 | 2:55–3:35 | **A decisão que menos me convence** e o que a simulação não vê | D-011 |
-| 3:35–4:05 | Onde meu próprio guardrail falhou — e onde acertou | D-024 vs D-029 |
+| 3:35–4:05 | Onde meu próprio guardrail falhou, e onde acertou | D-024 vs D-029 |
 | 4:05–4:30 | O que o projeto não vê: a carteira | seção 13 do desenho |
 | 4:30–5:00 | Caminho para produção: um comando, uma função, um agendador | workflow semanal |
 
@@ -1325,8 +1325,8 @@ vazio, com o rótulo errado, ou repetido. É a fronteira que outro time consome.
 - *"Criei um guardrail para pegar junção quebrada. Ele não pegou a minha, porque 2% cabia na
   tolerância de 3%. Verificação por percentual não substitui invariante exata."*
 - *"Escrevi um teste que dizia 1.7069. O código disse 1.704814. O código estava certo."*
-- *"Só 37% dos fundos de renda fixa bateram o CDI em 2025. É por isso que a taxa pesa mais que
-  a rentabilidade passada no meu ranking — e isso não é teoria, é o dado."*
+- *"Só 40% dos fundos de renda fixa bateram o CDI em 2025. É por isso que a taxa pesa mais que
+  a rentabilidade passada no meu ranking, e isso não é teoria, é o dado."*
 - *"Um fundo cuja cota não se move não é um fundo sem risco. É um fundo que parou de ser
   precificado. Por isso ele é excluído, não premiado."*
 - *"Os cinco primeiros não são distinguíveis entre si. Eu digo isso na entrega em vez de
