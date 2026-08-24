@@ -36,6 +36,13 @@ class Filters(_Strict):
     require_fee_and_redemption: bool
 
 
+class Fees(_Strict):
+    """How much of a class must sit in one fund before its fee can be measured."""
+
+    min_master_share: float
+    min_overlap_days: int
+
+
 class DataQuality(_Strict):
     max_quarantined_share: float
     stale_quota_days: int
@@ -65,6 +72,7 @@ class UniverseConfig(_Strict):
     lookback_months: int
     report_windows: list[int]
     filters: Filters
+    fees: Fees
     data_quality: DataQuality
     peer_groups: PeerGroups
     expected_funnel: ExpectedFunnel
@@ -173,6 +181,9 @@ class Source(_Strict):
     separator: str = ";"
     layouts: dict[str, dict[str, Any]] | None = None
     members: list[str] | None = None
+    # The one member worth reading out of an archive that holds several. Takes
+    # the same placeholders as `filename`.
+    member: str | None = None
     note: str | None = None
 
 

@@ -35,17 +35,22 @@ Parti de todas as classes registradas na CVM e fui cortando. Todos os números a
 | Pelo menos 200 dias de série no ano | 2.924 | 44 dias não permitem medir risco |
 | Patrimônio ≥ R$ 10 milhões | 2.690 | fundo minúsculo não é recomendável |
 | **Pelo menos 500 cotistas** | **787** | **ver abaixo** |
-| Tem taxa e prazo de resgate publicados | **520** | não se recomenda o que não se consegue precificar |
+| Tem taxa e prazo de resgate **verificáveis** | **514** | não se recomenda o que não se consegue precificar |
 
-**Universo final: 520 fundos, R$ 1,51 trilhão, mediana de 3.616 cotistas.** Destes, 502 são
-acessíveis ao varejo, 16 restritos a qualificado e 2 a profissional.
+**Universo final: 514 fundos.** Destes, 496 são acessíveis ao varejo, 17 restritos a
+qualificado e 1 a profissional.
 
 Dois desses cortes merecem explicação.
 
-**Taxa e prazo publicados.** Não recomendo um fundo se não consigo dizer ao cliente quanto ele
-custa e em quantos dias o dinheiro volta. Não é conveniência de dados, é o mínimo de uma
+**Taxa e prazo verificáveis.** Não recomendo um fundo se não consigo dizer ao cliente quanto
+ele custa e em quantos dias o dinheiro volta. Não é conveniência de dados, é o mínimo de uma
 recomendação responsável. A lacuna que isso revela não é aleatória: fundos de varejo são
 obrigados por lei a publicar lâmina, os restritos a qualificado não. É desenho da regulação.
+
+A palavra é **verificáveis** e não publicadas, porque publicar não basta. Para classes que
+investem através de outros fundos, o valor publicado no extrato não é o preço que o cliente
+paga, e o projeto mede a taxa em vez de lê-la. Uma classe desse tipo cuja taxa não se consegue
+medir conta como não tendo divulgado nada, e é aqui que ela sai. Ver a seção 7.1 e a D-047.
 
 **Quinhentos cotistas.** O corte começou em 10, e o primeiro ranking que fiz trouxe fundos com
 17, 31 e 70 cotistas e dezenas de bilhões de patrimônio. veículos institucionais rotulados
@@ -327,7 +332,7 @@ Os dois perfis publicados são, então, dois recortes do varejo:
 | Público-alvo | Público Geral | Público Geral |
 | Aplicação mínima aceita | até R$ 5 mil | até R$ 50 mil |
 | Prazo de resgate aceito | até D+1 | até D+30 |
-| Fundos elegíveis em 31/12/2025 | 218 | 390 |
+| Fundos elegíveis em 31/12/2025 | 195 | 348 |
 | O que importa mais | não pagar caro e conseguir sacar | não pagar caro e ganhar do CDI de forma consistente |
 
 Os universos se sobrepõem de propósito. Quem tem horizonte longo pode perfeitamente comprar um fundo D+0, porque liquidez sobrando não é defeito, e por isso o perfil de prazo é o mais largo dos dois. O mesmo fundo aparecendo nas duas listas é a resposta certa, e não uma duplicação.
@@ -349,6 +354,41 @@ Estes são os pesos **declarados**. Os de fato aplicados saem no `ranking.json` 
 
 **Por que a taxa é o maior peso do varejo, e não a rentabilidade.** Essa é a decisão menos óbvia do projeto, então vale a justificativa: em renda fixa, a taxa é o único número que se sabe com certeza sobre o **futuro**. A rentabilidade passada de 12 meses é, em boa parte, CDI, que todo fundo pegou igual, mais um prêmio de risco de crédito que ainda não deu problema. A taxa, ao contrário, vai ser cobrada em 2026 exatamente como foi em 2025. Dar peso maior ao que persiste é mais defensável do que dar peso maior ao que não persiste.
 
+### 7.1 A taxa é medida, não lida
+
+Custo decide mais deste ranking do que qualquer outro número, o que faz dele o número que o
+projeto menos pode errar. O extrato da CVM traz uma taxa de administração declarada, e para
+uma família inteira de classes esse valor não é o preço que o cliente paga.
+
+Sob a RCVM 175 uma gestora roda uma carteira e a vende por classes alimentadoras, cada uma
+entregando o próprio extrato. Algumas casas passaram a declarar ali um valor nominal de
+camada. No arquivo, **580 das 2.655 classes presentes em 2024 e 2025 tiveram a taxa declarada
+cair três vezes ou mais**, e 235 foram parar em exatamente 0,040%, algumas vindas de 2,60%.
+Ninguém corta uma taxa de 2,60% para 0,04%.
+
+Então a taxa é medida. Uma alimentadora aplica quase todo o patrimônio num único fundo, o que
+faz das duas séries de cota a mesma carteira precificada duas vezes, e a única coisa que as
+separa é o que a classe retém:
+
+    taxa = 1 − (crescimento da classe ÷ crescimento do master) ^ (1 ÷ anos)
+
+O elo entre classe e master vem da composição de carteira da CVM, que é fonte nova no projeto.
+Nada mais é necessário, e nada depende de um formulário preenchido corretamente. A definição é
+geométrica e não a diferença simples de retornos, porque taxa é cobrada todo dia e compõe:
+anualizar a diferença simples daria números diferentes conforme o tamanho da janela.
+
+Contra fonte externa, os dois fundos em que isso mais pesou medem 0,396% e 0,511% aqui, contra
+0,37% e 0,42% reportados pela Economática.
+
+Três regras decidem o número, e cada uma custa ao fundo em vez de premiá-lo. Onde os dois
+valores existem, vence o **maior**: uma classe não cobra menos do que a gestora declarou para
+ela, então medida abaixo da declarada é ruído e não desconto. Classe que investe através de
+outros fundos e **não pôde** ser medida fica sem taxa, e sai pela regra que já recusa ranquear
+o que não se consegue precificar. Todo o resto mantém o que declarou, porque o problema é de
+uma família de classes e não do mercado.
+
+Os dois números são publicados lado a lado, para que o leitor veja a diferença.
+
 ### Comparação só entre iguais
 
 Antes de aplicar os pesos, converto cada número na **posição relativa do fundo dentro do seu grupo** (fundos de título público competem com fundos de título público, fundos de crédito com fundos de crédito). Uso a classificação ANBIMA, que já vem dentro do arquivo de registro da CVM.
@@ -365,7 +405,7 @@ Eu **não** invento um termo de qualidade de grupo para "corrigir" a soma. Isso 
 
 ### Peso só vale para critério que separa
 
-Elegibilidade e pontuação respondem perguntas diferentes, e um critério pode ser decisivo na primeira e vazio na segunda. O perfil de liquidez filtra para resgate em até um dia e depois dá peso ao prazo de resgate, mas **214 dos 218 fundos que sobram liquidam em D+0**. Todos empatam, o percentil sai 0,5 para todo mundo, e o peso não decide nada enquanto os outros critérios valem 11% mais do que a configuração afirma.
+Elegibilidade e pontuação respondem perguntas diferentes, e um critério pode ser decisivo na primeira e vazio na segunda. O perfil de liquidez filtra para resgate em até um dia e depois dá peso ao prazo de resgate, mas **quase todo fundo que sobra liquida em D+0**. Todos empatam, o percentil sai 0,5 para todo mundo, e o peso não decide nada enquanto os outros critérios valem 11% mais do que a configuração afirma.
 
 Um critério cuja dispersão no universo elegível fica abaixo de um piso declarado é tratado como inerte: o peso vai proporcionalmente para os que ainda distinguem, e a saída nomeia o critério e publica os pesos **de fato aplicados** ao lado dos declarados. É regra sobre a forma do dado, aplicada igual a todo perfil e a toda data. O universo decide qual critério cai, a cada execução, e não eu.
 
@@ -513,7 +553,7 @@ Formato do `ranking.json`:
   "profiles": [{
     "profile_id": "varejo_liquidez",
     "label": "Retail: emergency reserve",
-    "eligible_universe_size": 218,
+    "eligible_universe_size": 195,
     "weights":           { "admin_fee": 30, "volatility": 20, "redemption_days": 10 },
     "effective_weights": { "admin_fee": 33, "volatility": 22 },
     "inert_metrics": ["redemption_days"],
@@ -671,14 +711,22 @@ motivo da seção 12.1.
 
 ### 12.1 Sobre a concentração em poucas gestoras
 
-Seis dos dez recomendados são do mesmo grupo. Isso é consequência coerente do critério, não
-sintoma de erro: essa gestora pratica taxas muito baixas nos fundos de casa, e custo é o maior
-peso dos dois perfis.
+Vale contar esta parte com a ordem em que aconteceu, porque a primeira conclusão estava errada.
 
-E há um número que muda a leitura, publicado em `manager_share`: **essa gestora já responde por
-27,5% dos 218 fundos do perfil de liquidez e por 20% dos 390 do perfil de prazo.** Três nomes
-numa lista de cinco não é a lista concentrando mais que o universo. É o universo que o varejo
-brasileiro tem. Sem esse número a concentração parece defeito; com ele, é aritmética.
+Até 24/08, sete das dez posições eram do Itaú, e o projeto explicava isso como aritmética
+coerente do critério: a gestora pratica taxas baixas nos fundos de casa e custo é o maior peso.
+O número publicado em `manager_share` parecia sustentar a leitura, porque a mesma gestora
+responde por cerca de um quarto do universo elegível.
+
+**A explicação estava incompleta.** Aquelas classes declaravam 0,040% e cobravam de 0,40% a
+1,81%. Quando a taxa passou a ser medida, o Itaú saiu inteiro da lista de liquidez e das duas
+listas sobraram nomes de sete casas diferentes. Boa parte da concentração era artefato de
+preenchimento, não retrato de mercado.
+
+O número de `manager_share` continua publicado e continua útil: **essa gestora responde por
+26,2% dos 195 fundos do perfil de liquidez e por 19,2% dos 348 do perfil de prazo**, e agora
+não aparece em nenhuma das duas listas. O que a história ensina é que um número que explica
+um resultado incômodo merece a mesma desconfiança que um número que o contradiz.
 
 ## 13. O que fica em aberto
 

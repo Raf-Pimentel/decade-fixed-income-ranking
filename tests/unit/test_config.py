@@ -121,10 +121,18 @@ def test_expected_funnel_is_monotonically_decreasing(universe) -> None:
 
 
 def test_expected_funnel_matches_what_was_measured(universe) -> None:
+    """The baseline is the data regression test, so moving it has to be
+    deliberate. Each number here was measured against the real CVM files, and
+    a change to any of them means either the source moved or the pipeline did.
+    """
     steps = universe.expected_funnel.steps
     assert steps["registered_classes"] == 36_594  # distinct, after collapsing 4 duplicates
     assert steps["above_min_shareholders"] == 787
-    assert steps["with_fee_and_redemption"] == 580
+    # 514, down from 580: a class that invests through other funds and whose
+    # fee could not be measured against the fund it holds counts as not having
+    # disclosed one. See D-047.
+    assert steps["with_fee_and_redemption"] == 514
+    assert universe.expected_funnel.by_target_investor == {"retail": 496, "qualified": 17}
 
 
 def test_lookback_window_is_configurable_not_hard_coded(universe) -> None:

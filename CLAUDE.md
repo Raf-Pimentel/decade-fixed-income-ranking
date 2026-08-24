@@ -15,12 +15,16 @@ Prazo: **28/08/2026, 20h**.
 Desenho completo: `docs/01-solution-design.md`. Checklist executável: `docs/02-checklist.md`.
 Diário de decisões: `docs/decisoes.md`. Guia de defesa: `docs/03-guia-de-defesa.md`.
 
-**Fases:** 1 ✓ · 2 ✓ · 3 ✓ · 4 ✓ · 5 ✓ · 5.5 teste no passado ✓ (**validado**: liquidez 2/3,
+**Fases:** 1 ✓ · 2 ✓ · 3 ✓ · 4 ✓ · 5 ✓ · 5.5 teste no passado ✓ (liquidez 3/3,
 prazo 3/3, contra critério de 2/3 por perfil) · 6 documentação ✓. **A entrega está pronta** e
 falta só o vídeo.
 
-Ler "validado" junto com o resto da tabela: o Top 5 bateu a mediana dos elegíveis em 2 de 6
-recortes e ficou abaixo do CDI nos 6, com vantagem entre −15 e +21 pontos-base. Ver D-044.
+Ler "validado" junto com o resto da tabela: o Top 5 bateu a mediana dos elegíveis em 6 de 6
+recortes, com vantagem entre +8 e +22 pontos-base, e ficou abaixo do CDI nos 6. Ver D-044.
+
+Esses números eram 2 de 6 até 24/08, quando a taxa deixou de ser lida no extrato e passou a
+ser medida contra o fundo que cada classe compra. O critério de sucesso não se moveu, e a
+regra foi escrita antes desta execução. Ver D-047.
 
 Estado detalhado e decisão pendente: topo de `docs/02-checklist.md`.
 
@@ -77,6 +81,7 @@ Cada linha tem teste de regressão em `tests/unit/test_traps.py`, `test_readers.
 | 10 | **Aspas duplas soltas em texto livre.** 194 no `extrato_fi_2025.csv`; o leitor engolia quebras de linha e morria com "CSV malformed" | `quote_char=None`: a CVM não usa aspas como delimitador |
 | 11 | **Prazo de resgate vem em dias úteis ou corridos**, misturados (`TP_DIA_PAGTO_RESGATE`) | Converter tudo para dias corridos na leitura. É o 2º maior peso do varejo |
 | 12 | **Extrato e lâmina nomeiam as mesmas colunas de forma diferente** (`QT_DIA_CONVERSAO_COTA` vs `QT_DIA_CONVERSAO_COTA_RESGATE`) | Dois mapeamentos separados; nunca reaproveitar um nome do outro arquivo |
+| 14 | **A taxa declarada no extrato não é o preço que o cliente paga**, para classes que investem através de outros fundos. A mesma classe declarava 0,400% em 2024 e declara 0,040% em 2025; há classes que declaravam 2,60% e hoje declaram 0,040%. No arquivo, 580 de 2.655 classes tiveram a taxa cair 3x ou mais entre os dois anos, e 235 foram parar em exatamente 0,040%. **Ler o campo e acreditar nele coloca no topo do ranking justamente quem preenche assim**, porque custo é o maior peso | Taxa **medida** contra o fundo master, via CDA: `1 − (crescimento da classe ÷ crescimento do master) ^ (1 ÷ anos)`. Onde os dois números existem, vence o maior. Alimentadora sem medição fica sem taxa e sai do universo. Caso de teste: `51998694000139` (declara 0,040%, cobra 0,396%). Ver D-047 e `docs/04-investigacao-taxa.md` |
 | 13 | **Uma carteira aparece no registro como vários fundos.** Uma gestora vende a mesma carteira por várias classes de distribuição, e a Caixa tem 12 sobre uma só. CNPJs diferentes, nomes diferentes, notas quase iguais: um Top 5 sem tratamento devolve a mesma exposição duas vezes. **Correlação não identifica isso** em pós-fixado, porque todo fundo segue a mesma curva e correlaciona acima de 0,99 | Mesma gestora **e** volatilidade anualizada da diferença entre as séries abaixo de 0,10% a.a. Caso de teste: `52239457000157` e `52239793000108` (Itaú Janeiro e Itaú Private Janeiro, 0,062% a.a.) |
 
 ---
@@ -97,14 +102,19 @@ Se o pipeline produzir números diferentes, ou a CVM mudou algo ou eu quebrei al
 | ≥ 200 observações | 2.924 | ±3% |
 | PL ≥ R$ 10 mi | 2.690 | ±3% |
 | ≥ 500 cotistas | 787 | ±3% |
-| Com taxa e prazo publicados | **580** | ±3% |
-| dos quais Público Geral | 559 | ±3% |
-| dos quais Qualificado | 19 | ±5% |
+| Com taxa e prazo **verificáveis** | **514** | ±3% |
+| dos quais Público Geral | 496 | ±3% |
+| dos quais Qualificado | 17 | ±5% |
 
 Reproduzido em 20/08/2026 pelo pipeline contra os arquivos completos, com desvio
 **0,00% em todas as etapas**. Os números da Fase 1 que divergiam foram corrigidos:
 o script exploratório usava 20 observações de um mês, o pipeline usa 200 de doze.
 A fonte da verdade é o pipeline. Ver D-029 em `docs/decisoes.md`.
+
+A última etapa foi reescrita em 24/08, de 580 para 514, quando a taxa deixou de ser lida no
+extrato e passou a ser medida. Classe que investe através de outros fundos e cujo custo não
+se consegue medir conta como não tendo divulgado taxa. O guardrail disparou sozinho, em
+−11,38%, que é para isso que ele existe. Ver D-047.
 
 Cobertura histórica esperada: 12m = 1.675 (93%) · 24m = 1.481 (82%) · 36m = 1.326 (74%).
 
@@ -193,7 +203,7 @@ minha e manual.** Nunca declarar "pronto" sem ter rodado e colado a saída.
 
 ```bash
 uv sync                                  # instalar
-uv run pytest -q                         # 288 testes
+uv run pytest -q                         # 305 testes
 uv run pytest --cov=src --cov-report=term-missing
 uv run ruff check . && uv run mypy src   # qualidade
 uv run ranking --reference-date 2025-12-31             # o ranking
@@ -208,5 +218,6 @@ uv run ranking --reference-date 2025-12-31 --validate  # + o teste fora da amost
 | Registro fundo/classe | `https://dados.cvm.gov.br/dados/FI/CAD/DADOS/registro_fundo_classe.zip` |
 | Extrato | `https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/extrato_fi_YYYY.csv` |
 | Lâmina | `https://dados.cvm.gov.br/dados/FI/DOC/LAMINA/DADOS/lamina_fi_YYYYMM.zip` |
+| Composição de carteira (CDA) | `https://dados.cvm.gov.br/dados/FI/DOC/CDA/DADOS/cda_fi_YYYYMM.zip`. Só o bloco `BLC_2`, que nomeia o fundo por trás de cada classe |
 | CDI (BCB série 12) | `https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados?formato=json` |
 | ANBIMA IMA | `https://www.anbima.com.br/informacoes/ima/arqs/ima_completo.xls` |

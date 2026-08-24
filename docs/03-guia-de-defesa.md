@@ -11,8 +11,8 @@ completo com 38 entradas, `02-checklist.md` é o que foi e o que não foi feito.
 
 Existem 36.594 classes de fundos registradas na CVM. Este projeto identifica os cinco melhores
 fundos de renda fixa para o investidor de varejo brasileiro, com data de referência 31/12/2025,
-usando só dados públicos. Ele reduz o universo a **580 fundos que um cliente de fato consegue
-comprar**, calcula dez números por fundo a partir da cota diária, compara cada fundo **apenas
+usando só dados públicos. Ele reduz o universo a **514 fundos que um cliente de fato consegue
+comprar e cujo custo se consegue verificar**, calcula dez números por fundo a partir da cota diária, compara cada fundo **apenas
 com fundos parecidos**, aplica pesos diferentes conforme quando o cliente precisa do dinheiro,
 e, antes de publicar, refaz o ranking mil vezes para testar se ele se sustenta. Roda com um
 comando, em cerca de 40 segundos, e foi validado fora da amostra.
@@ -23,19 +23,22 @@ comando, em cerca de 40 segundos, e foi validado fora da amostra.
 
 | Número | O que é |
 |---|---|
-| **36.594 → 580** | O funil inteiro, de todas as classes registradas ao universo investável |
-| **559** | Quantos desses são acessíveis ao varejo |
+| **36.594 → 514** | O funil inteiro, de todas as classes registradas ao universo investável |
+| **496** | Quantos desses são acessíveis ao varejo |
 | **14,3242% em 252 dias úteis** | CDI acumulado em 2025. A janela de 12 meses tem 252 dias, e é isso que faz o retorno publicado bater com o que o fundo divulga |
-| **40%** | Apenas 40% dos 580 fundos bateram o CDI. A mediana ficou **0,19% abaixo** |
+| **40%** | Apenas 40% dos fundos bateram o CDI. A mediana ficou **0,19% abaixo** |
 | **0,50%** | Taxa de administração mediana do universo, ao ano |
 | **6,3 milhões** | Linhas de informe diário lidas e validadas, em ~4 segundos |
 | **0,55%** | Fração das linhas que foi para quarentena |
-| **288** | Testes automatizados, dos quais 11 abrem o `ranking.json` entregue e testam o produto |
-| **214 de 218** | Fundos do perfil de liquidez que liquidam em D+0, de modo que prazo é filtro e não critério |
+| **305** | Testes automatizados, dos quais 11 abrem o `ranking.json` entregue e testam o produto |
+| **0,040% contra 1,814%** | O que o Itaú Janeiro declarava e o que ele cobra. Era o nº 2 das duas listas até a taxa passar a ser medida |
+| **235 classes em 0,040%** | Quantas foram parar exatamente nesse valor declarado depois da RCVM 175, vindas de até 2,60% |
+| **580 → 514** | O que a regra conservadora tirou do universo: alimentadoras cujo custo não se consegue verificar |
+| **D+0 quase sempre** | No perfil de liquidez, quase todo fundo que sobra liquida no mesmo dia, de modo que prazo é filtro e não critério |
 | **12 invólucros, 1 carteira** | Classes que a Caixa oferece sobre uma única carteira |
-| **p68 / p99 / p22** | Onde o Top 5 de liquidez ficou contra mil carteiras aleatórias, nas três datas |
-| **2 de 6 · 0 de 6** | Recortes em que o Top 5 bateu a mediana, e em que bateu o CDI |
-| **−15 a +21 pb** | A vantagem real sobre a mediana. Pequena nos dois sentidos |
+| **p92 / p96 / p95** | Onde o Top 5 de liquidez ficou contra mil carteiras aleatórias, nas três datas |
+| **6 de 6 · 0 de 6** | Recortes em que o Top 5 bateu a mediana, e em que bateu o CDI |
+| **+8 a +22 pb** | A vantagem real sobre a mediana. Positiva nos seis, e pequena |
 
 ---
 
@@ -44,40 +47,42 @@ comando, em cerca de 40 segundos, e foi validado fora da amostra.
 Janela de **12 meses: 01/01/2025 a 31/12/2025**, 252 dias úteis. Benchmark CDI para todos os
 grupos, declarado grupo a grupo no JSON.
 
-### Varejo, reserva de emergência · 218 elegíveis
+### Varejo, reserva de emergência · 195 elegíveis
 
 | # | Fundo | Taxa | Resgate | Rendeu | vs CDI | Nota grupo / universo |
 |---:|---|---:|---:|---:|---:|---:|
-| 1 | Itaú Crédito Bancário RF Crédito Privado | 0,040% | D+0 | 14,32% | −0,00% | 86,8 / 72,0 |
-| 2 | Itaú Janeiro RF Longo Prazo | 0,040% | D+0 | 17,16% | +2,84% | 74,6 / 70,7 |
-| 3 | Itaú Global Dinâmico RF Longo Prazo | 0,040% | D+0 | 14,83% | +0,51% | 75,0 / 71,5 |
-| 4 | BTG Pactual CDB I RF | 0,150% | D+0 | 14,26% | −0,06% | 74,1 / 63,7 |
-| 5 | Bradesco FIF Classe de Investimento RF | 0,150% | D+0 | 13,93% | −0,39% | 73,0 / 68,9 |
+| 1 | BTG Pactual CDB I RF | 0,150% | D+0 | 14,26% | −0,06% | 77,5 / 72,2 |
+| 2 | BB Previdenciário RF Referenciado DI | 0,202% | D+0 | 14,42% | +0,09% | 75,2 / 73,4 |
+| 3 | Galapagos Pinzon RF | 0,140% | D+0 | 14,21% | −0,12% | 73,5 / 68,1 |
+| 4 | Tivio Institucional RF Crédito Privado | 0,200% | D+0 | 14,71% | +0,39% | 70,9 / 65,5 |
+| 5 | Bradesco FIF Classe de Investimento RF | 0,150% | D+0 | 13,93% | −0,39% | 76,1 / 77,2 |
 
-**Peso redistribuído:** `redemption_days` valia 10 e não separa nada aqui, porque 214 dos 218
-liquidam em D+0. Os pesos de fato aplicados são taxa 33 · oscilação 22 · pior queda 17 ·
-tamanho 17 · ganho sobre CDI 11.
+**Peso redistribuído:** `redemption_days` valia 10 e não separa nada aqui, porque quase todo
+fundo que sobra liquida em D+0. Os pesos de fato aplicados são taxa 33 · oscilação 22 ·
+pior queda 17 · tamanho 17 · ganho sobre CDI 11.
 
-**Deixado de fora por repetir:** BTG Pactual Tesouro Selic repete o BTG Pactual CDB I.
-mesma gestora, séries que diferem em 0,036% ao ano. É uma carteira, não duas.
-
-### Varejo, dois anos ou mais · 390 elegíveis
+### Varejo, dois anos ou mais · 348 elegíveis
 
 | # | Fundo | Taxa | Resgate | Rendeu | vs CDI | Nota grupo / universo |
 |---:|---|---:|---:|---:|---:|---:|
-| 1 | Daycoval Títulos Públicos I | 0,050% | D+0 | 14,37% | +0,04% | 83,2 / **66,9** |
-| 2 | Itaú Janeiro RF Longo Prazo | 0,040% | D+0 | 17,16% | +2,84% | 89,9 / 86,8 |
-| 3 | Itaú Global Dinâmico RF Longo Prazo | 0,040% | D+0 | 14,83% | +0,51% | 82,5 / 81,7 |
-| 4 | Itaú RF Diferenciado Crédito Privado | 0,040% | D+2 | 14,62% | +0,30% | 82,0 / 77,1 |
-| 5 | BB RF Longo Prazo Corporate | 0,200% | D+0 | 14,83% | +0,51% | 85,1 / 78,7 |
+| 1 | Sicredi FIF RF Liquidez Empresarial DI | 0,150% | D+0 | 14,24% | −0,08% | 82,3 / **64,3** |
+| 2 | SulAmérica Exclusive FIF RF Referenciado DI | 0,150% | D+0 | 14,24% | −0,08% | 82,6 / **63,6** |
+| 3 | BB RF Longo Prazo Corporate | 0,202% | D+0 | 14,83% | +0,51% | 89,3 / 82,5 |
+| 4 | Absolute Atenas Seleção RF Crédito Privado | 0,194% | D+0 | 14,66% | +0,34% | 79,8 / 77,2 |
+| 5 | Sicredi FIF Institucional RF IRF-M LP | 0,180% | D+2 | 17,78% | +3,45% | 84,4 / 80,3 |
 
-**Repare no 1º colocado.** 83,2 contra os pares e **66,9** contra o universo inteiro: é o
-melhor de uma categoria que não é boa. As duas notas existem para você poder dizer isso antes
-que perguntem.
+**Repare nos dois primeiros.** 82,3 e 82,6 contra os pares, 64,3 e 63,6 contra o universo
+inteiro: são os melhores de uma categoria que não é boa. As duas notas existem para você
+poder dizer isso antes que perguntem.
 
-**Concentração:** o Itaú tem **27,5%** dos 218 fundos do perfil de liquidez e **20%** dos 390
-do perfil de prazo. Três nomes numa lista de cinco não é a lista concentrando. É o universo
-que o varejo brasileiro tem. Esse número está publicado no JSON e no `ranking.md`.
+**Duas taxas na tabela não são as declaradas.** O BB Corporate declarou 0,200% e cobra
+0,202%; o Absolute Atenas declarou 0,080% e cobra 0,194%. As duas foram medidas contra o
+fundo que cada classe compra, e o `ranking.json` publica os dois números lado a lado.
+
+**Concentração:** o Itaú tem **26,2%** dos 195 fundos do perfil de liquidez e **19,2%** dos
+348 do perfil de prazo, e não aparece em nenhuma das duas listas. Até 24/08 aparecia em sete
+das dez posições, com taxas declaradas de 0,040% que a medição mostrou serem de 0,40% a
+1,81%. Ver D-047.
 
 ---
 
@@ -126,24 +131,31 @@ elegíveis e contra **mil carteiras de cinco fundos sorteados do mesmo universo*
 
 | Perfil | Bateu o acaso em | Vantagem |
 |---|---|---|
-| Liquidez | 2 de 3 datas (p68, p99, p22) | −15 a +21 pb |
-| Prazo | 3 de 3 datas (p71, p94, p72) | −4 a +21 pb |
+| Liquidez | 3 de 3 datas (p92, p96, p95) | +9 a +22 pb |
+| Prazo | 3 de 3 datas (p86, p95, p94) | +8 a +18 pb |
 
 O critério, acima do percentil 60 em pelo menos 2 de 3 por perfil, estava **commitado antes**
 da execução, com data no histórico do git.
 
-**Diga o resto da tabela antes que perguntem.** O Top 5 bateu a mediana dos elegíveis em **2 de
-6** recortes e ficou **abaixo do CDI nos 6**. As medições saem do painel validado inteiro, não do
+**Estes números melhoraram em 24/08, e diga por quê antes que perguntem.** Até essa data eram
+2 de 3 e 3 de 3, com vantagem de −15 a +21 pb. O que mudou não foi o critério nem os pesos: a
+taxa deixou de ser lida no extrato e passou a ser medida contra o fundo que cada classe
+compra. Um método que melhora logo depois de o autor mexer em alguma coisa é exatamente o que
+um critério congelado existe para vigiar, então o essencial é a ordem dos fatos: a regra foi
+escrita e argumentada antes desta execução, e o critério não se moveu desde que foi commitado.
+Ver D-047.
+
+**Diga o resto da tabela antes que perguntem.** O Top 5 bateu a mediana dos elegíveis em **6 de
+6** recortes, por margens de 8 a 22 pontos-base, e ficou **abaixo do CDI nos 6**. As medições saem do painel validado inteiro, não do
 universo elegível no fim: um fundo escolhido em março que encolheu para fora do universo até
 dezembro entra na média com o que ele fez. Ler o resultado só de quem sobreviveu é o viés de
 sobrevivência que este teste existe para detectar.
 
-### 6. "p99 parece muito. É muito?"
+### 6. "p96 parece muito. É muito?"
 
-Não, e p22 também não é pouco. Fundos pós-fixados rendem todos perto do CDI, então a
-distribuição das carteiras aleatórias é estreita. **Num universo apertado, ficar no percentil 99
-é ganhar de quase todos por muito pouco, e ficar no 22 é perder de quase todos, também por
-muito pouco.** A vantagem real vai de −15 a +21 pontos-base. Num mercado onde a taxa mediana é
+Não. Fundos pós-fixados rendem todos perto do CDI, então a distribuição das carteiras
+aleatórias é estreita. **Num universo apertado, ficar no percentil 96 é ganhar de quase todos
+por muito pouco.** A vantagem real vai de +8 a +22 pontos-base. Num mercado onde a taxa mediana é
 0,50% ao ano, é exatamente a ordem de grandeza do que há para ganhar, e é pequena o bastante
 para que três cortes dentro de um ano não distingam método de sorte.
 
@@ -195,8 +207,8 @@ depois dele.
 universo elegível fica abaixo de um piso declarado é tratado como inerte e o peso vai para os
 que ainda separam. É regra sobre a **forma do dado**, escrita como `min_dispersion` em YAML,
 aplicada igual a todo perfil e a toda data: ninguém escolhe qual critério cai, o universo é que
-decide a cada execução. No perfil de liquidez cai o prazo de resgate, porque 214 dos 218 fundos
-liquidam em D+0. No perfil de prazo não cai nada (D-041).
+decide a cada execução. No perfil de liquidez cai o prazo de resgate, porque quase todo fundo
+que sobra liquida em D+0. No perfil de prazo não cai nada (D-041).
 
 ### 9. "Por que só CVM, e não a base da ANBIMA?"
 
@@ -279,11 +291,11 @@ só por desempenho, ignorando taxa e prazo?*
 
 | Fundo | Aparição total | Só desempenho |
 |---|---:|---:|
-| Itaú Crédito Bancário | 99% | **72%** |
-| Itaú Janeiro | 89% | **19%** |
-| BB RF Longo Prazo Corporate | 49% | **18%** |
-| Daycoval Títulos Públicos (1º do prazo) | 99% | **1%** |
-| Itaú Global Dinâmico | 74% | **0%** |
+| BB RF Longo Prazo Corporate (3º do prazo) | 78% | **20%** |
+| BTG Pactual CDB I (1º da liquidez) | 61% | **6%** |
+| Sicredi Institucional IRF-M LP | 42% | **5%** |
+| Sicredi Liquidez Empresarial (1º do prazo) | 97% | **0%** |
+| SulAmérica Exclusive | 83% | **0%** |
 
 Para quase todos, a resposta é **não**. Isso não é defeito. É o peso da taxa funcionando como
 projetado. Mas leva a uma frase que precisa estar na entrega:
@@ -291,8 +303,9 @@ projetado. Mas leva a uma frase que precisa estar na entrega:
 > Esta é, em grande parte, uma lista de **custo e liquidez**. Os cinco fundos não seriam os
 > mesmos se o critério fosse desempenho passado.
 
-Um fundo passa nos dois critérios com folga: o **Itaú Crédito Bancário**, 99% e 72%. É o único
-da lista escolhido tanto por custo quanto por desempenho.
+Um fundo se sustenta melhor que os outros nos dois critérios: o **BB RF Longo Prazo
+Corporate**, 78% e 20%. Nenhum dos dez sobrevive bem a um ranking só de desempenho, e é
+honesto dizer isso em vez de procurar o menos ruim.
 
 ---
 
@@ -300,7 +313,7 @@ da lista escolhido tanto por custo quanto por desempenho.
 
 | Tempo | Assunto | O que mostrar |
 |---|---|---|
-| 0:00–0:35 | O problema e o funil de 36.594 para 580 | `relatorio_qualidade.md` |
+| 0:00–0:35 | O problema e o funil de 36.594 para 514 | `relatorio_qualidade.md` |
 | 0:35–1:35 | Fui olhar o dado antes de codar, e a armadilha do `Data_Inicio` | D-003 |
 | 1:35–2:15 | Como decido o que é "melhor", e por que a taxa pesa mais | os 40% que bateram o CDI |
 | 2:15–2:55 | **Funciona?** O teste contra mil carteiras aleatórias | `validacao.md` |

@@ -11,15 +11,16 @@ Ao final de cada fase, apresento o resultado e espero aprovação antes de segui
 
 | | |
 |---|---|
-| Suíte | **288 testes verdes** · cobertura 93% nos módulos de cálculo |
+| Suíte | **305 testes verdes** · cobertura 93% nos módulos de cálculo |
 | `ruff`, `ruff format`, `mypy` | limpos |
 | Funil de qualidade | dentro do baseline, 0,00% de desvio |
-| Universo | **580 fundos** de 36.594 classes · 559 varejo |
+| Universo | **514 fundos** de 36.594 classes · 496 varejo |
 | Janela | 12 meses = **01/01/2025 a 31/12/2025**, 252 dias úteis, CDI 14,3242% |
 | Execução | `uv run ranking --reference-date 2025-12-31`, ~40 s |
 | Validação | `uv run ranking --reference-date 2025-12-31 --validate`, minutos |
 | Automação | rodando às segundas, 09:00 UTC, comitando em `saida/` |
-| **Teste no passado** | **validado**, com liquidez 2/3 e prazo 3/3, contra o critério de 2/3 por perfil (D-044) |
+| **Teste no passado** | **validado**, com liquidez 3/3 e prazo 3/3, contra o critério de 2/3 por perfil (D-044, revisto em D-047) |
+| Taxa | **medida** contra o fundo master, não lida no extrato (D-047) |
 
 Entregáveis versionados em `saida/`: `ranking.md` · `ranking.json` · `ranking.html` ·
 `relatorio_qualidade.md` · `validacao.md`. Mais `README.md`, `docs/` e o repositório.
@@ -27,9 +28,13 @@ Entregáveis versionados em `saida/`: `ranking.md` · `ranking.json` · `ranking
 ### O que o veredito de "validado" quer dizer, e o que não quer
 
 Passou no critério congelado antes de rodar. E, na mesma tabela: o Top 5 bateu a mediana dos
-elegíveis em **2 de 6** recortes e ficou **abaixo do CDI nos 6**, com vantagem entre −15 e
-+21 pontos-base. As medições saem do painel validado inteiro, não do universo elegível no fim,
+elegíveis em **6 de 6** recortes, com vantagem entre +8 e +22 pontos-base, e ficou **abaixo do
+CDI nos 6**. As medições saem do painel validado inteiro, não do universo elegível no fim,
 justamente para que fundo que saiu do universo entre na conta. Ver D-044.
+
+Esses números eram 2 de 6 e −15 a +21 pontos-base até 24/08. O que mudou foi a taxa deixar de
+ser lida no extrato e passar a ser medida contra o fundo que cada classe compra. O critério de
+sucesso não se moveu, e a regra foi escrita antes desta execução. Ver D-047.
 
 ### O que falta, e é tudo do Rafael
 

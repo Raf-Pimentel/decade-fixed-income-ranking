@@ -58,6 +58,11 @@ _REGISTRY_CLASS: dict[str, str] = {
     "Data_Inicio": "data_adaptacao_rcvm175",
     "Classificacao": "classificacao",
     "Classificacao_Anbima": "classificacao_anbima",
+    # "S" marks a class that invests through other funds rather than holding
+    # assets directly. The registry says so outright, which is better than
+    # guessing from the name, and it is what decides whether a fee can be
+    # measured against the fund behind it.
+    "Classe_Cotas": "classe_cotas",
     "Indicador_Desempenho": "indicador_desempenho",
     "Forma_Condominio": "forma_condominio",
     "Exclusivo": "exclusivo",
@@ -347,6 +352,41 @@ def read_factsheet(path: Path) -> pl.DataFrame:
         },
     )
     return _with_redemption_days(frame)
+
+
+_HOLDINGS = {
+    "CNPJ_FUNDO_CLASSE": "cnpj_classe",
+    "CNPJ_FUNDO_CLASSE_COTA": "cnpj_investido",
+    "VL_MERC_POS_FINAL": "valor",
+}
+
+
+def read_holdings(path: Path) -> pl.DataFrame:
+    """Which fund each class holds, and how much of it.
+
+    Block 2 of the portfolio composition file is the one that lists positions
+    in other funds, which is the only place the CVM names the fund behind a
+    feeder class. That link is what makes a fee measurable instead of merely
+    declared: see `ranking.transform.fees`.
+
+    Rows without a named fund are dropped rather than kept as unknown. A
+    position the file cannot identify is not a master, and carrying it forward
+    would only dilute the share that decides whether a class is a wrapper.
+    """
+    frame = _select_and_rename(read_latin1_csv(path), _HOLDINGS)
+    frame = _cast_present(
+        frame,
+        {
+            "cnpj_classe": _clean_cnpj("cnpj_classe"),
+            "cnpj_investido": _clean_cnpj("cnpj_investido"),
+            "valor": pl.col("valor").cast(pl.Float64, strict=False),
+        },
+    )
+    return frame.filter(
+        pl.col("cnpj_investido").is_not_null()
+        & (pl.col("cnpj_investido").str.len_chars() == 14)
+        & pl.col("valor").is_not_null()
+    )
 
 
 TERM_COLUMNS = ["cnpj_classe", "taxa_adm", "dias_resgate", "aplicacao_minima"]

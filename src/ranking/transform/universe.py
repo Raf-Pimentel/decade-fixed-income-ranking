@@ -76,8 +76,16 @@ def blank_undisclosed_fees(funds: pl.DataFrame) -> pl.DataFrame:
     """
     if "taxa_adm" not in funds.columns:
         return funds
+    # `taxa_adm_declarada` may already carry the filed value, put there by the
+    # fee measurement before this runs. Overwriting it with the measured figure
+    # would lose the very comparison the delivery exists to show.
+    declared = (
+        pl.col("taxa_adm_declarada")
+        if "taxa_adm_declarada" in funds.columns
+        else pl.col("taxa_adm")
+    )
     return funds.with_columns(
-        pl.col("taxa_adm").alias("taxa_adm_declarada"),
+        declared.alias("taxa_adm_declarada"),
         (pl.col("taxa_adm") == 0).fill_null(False).alias("taxa_zero_declarada"),
     ).with_columns(
         pl.when(pl.col("taxa_adm") == 0).then(None).otherwise(pl.col("taxa_adm")).alias("taxa_adm")

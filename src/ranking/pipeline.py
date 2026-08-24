@@ -30,7 +30,7 @@ from ranking.contracts import quality, schemas
 from ranking.extract import http, manifest, readers
 from ranking.publish import html, writers
 from ranking.rank import eligibility, robustness, scoring, selection
-from ranking.transform import metrics, panel, universe
+from ranking.transform import fees, metrics, panel, universe
 
 BUSINESS_DAYS_PER_YEAR = 252
 
@@ -82,6 +82,10 @@ class Inputs:
     statement: pl.DataFrame
     factsheet: pl.DataFrame
     cdi: pl.DataFrame
+    # Which fund each class holds. Empty when the composition file is absent,
+    # which leaves every fee as declared rather than stopping the run: a
+    # ranking without measured fees is worse, not unusable.
+    holdings: pl.DataFrame = field(default_factory=pl.DataFrame)
     manifest: dict[str, object] = field(default_factory=dict)
 
 
@@ -177,7 +181,9 @@ def _load_offline(input_dir: Path) -> Inputs:
         "registry_fund.csv",
         "statement.csv",
         "cdi.json",
+        "holdings.csv",
     ]
+    holdings_path = input_dir / "holdings.csv"
     return Inputs(
         daily=readers.read_daily_report(input_dir / "daily_report.csv"),
         registry=readers.read_registry(
@@ -186,6 +192,13 @@ def _load_offline(input_dir: Path) -> Inputs:
         statement=readers.read_statement(input_dir / "statement.csv"),
         factsheet=readers.read_factsheet(factsheet_path) if factsheet_path.exists() else empty,
         cdi=readers.read_cdi(input_dir / "cdi.json"),
+        holdings=(
+            readers.read_holdings(holdings_path)
+            if holdings_path.exists()
+            else pl.DataFrame(
+                schema={"cnpj_classe": pl.String, "cnpj_investido": pl.String, "valor": pl.Float64}
+            )
+        ),
         # An offline run is still a run, and it still has to be provable months
         # later. Hashing what was read costs nothing and closes the gap.
         manifest={
@@ -274,6 +287,29 @@ def _download(
         else pl.DataFrame(schema={"cnpj_classe": pl.String, "data": pl.Date})
     )
 
+    # The composition of the last month in the window is enough: a class is a
+    # wrapper for one fund or it is not, and that does not change week to week.
+    # One file rather than twelve keeps the cost of the measurement small.
+    last_year, last_month = months[-1]
+    stem = f"cda_fi_{last_year}{last_month:02d}"
+    holdings_archive = fetch("holdings", year=last_year, month=last_month)
+    holdings_member = http.resolve_url(
+        sources["holdings"].member or "", year=last_year, month=last_month
+    )
+    holdings_part = _parsed(
+        cache_dir,
+        stem,
+        entries[http.resolve_url(sources["holdings"].filename, year=last_year, month=last_month)],
+        partial(_read_member, holdings_archive, holdings_member, unpacked, readers.read_holdings),
+    )
+    holdings = (
+        pl.read_parquet(holdings_part)
+        if holdings_part is not None
+        else pl.DataFrame(
+            schema={"cnpj_classe": pl.String, "cnpj_investido": pl.String, "valor": pl.Float64}
+        )
+    )
+
     cdi = readers.read_cdi(fetch("cdi", start=start, end=end, year=end.year))
 
     manifest.write(entries, cache_dir / "manifest.json")
@@ -283,6 +319,7 @@ def _download(
         statement=statement,
         factsheet=factsheet,
         cdi=cdi,
+        holdings=holdings,
         manifest={name: entry.sha256 for name, entry in entries.items()},
     )
 
@@ -334,6 +371,31 @@ def run(
         if "data" in inputs.factsheet.columns
         else inputs.factsheet,
     )
+    # The fee decides more of the ranking than any other number, so it is
+    # measured against the fund each class actually holds rather than taken
+    # from the field the class filed. Classes with no single master keep the
+    # declared value. See `ranking.transform.fees` and decision D-047.
+    fee_links = fees.master_of(inputs.holdings, universe_config.fees.min_master_share)
+    # The registry says outright which classes invest through other funds, and
+    # that flag decides whether an unmeasured fee is trusted or discarded. It
+    # is deduplicated on the way in: the registry repeats keys, and a join that
+    # multiplies rows here would multiply funds later.
+    if "classe_cotas" in inputs.registry.columns:
+        terms = terms.join(
+            inputs.registry.select("cnpj_classe", "classe_cotas").unique(subset=["cnpj_classe"]),
+            on="cnpj_classe",
+            how="left",
+        )
+    terms = fees.reconcile(
+        terms,
+        fees.measured(
+            series,
+            fee_links,
+            metrics.BUSINESS_DAYS_PER_YEAR,
+            universe_config.fees.min_overlap_days,
+        ),
+    )
+
     # The observation floor is declared for a twelve-month window; a shorter
     # window has proportionally fewer business days, and demanding 200 of 64
     # would empty the universe rather than filter it.
@@ -718,6 +780,12 @@ def _rank_profile(
                     "pior_queda",
                     "dias_negativos",
                     "taxa_adm",
+                    # Both sides of the fee travel to the delivery. The filed
+                    # value is what the class told the CVM; the measured one is
+                    # what its quota gave up against the fund it holds. Where
+                    # they disagree, the reader is entitled to see by how much.
+                    "taxa_adm_declarada",
+                    "taxa_adm_medida",
                     "dias_resgate",
                     "patrimonio_medio",
                     "cotistas",

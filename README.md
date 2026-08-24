@@ -72,10 +72,12 @@ Given a reference date, the pipeline:
 2. **validates** every row against a declared schema. Rows that fail go to quarantine with a
    written reason, and the run stops altogether if more than 5% of a file is unusable;
 3. **selects** the funds a retail investor can actually buy, which takes 36,594 registered
-   classes down to 580, and checks the count at each step against a baseline measured in
+   classes down to 514, and checks the count at each step against a baseline measured in
    advance;
 4. **measures** return, risk, cost and liquidity for each fund over a window that is exactly
-   as long as its label says, using the daily quota, which already comes net of fees;
+   as long as its label says, using the daily quota, which already comes net of fees. The
+   fee itself is measured too, against the fund each class holds, rather than read off the
+   form the class filed;
 5. **ranks** each fund against funds like it, weighted by profile. If a criterion turns out
    to be a tie across the whole eligible pool, its weight moves to the criteria that can
    still tell funds apart;
@@ -96,7 +98,7 @@ and someone saving for three years.
 | --- | --- | --- |
 | Redemption | up to D+1 | up to D+30 |
 | Minimum investment | ≤ R$ 5,000 | ≤ R$ 50,000 |
-| Eligible funds | 218 | 390 |
+| Eligible funds | 195 | 348 |
 | Heaviest weight | admin fee | admin fee |
 | Then | volatility, worst fall | excess over CDI, return per unit of risk |
 
@@ -107,6 +109,40 @@ The weights are a declared choice rather than something derived, and the ones ac
 applied are published next to the ones declared. A criterion that every eligible fund ties on
 cannot separate anything, so its weight moves to the criteria that still can, and
 `ranking.json` says which criterion this happened to.
+
+## The fee is measured, not read
+
+Cost decides more of this ranking than anything else, which makes it the number the project
+can least afford to get wrong. The CVM statement carries a declared administration fee, and
+for one family of classes that figure is not the price the client pays.
+
+Under RCVM 175 a manager runs one portfolio and sells it through feeder classes, each filing
+its own statement. Some houses now file a nominal class-level figure there. In the file, 580
+of the 2,655 classes present in both 2024 and 2025 saw their declared fee fall by a factor of
+three or more, and 235 of them landed on exactly 0.040%. Some of those had declared 2.60% a
+year earlier. Nobody cuts a fee from 2.60% to 0.04%.
+
+So the fee is measured instead. A feeder puts nearly all of its money into one master fund,
+which means the two quota series are the same portfolio priced twice, and the only thing
+separating them is what the class keeps:
+
+```
+fee = 1 - (class growth / master growth) ^ (1 / years)
+```
+
+The link between class and master comes from the CVM's portfolio composition file. Nothing
+else is needed, and nothing depends on a form being filled in correctly. Checked against an
+outside source, the two funds where this mattered most measure 0.396% and 0.511% here,
+against 0.37% and 0.42% reported by Economática.
+
+Three rules settle the number, and each costs a fund rather than rewards it. Where both
+figures exist, the **higher** wins: a class does not charge less than its manager filed, so a
+lower measurement is noise rather than a discount. A class that invests through other funds
+and **could not** be measured is left with no fee, and drops out through the rule that
+already refuses to rank what cannot be priced. Everything else keeps what it filed, because
+the problem belongs to one family of classes and not to the market.
+
+Both figures are published side by side, so a reader can see the gap.
 
 ## One portfolio, one slot
 
@@ -138,21 +174,27 @@ five-fund portfolios drawn from that same universe.
 
 | Profile | Beat 1,000 random five-fund portfolios on | Edge over the median |
 | --- | --- | --- |
-| Emergency reserve | 2 of 3 dates (p68, p99, p22) | −15 to +21 bp |
-| Two years or more | 3 of 3 dates (p71, p94, p72) | −4 to +21 bp |
+| Emergency reserve | 3 of 3 dates (p92, p96, p95) | +9 to +22 bp |
+| Two years or more | 3 of 3 dates (p86, p95, p94) | +8 to +18 bp |
 
-**The verdict passes and the result is modest.** The top five beat the median of its universe
-in two of six cuts and trailed it in the other four, and it underperformed the CDI in all
-six. Post-fixed funds all return close to the CDI, so the whole distribution is only a few
-dozen basis points wide, and three cuts inside a single year cannot separate method from
-luck. Outcomes are read from the full validated panel rather than from the funds still
-eligible at the end, so a fund that shrank out of the universe is still carried into the
-average with whatever it did.
+**The verdict passes and the result is still modest.** The top five beat the median of its
+universe in all six cuts, by margins between eight and twenty-two basis points, and it
+underperformed the CDI in all six. Post-fixed funds all return close to the CDI, so the whole
+distribution is only a few dozen basis points wide, and three cuts inside a single year
+cannot separate method from luck. Outcomes are read from the full validated panel rather than
+from the funds still eligible at the end, so a fund that shrank out of the universe is still
+carried into the average with whatever it did.
+
+These numbers improved when the fee stopped being read off a form and started being measured.
+That is worth saying plainly, because a method that gets better right after its author
+changes something is exactly what a frozen success criterion exists to guard against: the
+rule was written down and argued before this test was re-run, and the criterion itself has
+not moved since it was committed.
 
 ## Development
 
 ```bash
-uv run pytest                     # 288 tests
+uv run pytest                     # 305 tests
 uv run pytest -m trap             # the CVM data-trap regressions
 uv run pytest -m invariant        # the financial invariants
 uv run ruff check . && uv run mypy src
@@ -212,6 +254,7 @@ why, is recorded in [`configs/sources.yaml`](configs/sources.yaml).
 | CVM daily report | quota, net assets, shareholders, subscriptions, redemptions |
 | CVM registry (RCVM 175) | classification, target investor, open or closed, exclusive |
 | CVM statement and factsheet | admin fee, redemption terms, minimum investment |
+| CVM portfolio composition (CDA) | which fund each class holds, which is what makes the fee measurable |
 | Central Bank series 12 | daily CDI |
 | ANBIMA | the fund classification that defines peer groups, which arrives inside the CVM registry |
 
@@ -234,8 +277,13 @@ funds because a filter had been written too loosely.
 
 - **It does not look inside the portfolios.** It measures outcomes rather than holdings, so
   two funds with the same return and risk look identical to it even if one holds Treasury
-  paper and the other holds private credit. The CVM publishes this data (CDA) and it is the
-  first item of future work.
+  paper and the other holds private credit. The composition file is read only to find the
+  fund behind each class, never for what that fund owns, and reading it properly is the first
+  item of future work.
+- **It can only measure the fee of a class that wraps a single fund.** A fund holding assets
+  directly has nothing to be compared against and keeps its declared figure, which is correct
+  for most of the market but unverified. A class that wraps a fund but also holds cash gives
+  a measurement that is a ceiling rather than an exact fee.
 - **It cannot see funds that closed.** It measures the past, in a single interest-rate
   regime, and the universe is optimistic by construction.
 - **It compares inflation-linked funds against the CDI**, because ANBIMA publishes the IMA as

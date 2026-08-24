@@ -31,6 +31,21 @@ filters:
   min_observations: 200            # business days of quota in the window
   require_fee_and_redemption: true # decision D-013: no recommendation without a price tag
 
+# The administration fee carries the heaviest weight of any criterion, and for
+# feeder classes the declared value is not what the client pays. It is measured
+# instead, against the fund the class actually holds.
+fees:
+  # How much of a class's fund holdings must sit in one fund before the gap
+  # between the two quota series can be read as a fee and nothing else. Below
+  # this the class is allocating between funds, and the gap would carry that
+  # allocation too. At 0.95 the residual is at most a twentieth of the series,
+  # which is smaller than the errors being corrected: measured on the delivered
+  # ranking, the declared fee was wrong by a factor of 11 to 45.
+  min_master_share: 0.95
+  # Shared history a pair needs before its fee is believed. Sixty business days
+  # is the same floor the duplicate rule uses.
+  min_overlap_days: 60
+
 data_quality:
   max_quarantined_share: 0.05      # above this the pipeline stops
   stale_quota_days: 10             # same quota for longer than this => out
@@ -81,12 +96,26 @@ expected_funnel:
     with_enough_observations: 2_924     # new step: the 200-day floor, never measured before
     above_min_assets: 2_690             # was 2_944, measured before the 200-day floor
     above_min_shareholders: 787         # was 1_714 at a 10-shareholder cut; see min_shareholders
-    # 580, not 520: the statement is now fetched for every year the window touches,
-    # not only the reference year. A fund that filed in 2024 and never refiled is in
-    # force in 2025, and fetching one year made it look as though it had never
-    # disclosed anything. The change came from phase 5.5, which needs earlier cut
-    # dates to work at all, and it improves the reference-date run too.
-    with_fee_and_redemption: 580
+    # 514, restated on 2026-08-24 and the second time this step has moved.
+    #
+    # It reached 580 when the statement began to be fetched for every year the
+    # window touches rather than only the reference year: a fund that filed in
+    # 2024 and never refiled is in force in 2025, and fetching one year made it
+    # look as though it had never disclosed anything.
+    #
+    # It fell to 514 when the fee stopped being taken from the filed field for
+    # classes that invest through other funds. That field turned out not to be
+    # the price the client pays: four classes in the previous top five filed
+    # 0.040% while charging between 0.45% and 1.81%. The fee is now measured
+    # against the fund each class holds, and a class whose fee cannot be
+    # measured is treated as not having disclosed one, which is exactly what
+    # this step has always removed. The 66 classes that left are feeders whose
+    # master could not be identified. See D-047.
+    #
+    # The guardrail fired on this change, at -11.38%, which is what it is for.
+    # The number below is restated because the definition changed, not because
+    # the tolerance was inconvenient.
+    with_fee_and_redemption: 514
   by_target_investor:
-    retail: 559      # was 502 before the statement was fetched for every year
-    qualified: 19    # same reason
+    retail: 496      # was 559 before the fee was measured rather than read
+    qualified: 17    # same reason

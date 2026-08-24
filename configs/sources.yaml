@@ -61,6 +61,20 @@ sources:
     encoding: latin-1
     separator: ";"
 
+  holdings:
+    label: "CVM portfolio composition (which fund each class holds)"
+    url: "https://dados.cvm.gov.br/dados/FI/DOC/CDA/DADOS/cda_fi_{yyyymm}.zip"
+    filename: "cda_fi_{yyyymm}.zip"
+    granularity: monthly
+    encoding: latin-1
+    separator: ";"
+    # Only block 2 is read. It lists positions in other funds, and it is the
+    # only place the CVM names the fund behind a feeder class. That link is
+    # what turns the administration fee from a declared number into a measured
+    # one, which matters because the declared field is not the price the client
+    # pays for a whole family of classes. See decision D-047.
+    member: "cda_fi_BLC_2_{yyyymm}.csv"
+
   cdi:
     label: "Central Bank CDI daily rate (series 12)"
     url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados?formato=json&dataInicial={start}&dataFinal={end}"

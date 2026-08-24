@@ -62,6 +62,7 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-044](#d-044) | 21/08 | 6 | **O teste no passado mede o universo inteiro, e diz contra o que** | 🎥📊 |
 | [D-045](#d-045) | 21/08 | 6 | Os entregáveis moram no repositório | 📊 |
 | [D-046](#d-046) | 21/08 | 6 | Testes que leem o arquivo entregue | 🎥 |
+| [D-047](#d-047) | 24/08 | 6 | **A taxa declarada não é o preço do cliente. Passa a ser medida** | 🔄🎥📊 |
 
 ---
 
@@ -1239,6 +1240,105 @@ Que todo fundo publica seu regime tributário e as duas notas.
 **A regra que fica:** todo campo publicado precisa de um teste que falharia se ele saísse
 vazio, com o rótulo errado, ou repetido. É a fronteira que outro time consome.
 
+
+---
+
+## D-047: A taxa declarada não é o preço do cliente, então ela passa a ser medida 🔄🎥📊
+
+**Quando:** 24/08, Fase 6 · **Reverte:** a fonte da taxa em D-002 · **Segue de:** D-040
+
+**O que me fez olhar.** Comparei o Top 5 entregue com listas publicadas na imprensa. Não
+para copiar critério de ninguém, e sim para ver se o nosso resultado fazia o mínimo de
+sentido. A InfoMoney, com dados da Economática, publica os 25 fundos de renda fixa com mais
+cotistas do mercado. Dois dos nossos estavam lá, com cotistas e retorno batendo com os
+nossos, e com a taxa divergindo dez vezes: 0,37% e 0,42% deles, contra 0,040% nossos.
+
+**O que estava errado.** Nossa leitura do `extrato_fi_2025.csv` estava correta: o arquivo
+diz 0,040000 mesmo. O que não é verdade é o que o campo significa. A mesma classe, o mesmo
+CNPJ, declarava 0,400% em 2024 e 0,900% em 2023. Não é vírgula deslocada, porque há classes
+que declaravam 2,60% e hoje declaram 0,040%. É a forma como uma casa passou a preencher o
+extrato depois da reorganização em classes da RCVM 175. No arquivo inteiro, **580 das 2.655
+classes presentes nos dois anos tiveram a taxa cair três vezes ou mais**, e 235 foram parar
+em exatamente 0,040%.
+
+**Duas hipóteses minhas caíram antes de eu achar a certa.** Primeiro achei que o custo
+estivesse escondido no fundo master. Baixei a composição de carteira, achei os masters, e
+eles declaram 0,000%. Depois achei que fosse erro de digitação de uma casa decimal. Não é:
+de 0,900 para 0,040 não é uma casa.
+
+**Decisão: a taxa deixa de ser lida e passa a ser medida.** Uma classe alimentadora aplica
+quase todo o patrimônio num único fundo. As duas séries de cota são a mesma carteira, e a
+única coisa que as separa é o que a classe cobra. Então
+
+> taxa = 1 − (crescimento da classe ÷ crescimento do master) ^ (1 ÷ anos)
+
+Não depende de campo declarado, de plano de contas, nem de fonte externa. Precisa de duas
+séries de cota, que já temos, e de saber quem é o master, que vem da CDA. **A CDA é fonte
+nova no projeto**, e é o único lugar em que a CVM nomeia o fundo por trás de uma classe.
+
+A definição é geométrica e não a diferença simples de retornos. Taxa é cobrada todo dia, e
+compõe. Anualizar a diferença simples daria números diferentes conforme o tamanho da janela,
+o que penalizaria justamente os fundos com menos histórico. Há um teste que mede a mesma
+taxa em 126 e em 252 dias e exige o mesmo resultado.
+
+**O que a medição devolveu**, sobre os 252 dias úteis de 2025:
+
+| Fundo | Declarada | Medida | Erro |
+|---|---:|---:|---:|
+| Itaú Janeiro RF Longo Prazo | 0,040% | 1,814% | 45x |
+| Itaú Global Dinâmico | 0,040% | 0,641% | 16x |
+| Itaú RF Diferenciado | 0,040% | 0,511% | 13x |
+| Itaú Crédito Bancário | 0,040% | 0,396% | 10x |
+| BB RF Longo Prazo Corporate | 0,200% | 0,202% | 1,0x |
+
+O BB estar certo é a parte que impede a conclusão preguiçosa. O campo não é inútil, e a CVM
+não está errada: é uma casa específica preenchendo de um jeito específico. A correção
+precisava ser cirúrgica, não geral.
+
+O número medido bate com a Economática por caminho independente: 0,396% e 0,511% contra
+0,37% e 0,42%.
+
+**Três regras conservadoras, e cada uma custa ao fundo em vez de premiá-lo.**
+
+1. Onde os dois números existem, **vence o maior**. Uma classe não cobra menos do que a
+   própria gestora declarou para ela, então medida abaixo da declarada é ruído ou a parcela
+   que a alimentadora mantém fora do master, não desconto. Acreditar numa taxa baixa demais
+   promove um fundo a um Top 5 que ele não ganhou.
+2. Classe que investe através de outros fundos e **não pôde ser medida fica sem taxa**. O
+   campo é não confiável exatamente para esse tipo de classe, então para elas ele não é
+   evidência. O fundo sai pela regra que já existia, a de não recomendar o que não se
+   consegue precificar. É o mesmo tratamento que a taxa declarada como zero já recebia.
+3. Fundo que detém ativos diretamente mantém o que declarou. O problema é de uma família de
+   classes, não do mercado.
+
+**O corte de 95% ficou onde estava.** Uma classe precisa ter 95% do que aplica em fundos
+concentrado num só para que a diferença entre as séries seja taxa e nada mais. Baixá-lo para
+90% alcançaria mais 483 classes, e teria salvado o Itaú Global Dinâmico, que aplica 90% e
+ficou sem medição. Mas eu escolhi 95% e escrevi a justificativa antes de rodar, e mexer nele
+depois de ver qual Top 5 ele produz é a regra 11. O Global Dinâmico saiu pela regra 2, que é
+mais severa e não depende de eu escolher um número olhando para o resultado.
+
+**O guardrail do funil disparou, em −11,38%**, e foi assim que se soube o tamanho do efeito:
+a última etapa caiu de 580 para 514 classes. O baseline foi reescrito com o motivo ao lado,
+como em D-029. Sessenta e seis alimentadoras cujo master não se pôde identificar deixaram o
+universo.
+
+**O Top 5 mudou nos dois perfis, e o Itaú saiu inteiro do de liquidez.** O Itaú Janeiro era
+o número 2 das duas listas e cobra 1,814%, contra uma mediana de universo de 0,50%. Ele não
+era um dos mais baratos do Brasil: era dos caros, e o maior peso do ranking o tratava como o
+mais barato possível.
+
+**O que isso obriga a reler.** O projeto registrou, em quatro lugares, que a concentração no
+Itaú refletia o mercado que o varejo tem. Parte dela era artefato de preenchimento. A frase
+foi corrigida onde aparecia.
+
+**Limite declarado.** A medição só alcança classes alimentadoras, porque um fundo que detém
+títulos diretamente não tem contra o que ser comparado. E quando a alimentadora mantém caixa
+ao lado do master, a diferença carrega também essa parcela, o que faz da medida um teto e
+não um valor exato. O corte de 95% é o que limita esse erro.
+
+Trilha completa, com origem e hash de cada arquivo, em `docs/04-investigacao-taxa.md`.
+
 ---
 
 # Material para a apresentação
@@ -1311,7 +1411,7 @@ vazio, com o rótulo errado, ou repetido. É a fronteira que outro time consome.
 
 | Tempo | Assunto | Apoio |
 |---|---|---|
-| 0:00–0:35 | O problema, e o funil de 36.594 para 975 | `relatorio_qualidade.md` |
+| 0:00–0:35 | O problema, e o funil de 36.594 para 514 | `relatorio_qualidade.md` |
 | 0:35–1:35 | **Fui olhar o dado antes de codar.** As armadilhas que não geram erro nenhum | D-001, D-002, D-003 |
 | 1:35–2:15 | Como decido o que é "melhor": grupo de pares, perfil, e por que a **taxa pesa mais que a rentabilidade**, com o dado de que só 40% bateram o CDI | D-008, D-012 |
 | 2:15–2:55 | **Funciona?** O teste no passado e o percentil contra carteiras aleatórias | D-017, `validacao.md` |
