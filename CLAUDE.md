@@ -1,9 +1,9 @@
-# CLAUDE.md — contrato de trabalho deste projeto
+# CLAUDE.md: o contrato de trabalho deste projeto
 
 > Leia este arquivo antes de escrever qualquer linha de código. Ele existe para me
 > impedir de derivar do plano, de reintroduzir complexidade cortada, e de esquecer
-> armadilhas já descobertas. Se algo aqui conflitar com uma ideia nova, **este arquivo ganha**
-> — a menos que haja decisão explícita em contrário.
+> armadilhas já descobertas. Se algo aqui conflitar com uma ideia nova, **este arquivo ganha**,
+> a menos que haja decisão explícita em contrário.
 
 ## O que é o projeto
 
@@ -16,8 +16,8 @@ Desenho completo: `docs/01-solution-design.md`. Checklist executável: `docs/02-
 Diário de decisões: `docs/decisoes.md`. Guia de defesa: `docs/03-guia-de-defesa.md`.
 
 **Fases:** 1 ✓ · 2 ✓ · 3 ✓ · 4 ✓ · 5 ✓ · 5.5 teste no passado ✓ (**validado**: liquidez 2/3,
-prazo 3/3, contra critério de 2/3 por perfil) · 6 documentação ✓ — **entrega pronta**, falta só
-o vídeo.
+prazo 3/3, contra critério de 2/3 por perfil) · 6 documentação ✓. **A entrega está pronta** e
+falta só o vídeo.
 
 Ler "validado" junto com o resto da tabela: o Top 5 bateu a mediana dos elegíveis em 2 de 6
 recortes e ficou abaixo do CDI nos 6, com vantagem entre −15 e +21 pontos-base. Ver D-044.
@@ -37,7 +37,7 @@ Estado detalhado e decisão pendente: topo de `docs/02-checklist.md`.
 4. **Rodar duas vezes com a mesma `data_ref` dá o mesmo resultado.** Se não der,
    é bug, não característica.
 5. **Toda decisão não óbvia vira uma entrada em `docs/decisoes.md` no momento em que é
-   tomada** — nunca no final do projeto. Se eu reverter uma decisão, **não apago a original**:
+   tomada**, e nunca no final do projeto. Se eu reverter uma decisão, **não apago a original**:
    abro entrada nova marcada como reversão. As reversões são o material mais valioso da
    apresentação final. Ao fim de cada fase, alimento também as seções "Surpresas",
    "Números que valem citar" e "Esqueleto do vídeo" do mesmo arquivo.
@@ -49,16 +49,16 @@ Estado detalhado e decisão pendente: topo de `docs/02-checklist.md`.
    que não tenha um motivo escrito ao lado.
 10. **Parar e apresentar a cada etapa, não só a cada fase.** O ritmo definido é
     de aprovação por etapa (ex.: dentro da Fase 3, apresento a extração, espero o ok, depois
-    a validação). Objetivo: dominar o código o suficiente para defendê-lo no vídeo — módulo
+    a validação). O objetivo é dominar o código o suficiente para defendê-lo no vídeo. Módulo
     que não se consegue explicar em duas frases é módulo para simplificar ou apagar.
 11. **Proibido ajustar pesos, cortes ou métricas depois de ver o resultado do teste no passado
-    (Fase 5.5).** Se eu mexer até passar, não validei nada — decorei o segundo semestre de 2025.
+    (Fase 5.5).** Se eu mexer até passar, não validei nada. Decorei o segundo semestre de 2025.
     O critério de sucesso está congelado na seção 8.1 do desenho. Resultado ruim se reporta,
     não se conserta.
 
 ---
 
-## Armadilhas dos dados — já custaram investigação, não redescobrir
+## Armadilhas dos dados que já custaram investigação
 
 Cada linha tem teste de regressão em `tests/unit/test_traps.py`, `test_readers.py` ou
 `test_selection.py`.
@@ -67,7 +67,7 @@ Cada linha tem teste de regressão em `tests/unit/test_traps.py`, `test_readers.
 |---|---|---|
 | 1 | **O informe diário é por CLASSE, não por fundo**, desde jan/2024. As colunas são `CNPJ_FUNDO_CLASSE` e `ID_SUBCLASSE`. Usar o formato antigo cruza errado **e não gera erro nenhum** | Teste que falha se a coluna esperada não existir; join sempre por `cnpj_classe` normalizado |
 | 2 | **`cad_fi.csv` está obsoleto.** Cobre 10,3% das classes de renda fixa e tem 0% de `TAXA_ADM` preenchida | Taxa e prazo vêm de `EXTRATO` e `LAMINA`. `cad_fi.csv` só como último recurso |
-| 3 | **`Data_Inicio` do registro NÃO é a idade do fundo** — é a data de adaptação à RCVM 175 (idêntica a `Data_Adaptacao_RCVM175`). 66% do universo parece ter menos de 1 ano; a idade real mediana é **7,4 anos** | Idade sempre de `registro_fundo.Data_Constituicao` ou da 1ª cota observada. Teste com o caso `00068305000135` (registro diz 2025-05-12, real é 1994-05-26) |
+| 3 | **`Data_Inicio` do registro NÃO é a idade do fundo.** É a data de adaptação à RCVM 175 (idêntica a `Data_Adaptacao_RCVM175`). 66% do universo parece ter menos de 1 ano; a idade real mediana é **7,4 anos** | Idade sempre de `registro_fundo.Data_Constituicao` ou da 1ª cota observada. Teste com o caso `00068305000135` (registro diz 2025-05-12, real é 1994-05-26) |
 | 4 | **CNPJ vem em dois formatos.** `registro_classe`: `00332266000131` · `inf_diario`: `00.017.024/0001-53` | Normalizar para 14 dígitos na leitura, sempre. Teste de propriedade |
 | 5 | **Linhas de subclasse duplicam a série.** `ID_SUBCLASSE` preenchido = linha de subclasse | Filtrar `ID_SUBCLASSE` nulo para obter o nível classe |
 | 6 | **A CVM sobrescreve arquivos** em retificação, sem versionar | `manifesto.json` com SHA-256 de cada arquivo baixado |
@@ -77,11 +77,11 @@ Cada linha tem teste de regressão em `tests/unit/test_traps.py`, `test_readers.
 | 10 | **Aspas duplas soltas em texto livre.** 194 no `extrato_fi_2025.csv`; o leitor engolia quebras de linha e morria com "CSV malformed" | `quote_char=None`: a CVM não usa aspas como delimitador |
 | 11 | **Prazo de resgate vem em dias úteis ou corridos**, misturados (`TP_DIA_PAGTO_RESGATE`) | Converter tudo para dias corridos na leitura. É o 2º maior peso do varejo |
 | 12 | **Extrato e lâmina nomeiam as mesmas colunas de forma diferente** (`QT_DIA_CONVERSAO_COTA` vs `QT_DIA_CONVERSAO_COTA_RESGATE`) | Dois mapeamentos separados; nunca reaproveitar um nome do outro arquivo |
-| 13 | **Uma carteira aparece no registro como vários fundos.** Uma gestora vende a mesma carteira por várias classes de distribuição — a Caixa tem 12 sobre uma só. CNPJs diferentes, nomes diferentes, notas quase iguais: um Top 5 sem tratamento devolve a mesma exposição duas vezes. **Correlação não identifica isso** em pós-fixado, porque todo fundo segue a mesma curva e correlaciona acima de 0,99 | Mesma gestora **e** volatilidade anualizada da diferença entre as séries abaixo de 0,10% a.a. Caso de teste: `52239457000157` e `52239793000108` (Itaú Janeiro e Itaú Private Janeiro, 0,062% a.a.) |
+| 13 | **Uma carteira aparece no registro como vários fundos.** Uma gestora vende a mesma carteira por várias classes de distribuição, e a Caixa tem 12 sobre uma só. CNPJs diferentes, nomes diferentes, notas quase iguais: um Top 5 sem tratamento devolve a mesma exposição duas vezes. **Correlação não identifica isso** em pós-fixado, porque todo fundo segue a mesma curva e correlaciona acima de 0,99 | Mesma gestora **e** volatilidade anualizada da diferença entre as séries abaixo de 0,10% a.a. Caso de teste: `52239457000157` e `52239793000108` (Itaú Janeiro e Itaú Private Janeiro, 0,062% a.a.) |
 
 ---
 
-## Baseline de qualidade — o funil tem que bater
+## Baseline de qualidade: o funil tem que bater
 
 Medido em 19/08/2026 sobre os arquivos reais. **É o teste de regressão dos dados.**
 Se o pipeline produzir números diferentes, ou a CVM mudou algo ou eu quebrei alguma coisa.
@@ -98,8 +98,8 @@ Se o pipeline produzir números diferentes, ou a CVM mudou algo ou eu quebrei al
 | PL ≥ R$ 10 mi | 2.690 | ±3% |
 | ≥ 500 cotistas | 787 | ±3% |
 | Com taxa e prazo publicados | **580** | ±3% |
-| — dos quais Público Geral | 559 | ±3% |
-| — dos quais Qualificado | 19 | ±5% |
+| dos quais Público Geral | 559 | ±3% |
+| dos quais Qualificado | 19 | ±5% |
 
 Reproduzido em 20/08/2026 pelo pipeline contra os arquivos completos, com desvio
 **0,00% em todas as etapas**. Os números da Fase 1 que divergiam foram corrigidos:
@@ -116,13 +116,13 @@ Este funil é impresso a cada execução em `saida/relatorio_qualidade.md`.
 
 Para cada unidade de trabalho, nesta ordem, sem pular:
 
-1. **Vermelho** — escrevo o teste com o caso mais simples possível. Rodo. Vejo falhar.
+1. **Vermelho.** Escrevo o teste com o caso mais simples possível. Rodo. Vejo falhar.
    Se passar de primeira, o teste está errado.
-2. **Verde** — escrevo o mínimo para passar. Feio é permitido aqui.
-3. **Refatoro** — limpo com a suíte verde. Só agora penso em elegância.
-4. **Caso de borda** — adiciono o teste do caso chato (série vazia, um ponto só, todos
+2. **Verde.** Escrevo o mínimo para passar. Feio é permitido aqui.
+3. **Refatoro.** Limpo com a suíte verde. Só agora penso em elegância.
+4. **Caso de borda.** Adiciono o teste do caso chato (série vazia, um ponto só, todos
    os valores iguais, NaN no meio, fundo que nasceu no meio do período).
-5. **Commit** — mensagem no formato `tipo(escopo): descrição`.
+5. **Commit.** Mensagem no formato `tipo(escopo): descrição`.
 
 **Ordem de escrita dentro de cada etapa:** contrato de dados → teste → função → integração.
 
@@ -142,19 +142,19 @@ congelados no repositório. Nunca baixar da internet dentro de um teste.
 
 **A regra que separa as quatro primeiras da quinta:** as quatro olham para dentro e pegam
 função errada. A quinta olha para o arquivo entregue e pega a maquinaria certa produzindo
-resposta errada — janela com rótulo errado, lista com a mesma carteira duas vezes, peso que
+resposta errada: janela com rótulo errado, lista com a mesma carteira duas vezes, peso que
 empata para todo mundo, campo de contrato publicado vazio. Nenhum desses quebra função
 nenhuma. **Todo campo publicado precisa de um teste que falharia se ele saísse vazio, com o
 rótulo errado, ou repetido.**
 
 ---
 
-## Stack aprovada — nada além disto sem justificar
+## Stack aprovada, e nada além disto sem justificar
 
 `polars` · `numpy` · `httpx` · `tenacity` · `pandera` · `pydantic` · `typer` · `pyyaml`
 · `pytest` · `pytest-cov` · `ruff` · `mypy` · `uv`
 
-## Lista negra — já foi avaliado e cortado, não reintroduzir
+## Lista negra: já foi avaliado e cortado, não reintroduzir
 
 DuckDB · Spark/Dask · Airflow/Prefect/Dagster · camadas bronze/silver/gold ·
 structlog · Great Expectations · banco de dados · API REST · cache distribuído ·

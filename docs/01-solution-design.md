@@ -1,4 +1,4 @@
-# Fase 1 — Desenho da Solução
+# Fase 1: desenho da solução
 
 **Projeto:** Ranking de fundos de renda fixa brasileiros
 **Data de referência:** 31/12/2025
@@ -10,13 +10,13 @@
 
 Existem milhares de fundos de renda fixa registrados no Brasil. A pergunta é: **quais são os cinco melhores para um cliente?**
 
-"Melhor" não tem uma resposta única. Depende de quanto o cliente pode investir, de quando ele vai precisar do dinheiro de volta, e de quanto risco ele aguenta. Então o trabalho tem duas partes: **medir** os fundos de forma correta, e **decidir** o que "melhor" significa — deixando essa decisão explícita e fácil de mudar.
+"Melhor" não tem uma resposta única. Depende de quanto o cliente pode investir, de quando ele vai precisar do dinheiro de volta, e de quanto risco ele aguenta. Então o trabalho tem duas partes: **medir** os fundos de forma correta, e **decidir** o que "melhor" significa, deixando essa decisão explícita e fácil de mudar.
 
 ---
 
 ## 2. A ideia, em um parágrafo
 
-Eu pego todos os fundos de renda fixa que um cliente comum consegue de fato comprar. Para cada um, calculo dez métricas a partir do valor da cota de 2025: quanto rendeu, quanto oscilou, quanto caiu no pior momento, quanto cobra de taxa, em quantos dias devolve o dinheiro, qual o tamanho do fundo, etc. Comparo cada fundo **apenas com fundos parecidos com ele** — um fundo que só compra título público não disputa com um que compra dívida de empresa. Somo esses números com pesos que dependem do perfil do cliente. Aí, antes de publicar, **testo se o resultado se sustenta**: refaço a conta mil vezes mexendo levemente nos dados e nos pesos, e só recomendo os fundos que continuam aparecendo no topo. O resultado final não é "o fundo nº 1", é **"estes cinco são consistentemente bons, e a ordem entre eles não significa muita coisa"**.
+Eu pego todos os fundos de renda fixa que um cliente comum consegue de fato comprar. Para cada um, calculo dez métricas a partir do valor da cota de 2025: quanto rendeu, quanto oscilou, quanto caiu no pior momento, quanto cobra de taxa, em quantos dias devolve o dinheiro, qual o tamanho do fundo, etc. Comparo cada fundo **apenas com fundos parecidos com ele**, de modo que um fundo que só compra título público não disputa com um que compra dívida de empresa. Somo esses números com pesos que dependem do perfil do cliente. Aí, antes de publicar, **testo se o resultado se sustenta**: refaço a conta mil vezes mexendo levemente nos dados e nos pesos, e só recomendo os fundos que continuam aparecendo no topo. O resultado final não é "o fundo nº 1". É **"estes cinco são consistentemente bons, e a ordem entre eles não significa muita coisa"**.
 
 ---
 
@@ -60,11 +60,11 @@ Tudo é público e baixável sem cadastro. Três fontes:
 
 | Fonte | O que traz | Formato |
 |---|---|---|
-| **CVM — Informe Diário** | Valor da cota, patrimônio, nº de cotistas, aplicações e resgates de cada dia | 1 arquivo ZIP por mês |
-| **CVM — Registro de Fundos e Classes** | Nome, gestor, classificação, público-alvo, se é aberto/exclusivo | 1 arquivo ZIP (foto do momento) |
-| **CVM — Extrato e Lâmina** | Taxa de administração, taxa de performance, prazo de resgate, aplicação mínima | Extrato: 1 por ano · Lâmina: 1 por mês |
-| **Banco Central — série 12** | Taxa CDI de cada dia | API JSON |
-| **ANBIMA — classificação** | O grupo de comparação de cada fundo, que é dentro do que todo percentil é calculado | Chega dentro do registro da CVM |
+| **CVM, Informe Diário** | Valor da cota, patrimônio, nº de cotistas, aplicações e resgates de cada dia | 1 arquivo ZIP por mês |
+| **CVM, Registro de Fundos e Classes** | Nome, gestor, classificação, público-alvo, se é aberto/exclusivo | 1 arquivo ZIP (foto do momento) |
+| **CVM, Extrato e Lâmina** | Taxa de administração, taxa de performance, prazo de resgate, aplicação mínima | Extrato: 1 por ano · Lâmina: 1 por mês |
+| **Banco Central, série 12** | Taxa CDI de cada dia | API JSON |
+| **ANBIMA, classificação** | O grupo de comparação de cada fundo, que é dentro do que todo percentil é calculado | Chega dentro do registro da CVM |
 
 Volume total para rodar o projeto: **cerca de 15 arquivos, ~200 MB**.
 
@@ -80,13 +80,13 @@ Uma janela que termina numa data passada não se reconstrói a partir disso.
 
 Medi o custo antes de aceitá-lo: **91,8% do universo de varejo é corretamente servido pelo CDI,
 8,2% precisaria de IMA-B, e prefixado puro é zero.** E a comparação intra-grupo absorve a maior
-parte do resto — um benchmark deslocado move todos os 8,2% juntos, e a ordem por excesso dentro
+parte do resto: um benchmark deslocado move todos os 8,2% juntos, e a ordem por excesso dentro
 do grupo não muda. **O que ela não absorve** é o retorno por unidade de risco, que divide esse
 excesso deslocado por volatilidades diferentes; ali a ordem muda. Então o efeito não é nulo:
 é limitado a 8,2% do universo e a uma das duas métricas de desempenho. Ver D-030.
 
 Por isso `benchmark_by_group` sai preenchido grupo a grupo no `ranking.json`, nomeando CDI em
-cada um. Um campo vazio seria pior que um campo ausente — leria como se a pergunta tivesse sido
+cada um. Um campo vazio seria pior que um campo ausente, porque leria como se a pergunta tivesse sido
 feita e voltado sem resposta.
 
 **O que a ANBIMA fornece, e é o que mais importa aqui, é a classificação** que define os grupos
@@ -97,20 +97,20 @@ dela que cada percentil é calculado.
 
 ## 5. As etapas do projeto
 
-Seis etapas. Cada uma é uma pasta de código, recebe uma coisa e devolve outra. Nenhuma depende de como a anterior foi escrita por dentro — só do formato do que ela devolve.
+Seis etapas. Cada uma é uma pasta de código, recebe uma coisa e devolve outra. Nenhuma depende de como a anterior foi escrita por dentro, só do formato do que ela devolve.
 
-### Etapa 1 — Baixar
+### Etapa 1: baixar
 
 | | |
 |---|---|
 | **Entrada** | Data de referência (`2025-12-31`) e quantos meses de histórico |
 | **Saída** | Arquivos originais salvos em `dados/brutos/`, mais um `manifesto.json` com o nome, o tamanho e a impressão digital (hash) de cada arquivo |
 | **O que faz** | Baixa os arquivos da CVM, do Banco Central e da ANBIMA. Se a conexão falhar, tenta de novo 3 vezes com espera crescente. Se o arquivo já existe e a impressão digital bate, não baixa de novo |
-| **Tolerância a falha** | Três camadas: **repetição** (3 tentativas com espera crescente), **disjuntor** (após 5 falhas seguidas no mesmo servidor, para de insistir e falha com mensagem clara em vez de travar), e **verificação de conteúdo** (a CVM devolve página de erro com status 200 — confiro se o arquivo é mesmo um ZIP antes de aceitar) |
+| **Tolerância a falha** | Três camadas: **repetição** (3 tentativas com espera crescente), **disjuntor** (após 5 falhas seguidas no mesmo servidor, para de insistir e falha com mensagem clara em vez de travar), e **verificação de conteúdo** (a CVM devolve página de erro com status 200, então confiro se o arquivo é mesmo um ZIP antes de aceitar) |
 | **Por que o manifesto** | A CVM **sobrescreve os arquivos** quando corrige um dado, sem avisar e sem manter versão. O manifesto é a única forma de eu saber, daqui a três meses, com qual versão do dado o ranking foi feito |
-| **Cache de leitura** | Cada arquivo mensal é lido uma vez e guardado como Parquet sob um nome que carrega o SHA-256 do arquivo de origem. Ler é a metade cara da execução — 280 MB de texto latin-1 separado por ponto e vírgula custam mais que o download depois que os arquivos estão em disco. **A chave é o hash, não o nome**: arquivo retificado tem hash diferente, erra o cache e é lido de novo. Cache por nome de arquivo serviria número velho para sempre, sem avisar |
+| **Cache de leitura** | Cada arquivo mensal é lido uma vez e guardado como Parquet sob um nome que carrega o SHA-256 do arquivo de origem. Ler é a metade cara da execução: 280 MB de texto latin-1 separado por ponto e vírgula custam mais que o download depois que os arquivos estão em disco. **A chave é o hash, não o nome**: arquivo retificado tem hash diferente, erra o cache e é lido de novo. Cache por nome de arquivo serviria número velho para sempre, sem avisar |
 
-### Etapa 2 — Conferir
+### Etapa 2: conferir
 
 | | |
 |---|---|
@@ -127,14 +127,14 @@ Checagens:
 | Data não é do futuro em relação à data de referência | descarto a linha |
 | Não há duas linhas para o mesmo fundo no mesmo dia | fico com a última |
 | Cota não repetiu o mesmo valor por mais de 10 dias úteis | marco o fundo como parado e tiro da disputa |
-| Variação diária acima de 20% | **marco, mas não descarto** — pode ser amortização legítima |
+| Variação diária acima de 20% | **marco, mas não descarto**, porque pode ser amortização legítima |
 | Fundo tem pelo menos 200 dias de cota no período | tiro da disputa |
 
 **Regra de freio:** se mais de 5% das linhas de um arquivo forem descartadas, o programa **para com erro**. Prefiro não entregar ranking a entregar um ranking torto sem ninguém perceber.
 
 **E nada é descartado em silêncio:** toda linha rejeitada vai para quarentena **com o motivo escrito**. Filtro que não se consegue inspecionar é indistinguível de bug.
 
-### Etapa 3 — Juntar
+### Etapa 3: juntar
 
 | | |
 |---|---|
@@ -144,7 +144,7 @@ Checagens:
 
 Aqui mora a parte mais difícil do projeto, explicada na seção 10.
 
-### Etapa 4 — Calcular
+### Etapa 4: calcular
 
 | | |
 |---|---|
@@ -154,7 +154,7 @@ Aqui mora a parte mais difícil do projeto, explicada na seção 10.
 
 Cada fórmula é uma função pequena com teste próprio. Exemplos de teste: uma série de cota constante tem que dar rentabilidade zero; uma série que dobra tem que dar 100%; a rentabilidade acumulada calculada dia a dia tem que bater com a calculada ponta a ponta.
 
-### Etapa 5 — Ranquear
+### Etapa 5: ranquear
 
 | | |
 |---|---|
@@ -162,7 +162,7 @@ Cada fórmula é uma função pequena com teste próprio. Exemplos de teste: uma
 | **Saída** | Uma lista ordenada por perfil, com nota e com o **grau de confiança** de cada posição |
 | **O que faz** | Converte cada número em posição relativa dentro do grupo de fundos parecidos, aplica os pesos, e depois testa se o resultado aguenta (seção 8) |
 
-### Etapa 6 — Publicar
+### Etapa 6: publicar
 
 | | |
 |---|---|
@@ -176,7 +176,7 @@ Cada fórmula é uma função pequena com teste próprio. Exemplos de teste: uma
 uv run ranking --reference-date 2025-12-31
 ```
 
-Um comando. Mesmo comando, mesma data, mesmo resultado. Acrescentar `--validate` roda também o teste fora da amostra e escreve `validacao.md` — minutos em vez de segundos, porque roda o pipeline quatro vezes.
+Um comando. Mesmo comando, mesma data, mesmo resultado. Acrescentar `--validate` roda também o teste fora da amostra e escreve `validacao.md`. Leva minutos em vez de segundos, porque roda o pipeline quatro vezes.
 
 A linha de comando é casca fina. O programa inteiro é uma função, e outro time a importa sem precisar de shell:
 
@@ -191,9 +191,9 @@ resultado.payload.profiles[0].top[0].name
 
 ## 5.1 Como garanto a qualidade dos dados
 
-Três camadas. Nenhuma delas é uma ferramenta pesada — são três perguntas diferentes.
+Três camadas. Nenhuma delas é uma ferramenta pesada. São três perguntas diferentes.
 
-### Camada 1 — O dado tem a forma certa? (contrato)
+### Camada 1: o dado tem a forma certa? (contrato)
 
 Cada tabela tem um **schema declarado em um arquivo**, não checagens espalhadas pelo código. O schema diz o tipo de cada coluna, se aceita vazio, a faixa de valores e o que é chave única.
 
@@ -210,7 +210,7 @@ InformeDiario = Schema(
 
 O dado passa por isso **na entrada de cada etapa**. Se não bater, não passa. A vantagem de ser declarativo: o schema é legível por quem não escreveu o código, e serve de documentação viva do que o pipeline espera.
 
-### Camada 2 — O dado faz sentido? (regras de negócio)
+### Camada 2: o dado faz sentido? (regras de negócio)
 
 Coisas que o schema não pega, porque dependem de conhecer o mercado. Cada regra é uma função com nome e teste próprio:
 
@@ -224,7 +224,7 @@ Coisas que o schema não pega, porque dependem de conhecer o mercado. Cada regra
 
 Linha rejeitada não some: vai para um arquivo de quarentena **com o motivo**. Assim eu consigo olhar o que foi descartado em vez de confiar que estava tudo bem.
 
-### Camada 3 — O resultado bate com o que eu já sei? (regressão de dados)
+### Camada 3: o resultado bate com o que eu já sei? (regressão de dados)
 
 Esta é a camada que mais me protege, e é de graça.
 
@@ -251,7 +251,7 @@ O ciclo é sempre o mesmo, e não pulo etapa:
 
 **vermelho** (escrevo o teste, vejo falhar) → **verde** (escrevo o mínimo para passar) → **refatoro** (limpo com a suíte verde) → **borda** (adiciono o caso chato).
 
-Se um teste passa de primeira, ele está errado — não testa o que eu acho que testa.
+Se um teste passa de primeira, ele está errado, porque não testa o que eu acho que testa.
 
 ### Os cinco tipos de teste, e por que cada um existe
 
@@ -265,11 +265,11 @@ Se um teste passa de primeira, ele está errado — não testa o que eu acho que
 
 Mais um: **arquivo dourado**. Congelo o `ranking.json` de uma fixture. Se ele mudar sem eu ter mexido de propósito, algo aconteceu.
 
-**Por que o quinto tipo existe.** Os quatro primeiros olham para dentro e pegam função errada. Nenhum deles pega uma janela de treze meses rotulada como doze, uma lista com a mesma carteira em duas posições, um peso que empata para todo fundo do universo, ou um campo de contrato publicado vazio. Nada disso quebra função nenhuma — tudo isso atravessa uma suíte verde. A regra que fica: **todo campo publicado precisa de um teste que falharia se ele saísse vazio, com o rótulo errado, ou repetido.**
+**Por que o quinto tipo existe.** Os quatro primeiros olham para dentro e pegam função errada. Nenhum deles pega uma janela de treze meses rotulada como doze, uma lista com a mesma carteira em duas posições, um peso que empata para todo fundo do universo, ou um campo de contrato publicado vazio. Nada disso quebra função nenhuma, e tudo isso atravessa uma suíte verde. A regra que fica: **todo campo publicado precisa de um teste que falharia se ele saísse vazio, com o rótulo errado, ou repetido.**
 
 ### Fixtures
 
-Recortes **reais e pequenos** da CVM — 20 fundos, 60 dias — congelados no repositório. Nenhum teste baixa da internet: teste que depende de rede não é teste, é aposta.
+Recortes **reais e pequenos** da CVM, com 20 fundos e 60 dias, congelados no repositório. Nenhum teste baixa da internet: teste que depende de rede não é teste, é aposta.
 
 ### O que eu não testo
 
@@ -306,17 +306,17 @@ Medi a disponibilidade real de histórico dos 1.801 fundos:
 | 36 meses | 1.326 | 74% |
 | 60 meses | 1.094 | 61% |
 
-Cada ano a mais de histórico custa cerca de 10% do universo. Além disso, 2021–2023 teve a Selic indo de 2% a 13,75% — um mundo diferente do de 2025. Esticar a janela mistura dois regimes e ainda enche a amostra de fundos velhos e grandes que sobreviveram, o que enviesa o resultado.
+Cada ano a mais de histórico custa cerca de 10% do universo. Além disso, 2021–2023 teve a Selic indo de 2% a 13,75%, um mundo diferente do de 2025. Esticar a janela mistura dois regimes e ainda enche a amostra de fundos velhos e grandes que sobreviveram, o que enviesa o resultado.
 
 **Uso 12 meses para pontuar** e reporto 3, 6 e 24 meses junto, para quem quiser discordar do meu critério com os números na mão. A janela é um parâmetro de configuração.
 
-**E doze meses são doze meses.** A janela é fechada nas duas pontas e contada a partir da própria data de referência: 31/12/2025 menos doze meses começa em **01/01/2025** e contém **252 dias úteis**, contra os 14,3242% que o CDI fez no ano-calendário. Começar no primeiro dia do mês doze meses atrás daria 01/12/2024, treze meses, 273 dias e um CDI de 15,39% — sem quebrar nada, porque fundo e benchmark continuariam compostos sobre a mesma janela e o excesso continuaria coerente. O que sairia errado é só o que o leitor consegue conferir: um retorno que não bate com o que o próprio fundo publica. Por isso o `ranking.json` publica `window_start` como data, não só a contagem de meses — contagem de mês ninguém confere, duas datas qualquer um confere.
+**E doze meses são doze meses.** A janela é fechada nas duas pontas e contada a partir da própria data de referência: 31/12/2025 menos doze meses começa em **01/01/2025** e contém **252 dias úteis**, contra os 14,3242% que o CDI fez no ano-calendário. Começar no primeiro dia do mês doze meses atrás daria 01/12/2024, treze meses, 273 dias e um CDI de 15,39%, sem quebrar nada, porque fundo e benchmark continuariam compostos sobre a mesma janela e o excesso continuaria coerente. O que sairia errado é só o que o leitor consegue conferir: um retorno que não bate com o que o próprio fundo publica. Por isso o `ranking.json` publica `window_start` como data, e não só a contagem de meses: contagem de mês ninguém confere, duas datas qualquer um confere.
 
 ---
 
 ## 7. Dois perfis de cliente
 
-Não inventei personas. Usei **a divisão que a própria CVM faz** — o campo "público-alvo" do registro — porque é ela que determina o que o cliente pode legalmente comprar.
+Não inventei personas. Usei **a divisão que a própria CVM faz**, o campo "público-alvo" do registro, porque é ela que determina o que o cliente pode legalmente comprar.
 
 | | **Varejo** | **Qualificado** |
 |---|---|---|
@@ -335,17 +335,17 @@ Não inventei personas. Usei **a divisão que a própria CVM faz** — o campo "
 | Ganho sobre o CDI | 15 | **25** |
 | Retorno por unidade de risco | 15 | 20 |
 | Pior queda | 10 | 15 |
-| Oscilação | 5 | — |
+| Oscilação | 5 | |
 | Tamanho e estabilidade | 10 | 10 |
 | **Total** | **100** | **100** |
 
-**Por que a taxa é o maior peso do varejo, e não a rentabilidade.** Essa é a decisão menos óbvia do projeto, então vale a justificativa: em renda fixa, a taxa é o único número que se sabe com certeza sobre o **futuro**. A rentabilidade passada de 12 meses é, em boa parte, CDI — que todo fundo pegou igual — mais um prêmio de risco de crédito que ainda não deu problema. A taxa, ao contrário, vai ser cobrada em 2026 exatamente como foi em 2025. Dar peso maior ao que persiste é mais defensável do que dar peso maior ao que não persiste.
+**Por que a taxa é o maior peso do varejo, e não a rentabilidade.** Essa é a decisão menos óbvia do projeto, então vale a justificativa: em renda fixa, a taxa é o único número que se sabe com certeza sobre o **futuro**. A rentabilidade passada de 12 meses é, em boa parte, CDI, que todo fundo pegou igual, mais um prêmio de risco de crédito que ainda não deu problema. A taxa, ao contrário, vai ser cobrada em 2026 exatamente como foi em 2025. Dar peso maior ao que persiste é mais defensável do que dar peso maior ao que não persiste.
 
 ### Comparação só entre iguais
 
 Antes de aplicar os pesos, converto cada número na **posição relativa do fundo dentro do seu grupo** (fundos de título público competem com fundos de título público, fundos de crédito com fundos de crédito). Uso a classificação ANBIMA, que já vem dentro do arquivo de registro da CVM.
 
-Sem isso, o ranking viraria automaticamente "os cinco fundos que tomaram mais risco de crédito" — porque em 2025 eles renderam mais, e o problema deles ainda não apareceu.
+Sem isso, o ranking viraria automaticamente "os cinco fundos que tomaram mais risco de crédito", porque em 2025 eles renderam mais e o problema deles ainda não apareceu.
 
 ### Duas notas, porque percentil é sempre relativo a alguma coisa
 
@@ -353,21 +353,21 @@ Comparar dentro do grupo responde *este fundo é bom para o que ele é?*, que é
 
 Então todo fundo publica duas notas: a nota contra os pares, que decide o ranking, e a mesma nota recalculada contra **todo o universo elegível do perfil**. Quando as duas se afastam, o fundo é o melhor de uma categoria que não é boa. Na entrega de 31/12/2025 o primeiro colocado do perfil de prazo tira 83,2 no grupo e 66,9 no universo, e quem lê tem direito de saber disso antes de comprar.
 
-Eu **não** invento um termo de qualidade de grupo para "corrigir" a soma. Isso exigiria afirmar que uma categoria vale mais que outra — exatamente o julgamento que a comparação intra-grupo existe para não precisar fazer. Publicar as duas notas devolve o julgamento a quem lê.
+Eu **não** invento um termo de qualidade de grupo para "corrigir" a soma. Isso exigiria afirmar que uma categoria vale mais que outra, exatamente o julgamento que a comparação intra-grupo existe para não precisar fazer. Publicar as duas notas devolve o julgamento a quem lê.
 
 ### Peso só vale para critério que separa
 
-Elegibilidade e pontuação respondem perguntas diferentes, e um critério pode ser decisivo na primeira e vazio na segunda. O perfil de liquidez filtra para resgate em até um dia e depois dá peso ao prazo de resgate — mas **214 dos 218 fundos que sobram liquidam em D+0**. Todos empatam, o percentil sai 0,5 para todo mundo, e o peso não decide nada enquanto os outros critérios valem 11% mais do que a configuração afirma.
+Elegibilidade e pontuação respondem perguntas diferentes, e um critério pode ser decisivo na primeira e vazio na segunda. O perfil de liquidez filtra para resgate em até um dia e depois dá peso ao prazo de resgate, mas **214 dos 218 fundos que sobram liquidam em D+0**. Todos empatam, o percentil sai 0,5 para todo mundo, e o peso não decide nada enquanto os outros critérios valem 11% mais do que a configuração afirma.
 
-Um critério cuja dispersão no universo elegível fica abaixo de um piso declarado é tratado como inerte: o peso vai proporcionalmente para os que ainda distinguem, e a saída nomeia o critério e publica os pesos **de fato aplicados** ao lado dos declarados. É regra sobre a forma do dado, aplicada igual a todo perfil e a toda data — o universo decide qual critério cai, a cada execução, não eu.
+Um critério cuja dispersão no universo elegível fica abaixo de um piso declarado é tratado como inerte: o peso vai proporcionalmente para os que ainda distinguem, e a saída nomeia o critério e publica os pesos **de fato aplicados** ao lado dos declarados. É regra sobre a forma do dado, aplicada igual a todo perfil e a toda data. O universo decide qual critério cai, a cada execução, e não eu.
 
 ### Cinco fundos, não cinco notas
 
 Uma nota ranqueia fundos um a um. Uma lista de cinco é consumida de uma vez, por alguém que vai carregar os cinco.
 
-Uma gestora brasileira roda uma carteira e a vende por várias classes de distribuição — a Caixa tem **doze** sobre uma só carteira de renda fixa. Cada uma é classe separada no registro, cada uma é elegível, cada uma tira quase a mesma nota. Um Top 5 com duas delas entrega quatro exposições sem avisar.
+Uma gestora brasileira roda uma carteira e a vende por várias classes de distribuição, e a Caixa tem **doze** sobre uma só carteira de renda fixa. Cada uma é classe separada no registro, cada uma é elegível, cada uma tira quase a mesma nota. Um Top 5 com duas delas entrega quatro exposições sem avisar.
 
-Dois fundos contam como um quando **a mesma gestora roda os dois** e a diferença entre suas séries de retorno quase não oscila — volatilidade anualizada da diferença abaixo de 0,10% ao ano. Correlação não serve aqui e não é usada: todo fundo pós-fixado segue a mesma curva de um dia e correlaciona acima de 0,99 com todos os outros, então qualquer limiar alto o bastante para pegar um gêmeo também marca metade do universo. A pergunta certa não é *estes dois se movem junto*, é *quanto estes dois discordam*: dois invólucros de uma carteira diferem só pela taxa, que é arrasto constante e não gera variância.
+Dois fundos contam como um quando **a mesma gestora roda os dois** e a diferença entre suas séries de retorno quase não oscila, com volatilidade anualizada da diferença abaixo de 0,10% ao ano. Correlação não serve aqui e não é usada: todo fundo pós-fixado segue a mesma curva de um dia e correlaciona acima de 0,99 com todos os outros, então qualquer limiar alto o bastante para pegar um gêmeo também marca metade do universo. A pergunta certa não é *estes dois se movem junto*, é *quanto estes dois discordam*: dois invólucros de uma carteira diferem só pela taxa, que é arrasto constante e não gera variância.
 
 O fundo deixado de fora sai publicado ao lado da lista, com nome, o fundo que ele repete e a distância entre os dois.
 
@@ -377,34 +377,34 @@ O fundo deixado de fora sai publicado ao lado da lista, com nome, o fundo que el
 
 Esta é a parte que separa uma lista bonita de uma recomendação honesta.
 
-Com 12 meses de dados diários, a incerteza sobre o "retorno por unidade de risco" de um fundo é **grande — da ordem de ±1,5**. Isso significa que a diferença entre o 1º e o 15º colocado, muitas vezes, **não existe de verdade**: é ruído. Publicar "este é o melhor fundo do Brasil" com esse nível de incerteza seria desonesto.
+Com 12 meses de dados diários, a incerteza sobre o "retorno por unidade de risco" de um fundo é **grande, da ordem de ±1,5**. Isso significa que a diferença entre o 1º e o 15º colocado, muitas vezes, **não existe de verdade**: é ruído. Publicar "este é o melhor fundo do Brasil" com esse nível de incerteza seria desonesto.
 
 Então faço duas coisas antes de publicar:
 
-**Teste 1 — os dados poderiam ter sido diferentes.** Reembaralho a série de retornos de cada fundo em blocos (preservando o comportamento de dias seguidos) e refaço todos os cálculos. Mil vezes.
+**Teste 1: os dados poderiam ter sido diferentes.** Reembaralho a série de retornos de cada fundo em blocos (preservando o comportamento de dias seguidos) e refaço todos os cálculos. Mil vezes.
 
-**Teste 2 — meus pesos poderiam ser outros.** Sorteio variações nos pesos, dentro de faixas razoáveis (a taxa do varejo pode valer entre 20 e 30, não entre 0 e 100). Mil vezes.
+**Teste 2: meus pesos poderiam ser outros.** Sorteio variações nos pesos, dentro de faixas razoáveis (a taxa do varejo pode valer entre 20 e 30, não entre 0 e 100). Mil vezes.
 
 Depois, para cada fundo, conto: **em quantas das mil simulações ele apareceu entre os cinco primeiros?**
 
-O Top 5 final são os cinco com maior taxa de aparecimento — não os cinco com maior nota pontual. E cada um sai na entrega com o número junto:
+O Top 5 final são os cinco com maior taxa de aparecimento, e não os cinco com maior nota pontual. E cada um sai na entrega com o número junto:
 
-> **1. Fundo X** — apareceu no Top 5 em **91%** das simulações
-> **2. Fundo Y** — apareceu no Top 5 em **88%** das simulações
+> **1. Fundo X** apareceu no Top 5 em **91%** das simulações
+> **2. Fundo Y** apareceu no Top 5 em **88%** das simulações
 
-Um fundo que só é primeiro na conta exata, e some quando eu mexo um pouco nos pesos, **não é uma boa recomendação** — e esse teste revela isso.
+Um fundo que só é primeiro na conta exata, e some quando eu mexo um pouco nos pesos, **não é uma boa recomendação**, e esse teste revela isso.
 
 Isso também responde à crítica mais óbvia que se pode fazer ao projeto: *"os pesos são arbitrários"*. São. Mas eu mostro o quanto o resultado depende deles.
 
 ### Três detalhes da reamostragem que decidem se ela significa alguma coisa
 
-**Cada fundo sorteia os próprios blocos.** A grandeza estimada é idiossincrática: quanto da vantagem *deste* fundo sobre aquele é sorte de amostra. Dar a todos o mesmo calendário reamostrado preserva o comovimento do mercado, o que soa conservador e é o contrário — move a seção transversal inteira junta, deixa a ordem relativa quase intacta e devolve sobrevivência perto de 100% para um ranking que ninguém estressou. O preço é que um ano simulado não contém crash comum. Está declarado, e é o mais barato dos dois erros.
+**Cada fundo sorteia os próprios blocos.** A grandeza estimada é idiossincrática: quanto da vantagem *deste* fundo sobre aquele é sorte de amostra. Dar a todos o mesmo calendário reamostrado preserva o comovimento do mercado, o que soa conservador e é o contrário: move a seção transversal inteira junta, deixa a ordem relativa quase intacta e devolve sobrevivência perto de 100% para um ranking que ninguém estressou. O preço é que um ano simulado não contém crash comum. Está declarado, e é o mais barato dos dois erros.
 
-**O benchmark é reamostrado junto com o fundo.** Excesso é diferença entre duas séries compostas, e as duas precisam ser compostas sobre os mesmos dias. Medir um ano reamostrado do fundo contra o CDI do ano-calendário enviesa todo excesso — e como retorno por unidade de risco divide essa diferença pela volatilidade, um viés que se cancelaria num ranking por excesso não se cancela ali: ele reordena, a favor dos fundos mais voláteis.
+**O benchmark é reamostrado junto com o fundo.** Excesso é diferença entre duas séries compostas, e as duas precisam ser compostas sobre os mesmos dias. Medir um ano reamostrado do fundo contra o CDI do ano-calendário enviesa todo excesso. E como retorno por unidade de risco divide essa diferença pela volatilidade, um viés que se cancelaria num ranking por excesso não se cancela ali: ele reordena, a favor dos fundos mais voláteis.
 
 **Cada fundo mantém o próprio comprimento de histórico.** Truncar o painel no fundo mais curto jogaria fora um quinto da evidência de todo mundo para acomodar o mais novo.
 
-Com os três no lugar, as taxas de aparição ocupam a faixa de 31% a 99%, em vez do aglomerado de 97% a 100% que uma reamostragem de calendário comum produz. O ranking não ficou menos confiável — ele parou de afirmar uma confiança que não tinha.
+Com os três no lugar, as taxas de aparição ocupam a faixa de 31% a 99%, em vez do aglomerado de 97% a 100% que uma reamostragem de calendário comum produz. O ranking não ficou menos confiável. Ele parou de afirmar uma confiança que não tinha.
 
 ---
 
@@ -422,11 +422,11 @@ Rodo o pipeline inteiro fingindo que hoje é 30 de junho de 2025. Mesmo código,
 uv run ranking --reference-date 2025-12-31 --validate
 ```
 
-Por dentro, isso é o pipeline inteiro rodado quatro vezes — uma por data de corte, mais a final que fornece a régua. Mesmo código, mesma configuração, nenhuma linha nova.
+Por dentro, isso é o pipeline inteiro rodado quatro vezes: uma por data de corte, mais a final que fornece a régua. Mesmo código, mesma configuração, nenhuma linha nova.
 
-Congelo o Top 5 que sair. Depois meço quanto esses cinco fundos renderam de **julho a dezembro de 2025** — período que o ranking não viu.
+Congelo o Top 5 que sair. Depois meço quanto esses cinco fundos renderam de **julho a dezembro de 2025**, período que o ranking não viu.
 
-Se o point-in-time da Etapa 1 estiver correto, isso é literalmente um comando. **É aqui que a disciplina de "nenhuma linha com data posterior entra no cálculo" para de ser virtude teórica e vira benefício concreto.** Se o teste for difícil de fazer, é sinal de que o point-in-time está furado — o próprio teste vira uma auditoria da arquitetura.
+Se o point-in-time da Etapa 1 estiver correto, isso é literalmente um comando. **É aqui que a disciplina de "nenhuma linha com data posterior entra no cálculo" para de ser virtude teórica e vira benefício concreto.** Se o teste for difícil de fazer, é sinal de que o point-in-time está furado, e o próprio teste vira uma auditoria da arquitetura.
 
 ### Contra o que comparo
 
@@ -447,25 +447,25 @@ E ela não é experimento limpo, o que o relatório diz com essas palavras: segu
 
 Do **painel validado inteiro**, não do universo elegível na data final.
 
-A diferença não é detalhe. Um fundo escolhido em março que encolheu abaixo do corte de cotistas até dezembro continua tendo tido um retorno. Ler o resultado do conjunto sobrevivente o descarta em silêncio da média, e a média passa a ser dividida pelos fundos que deram certo — o viés de sobrevivência que este projeto critica em três lugares, aplicado ao próprio teste que existe para detectá-lo.
+A diferença não é detalhe. Um fundo escolhido em março que encolheu abaixo do corte de cotistas até dezembro continua tendo tido um retorno. Ler o resultado do conjunto sobrevivente o descarta em silêncio da média, e a média passa a ser dividida pelos fundos que deram certo. É o viés de sobrevivência que este projeto critica em três lugares, aplicado ao próprio teste que existe para detectá-lo.
 
 A garantia é uma propriedade testada: **o divisor é sempre o número de fundos que o método escolheu**, nunca o número deles que era mensurável. Um fundo sem cota nenhuma depois do corte entra com o último valor conhecido, conforme a política congelada antes, e sai nomeado no relatório.
 
 ### Três datas de corte, não uma
 
-Um único semestre é uma amostra de tamanho 1 — pode ter sido sorte. Como cada rodada é um comando, faço três: **31/03**, **30/06** e **30/09/2025**, cada uma medida contra o que veio depois.
+Um único semestre é uma amostra de tamanho 1, e pode ter sido sorte. Como cada rodada é um comando, faço três: **31/03**, **30/06** e **30/09/2025**, cada uma medida contra o que veio depois.
 
 ### O critério de sucesso, declarado antes de rodar
 
 > **O método é considerado validado se o Top 5 ficar acima do percentil 60 da distribuição de carteiras aleatórias em pelo menos 2 das 3 datas de corte.**
 
-Declarar o critério **antes** de ver o resultado é o que me impede de racionalizar qualquer número que apareça. Sem isso, o teste não vale nada — sempre dá para contar uma história bonita depois do fato.
+Declarar o critério **antes** de ver o resultado é o que me impede de racionalizar qualquer número que apareça. Sem isso, o teste não vale nada, porque sempre dá para contar uma história bonita depois do fato.
 
 ### Duas regras que valem mais que o resultado
 
-**Regra 1 — proibido ajustar os pesos depois de ver o teste.** Se eu mexer nos pesos até o teste passar, eu não validei nada: apenas decorei o segundo semestre de 2025. Isso é a forma mais comum de fraudar a si mesmo em finanças quantitativas, e costuma ser feita sem má intenção.
+**Regra 1: proibido ajustar os pesos depois de ver o teste.** Se eu mexer nos pesos até o teste passar, eu não validei nada: apenas decorei o segundo semestre de 2025. Isso é a forma mais comum de fraudar a si mesmo em finanças quantitativas, e costuma ser feita sem má intenção.
 
-**Regra 2 — se falhar, eu reporto que falhou.** E digo o que mudaria. Um resultado negativo relatado com honestidade vale mais do que um Top 5 sem validação nenhuma: mostra que o método é falseável, que é justamente o que se espera de um método.
+**Regra 2: se falhar, eu reporto que falhou.** E digo o que mudaria. Um resultado negativo relatado com honestidade vale mais do que um Top 5 sem validação nenhuma: mostra que o método é falseável, que é justamente o que se espera de um método.
 
 ### Um detalhe que precisa ser decidido antes
 
@@ -473,7 +473,7 @@ E se um dos cinco fundos parar de publicar cota entre julho e dezembro? Regra fi
 
 ### O que este teste ainda não prova
 
-Que o método funciona **em 2026**. Ele mostra que funcionou em três recortes de 2025 — um ano só, um regime de juros só. É evidência, não garantia, e vou escrever isso com essas palavras na entrega.
+Que o método funciona **em 2026**. Ele mostra que funcionou em três recortes de 2025, com um ano só e um regime de juros só. É evidência, não garantia, e vou escrever isso com essas palavras na entrega.
 
 ---
 
@@ -489,7 +489,7 @@ Que o método funciona **em 2026**. Ele mostra que funcionou em três recortes d
 | `README.md` | Quem for rodar | Como instalar e executar, o que cada etapa faz |
 | Código + testes | Quem for manter | Um comando para rodar tudo, funções importáveis |
 
-**`saida/` é versionada.** O enunciado pede o `ranking.md` no repositório, e um arquivo que só passa a existir depois que alguém roda o pipeline não está entregue — além de virar link quebrado no README de quem clona. `dados/` não é versionada: é pesada, reconstruível, e o que a prende a uma execução não é o arquivo e sim o SHA-256 de cada fonte, que já viaja dentro do `ranking.json`.
+**`saida/` é versionada.** O enunciado pede o `ranking.md` no repositório, e um arquivo que só passa a existir depois que alguém roda o pipeline não está entregue, além de virar link quebrado no README de quem clona. `dados/` não é versionada: é pesada, reconstruível, e o que a prende a uma execução não é o arquivo e sim o SHA-256 de cada fonte, que já viaja dentro do `ranking.json`.
 
 Formato do `ranking.json`:
 
@@ -504,7 +504,7 @@ Formato do `ranking.json`:
   "sources": { "inf_diario_fi_202512.zip": "3f9a..." },
   "profiles": [{
     "profile_id": "varejo_liquidez",
-    "label": "Retail — emergency reserve",
+    "label": "Retail: emergency reserve",
     "eligible_universe_size": 218,
     "weights":           { "admin_fee": 30, "volatility": 20, "redemption_days": 10 },
     "effective_weights": { "admin_fee": 33, "volatility": 22 },
@@ -562,11 +562,11 @@ O campo `schema_version` existe para que outro time possa depender do arquivo se
 
 Fui aos arquivos antes de desenhar. Três coisas que quebrariam o projeto se eu não tivesse olhado:
 
-**1. O dado não é mais por fundo, é por classe.** A regra CVM 175 reorganizou os fundos em "classes", e desde janeiro de 2024 o informe diário identifica a classe, não o fundo. Quem escrever o código assumindo o formato antigo faz o cruzamento errado e **não recebe nenhum erro** — só um resultado silenciosamente errado.
+**1. O dado não é mais por fundo, é por classe.** A regra CVM 175 reorganizou os fundos em "classes", e desde janeiro de 2024 o informe diário identifica a classe, não o fundo. Quem escrever o código assumindo o formato antigo faz o cruzamento errado e **não recebe nenhum erro**, só um resultado silenciosamente errado.
 
 **2. O arquivo de cadastro que todo mundo usa está obsoleto.** O `cad_fi.csv`, que é o que aparece em qualquer tutorial, cobre apenas **10%** dos fundos de renda fixa de hoje, e **nenhum deles** tem a taxa preenchida. Taxa e prazo de resgate estão em outros dois arquivos (Extrato e Lâmina).
 
-**3. A data de início do fundo não é a data de início do fundo.** O campo `Data_Inicio` do registro é, na verdade, a data em que o fundo se adaptou à regra CVM 175 — quase todos em 2024 ou 2025:
+**3. A data de início do fundo não é a data de início do fundo.** O campo `Data_Inicio` do registro é, na verdade, a data em que o fundo se adaptou à regra CVM 175, quase todos em 2024 ou 2025:
 
 | CNPJ | `Data_Inicio` | Data real de constituição |
 |---|---|---|
@@ -595,9 +595,9 @@ Escolhi o mínimo que resolve. Cada dependência precisa justificar por que exis
 | uv | instalar as dependências de forma reprodutível |
 | Docker | rodar em máquina limpa |
 
-**O que deliberadamente não usei:** banco de dados, orquestrador de tarefas, Spark, camadas de "data lake". São ~1.000 fundos e ~200 MB de arquivo. O projeto roda em minutos num notebook. Colocar infraestrutura de escala aqui seria complexidade sem benefício — e complexidade que ninguém vai avaliar.
+**O que deliberadamente não usei:** banco de dados, orquestrador de tarefas, Spark, camadas de "data lake". São ~1.000 fundos e ~200 MB de arquivo. O projeto roda em minutos num notebook. Colocar infraestrutura de escala aqui seria complexidade sem benefício, e complexidade que ninguém vai avaliar.
 
-**Como isso viraria produção:** a função `rodar(data_ref)` é o programa inteiro. Para rodar diariamente, basta agendá-la (cron, Airflow, o que o time já usar) e apontar a pasta de saída para um bucket. O código não muda — só onde ele escreve.
+**Como isso viraria produção:** a função `rodar(data_ref)` é o programa inteiro. Para rodar diariamente, basta agendá-la (cron, Airflow, o que o time já usar) e apontar a pasta de saída para um bucket. O código não muda, só onde ele escreve.
 
 ---
 
@@ -606,8 +606,8 @@ Escolhi o mínimo que resolve. Cada dependência precisa justificar por que exis
 Em ordem de gravidade, não de conveniência. As três primeiras são as que eu levaria ao vídeo.
 
 **1. Os pesos são arbitrários.** Não existe demonstração de que 30/20/15/15/10/10 seja melhor
-que outro conjunto qualquer. A escolha tem argumento — a taxa é o único número que se sabe
-sobre 2026, e apenas 40% dos fundos bateram o CDI em 2025 — mas argumento não é prova.
+que outro conjunto qualquer. A escolha tem argumento, porque a taxa é o único número que se sabe
+sobre 2026 e apenas 40% dos fundos bateram o CDI em 2025, mas argumento não é prova.
 Encontrar pesos ótimos é um problema quantitativamente difícil que este projeto **não resolve**.
 O que ele garante é outra coisa: se os pesos certos existirem e forem informados, o pipeline
 produz o ranking correto a partir deles. Os pesos vivem em YAML, a simulação mede o quanto o
@@ -616,7 +616,7 @@ resultado depende deles, e trocá-los não exige tocar em uma linha de código.
 **2. O método não olha a carteira.** Mede resultado, não conteúdo. Dois fundos com números
 idênticos podem carregar riscos de crédito completamente diferentes. Crédito privado no Brasil
 paga um spread pequeno e constante por muitos meses e devolve tudo de uma vez quando o emissor
-quebra — e nada na série de cotas antecipa isso.
+quebra, e nada na série de cotas antecipa isso.
 
 **3. Doze meses não dizem o que acontece em 2026.** A simulação mede a incerteza da amostra,
 não o risco de cauda: reamostrar 2025 nunca produzirá uma crise de crédito que 2025 não teve.
@@ -645,13 +645,13 @@ aplicada sem exceção, e a exceção existe dentro do universo elegível.
 
 **9. A lista mistura categorias e soma percentis calculados dentro delas.** Ser o primeiro de
 dezoito vale 1 num grupo forte e num grupo fraco, e o Top 5 junta os dois. Não invento um termo
-de qualidade de grupo para corrigir a soma — isso exigiria afirmar que uma categoria vale mais
+de qualidade de grupo para corrigir a soma, porque isso exigiria afirmar que uma categoria vale mais
 que outra, exatamente o julgamento que a comparação intra-grupo existe para evitar. Publico as
 duas notas, `score` e `score_pool`, e o leitor decide.
 
 **10. A taxa é contada duas vezes, de propósito.** A cota já vem líquida, então o excesso
 dentro dela **já** pune o fundo caro; dar à taxa o maior peso conta o mesmo custo de novo. É
-escolha, não descuido — a primeira contagem fala de 2025 e a segunda fala de 2026 — mas quem
+escolha e não descuido, já que a primeira contagem fala de 2025 e a segunda fala de 2026, mas quem
 lê precisa saber que está lá.
 
 **11. Cada fundo é avaliado isoladamente.** A única restrição de carteira é não repetir a mesma
@@ -669,18 +669,18 @@ peso dos dois perfis.
 
 E há um número que muda a leitura, publicado em `manager_share`: **essa gestora já responde por
 27,5% dos 218 fundos do perfil de liquidez e por 20% dos 390 do perfil de prazo.** Três nomes
-numa lista de cinco não é a lista concentrando mais que o universo — é o universo que o varejo
+numa lista de cinco não é a lista concentrando mais que o universo. É o universo que o varejo
 brasileiro tem. Sem esse número a concentração parece defeito; com ele, é aritmética.
 
 ## 13. O que fica em aberto
 
 **Eu ranqueio os fundos pelo resultado, não pelo que eles têm dentro.**
 
-Esta é a lacuna principal do projeto, e é honesto colocá-la na frente. Dois fundos podem ter rentabilidade, oscilação e pior queda praticamente idênticos — e um deles estar cheio de dívida de uma única empresa em dificuldade, enquanto o outro só tem título público. **Pelos meus dez números, eles são gêmeos. No risco real, não são.**
+Esta é a lacuna principal do projeto, e é honesto colocá-la na frente. Dois fundos podem ter rentabilidade, oscilação e pior queda praticamente idênticos, e um deles estar cheio de dívida de uma única empresa em dificuldade enquanto o outro só tem título público. **Pelos meus dez números, eles são gêmeos. No risco real, não são.**
 
 É exatamente o risco que mais importa em renda fixa brasileira: crédito privado paga um prêmio pequeno e constante por muitos meses e devolve tudo de uma vez quando o emissor quebra. Meu ranking de 2025 não teria como distinguir, em janeiro de 2023, um fundo com Americanas na carteira de um sem.
 
-**A CVM publica esse dado** — é o arquivo de Composição da Carteira (CDA), mensal, com os ativos de cada fundo. Não coube nos 8 dias porque é um volume muito maior e exige entender a estrutura de tipos de ativo, mas o caminho está aberto: seria uma nova fonte na Etapa 1 e novos números na Etapa 4, sem tocar no resto.
+**A CVM publica esse dado.** É o arquivo de Composição da Carteira (CDA), mensal, com os ativos de cada fundo. Não coube nos 8 dias porque é um volume muito maior e exige entender a estrutura de tipos de ativo, mas o caminho está aberto: seria uma nova fonte na Etapa 1 e novos números na Etapa 4, sem tocar no resto.
 
 ---
 
@@ -713,7 +713,7 @@ A estrutura em seis etapas foi desenhada para que qualquer item acima seja **uma
 | **7 manhã** | 26/08 | **Teste no passado (seção 8.1): três datas de corte, medição e relatório** |
 | 7 tarde | 26/08 | README, `ranking.md`, revisão |
 | 8 | 27/08 | Folga, vídeo de 5 minutos |
-| — | **28/08 20h** | **Entrega** |
+| | **28/08 20h** | **Entrega** |
 
 ---
 
