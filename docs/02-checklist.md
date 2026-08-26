@@ -157,7 +157,7 @@ com a taxa de aparição no JSON e na seção técnica.
 **Entregável:** `saida/validacao.md` respondendo se o método funciona.
 
 **Regra que vale antes de tudo:** o critério de sucesso e a regra do fundo descontinuado
-estão escritos na seção 8.1 do desenho e **não podem ser alterados depois de ver o resultado**.
+estão escritos na seção 8 do desenho e **não podem ser alterados depois de ver o resultado**.
 Se eu sentir vontade de mexer, é sinal de que o resultado não agradou, e é exatamente aí que
 não se mexe.
 

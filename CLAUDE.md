@@ -57,7 +57,7 @@ Estado detalhado e decisão pendente: topo de `docs/02-checklist.md`.
     que não se consegue explicar em duas frases é módulo para simplificar ou apagar.
 11. **Proibido ajustar pesos, cortes ou métricas depois de ver o resultado do teste no passado
     (Fase 5.5).** Se eu mexer até passar, não validei nada. Decorei o segundo semestre de 2025.
-    O critério de sucesso está congelado na seção 8.1 do desenho. Resultado ruim se reporta,
+    O critério de sucesso está congelado na seção 8 do desenho. Resultado ruim se reporta,
     não se conserta.
 
 ---

@@ -1488,7 +1488,7 @@ de liquidez ela cai de 42% no quinto para 20% no décimo.
 | 2:15–2:55 | **Funciona?** O teste no passado e o percentil contra carteiras aleatórias | D-017, `validacao.md` |
 | 2:55–3:35 | **A decisão que menos me convence** e o que a simulação não vê | D-011 |
 | 3:35–4:05 | Onde meu próprio guardrail falhou, e onde acertou | D-024 vs D-029 |
-| 4:05–4:30 | O que o projeto não vê: a carteira | seção 13 do desenho |
+| 4:05–4:30 | O que o projeto não vê: a carteira | seção 12 do desenho |
 | 4:30–5:00 | Caminho para produção: um comando, uma função, um agendador | workflow semanal |
 
 ### Frases que já estão prontas para usar

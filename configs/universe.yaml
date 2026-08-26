@@ -1,7 +1,7 @@
 # Which funds compete.
 #
 # Every number here was measured against the real CVM files on 2026-08-19,
-# not assumed. See docs/01-solution-design.md section 3.
+# not assumed. See docs/01-solution-design.md section 2.
 #
 # Decade has not yet confirmed the exact definition of "fixed income".
 # When they answer, this file is the only thing that changes.

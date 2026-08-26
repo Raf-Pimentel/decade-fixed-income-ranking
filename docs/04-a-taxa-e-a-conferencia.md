@@ -34,7 +34,7 @@ retém:
 
 Não depende de campo declarado. Precisa de duas séries de cota, que vêm do informe diário, e
 de saber qual fundo a classe compra, que vem da composição de carteira. O desenho da solução,
-seção 7.1, explica as regras de decisão; `src/ranking/transform/fees.py` as implementa.
+seção 6.1, explica as regras de decisão; `src/ranking/transform/fees.py` as implementa.
 
 Aplicado aos fundos que estavam publicados, sobre os 252 dias úteis de 2025:
 
