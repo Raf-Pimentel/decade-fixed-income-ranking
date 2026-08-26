@@ -323,33 +323,160 @@ em vez de procurar o menos ruim.
 
 ## 7. Roteiro do vídeo, em 5 minutos
 
-| Tempo | Assunto | O que mostrar |
-|---|---|---|
-| 0:00–0:35 | O problema e o funil de 36.594 para 514 | `relatorio_qualidade.md` |
-| 0:35–1:35 | Fui olhar o dado antes de codar, e a armadilha do `Data_Inicio` | D-003 |
-| 1:35–2:15 | Como decido o que é "melhor", e por que a taxa pesa mais | os 40% que bateram o CDI |
-| 2:15–2:55 | **Funciona?** O teste contra mil carteiras aleatórias | `validacao.md` |
-| 2:55–3:35 | **A decisão que menos me convence:** os pesos | a resposta da pergunta 2 |
-| 3:35–4:05 | Onde meu próprio guardrail falhou | D-024 vs D-029 |
-| 4:05–4:20 | Uma carteira, cinco nomes, e por que correlação não pega | D-040 |
-| 4:20–4:40 | O que o projeto não vê: a carteira | seção 13 do desenho |
-| 4:40–5:00 | Caminho para produção, construída e comprovada | o commit `76102a4`, feito pelo bot |
+O enunciado pede três coisas no vídeo: o desenho, **a decisão de que menos tenho certeza**, e o
+caminho para produção. As três estão marcadas abaixo com ★. Se o tempo apertar, corte o resto.
+
+Cinco minutos em português são cerca de **740 palavras faladas**, a 150 por minuto. O roteiro
+abaixo tem 732 e fecha em **4:53**. Escrever mais é o erro mais comum, e ele aparece como
+pressa na gravação. Os tempos de cada bloco saem da contagem de palavras dele, não de
+estimativa.
+
+---
+
+### 0:00 a 0:29 · O problema ★
+
+**Mostrar:** `saida/relatorio_qualidade.md`
+
+> "Existem 36.594 classes de fundos registradas na CVM. A pergunta é quais cinco um cliente de
+> varejo deveria comprar. Meu funil derruba isso para 514 fundos que a pessoa de fato consegue
+> comprar e cujo custo eu consigo verificar, e cada etapa dele é conferida contra um número que
+> eu medi antes de escrever o pipeline. Se algum passo sair mais de 3% do esperado, o programa
+> para em vez de publicar."
+
+---
+
+### 0:29 a 0:58 · Fui olhar o dado antes de escrever código
+
+**Mostrar:** D-003 no diário de decisões
+
+> "Antes de codar, passei um dia só olhando os arquivos. Uma armadilha vale contar: o campo
+> `Data_Inicio` do registro da CVM não é a data de início do fundo, é a data em que ele se
+> adaptou à Resolução 175. Acreditando nele, 66% do universo parece ter menos de um ano, quando
+> a idade mediana real é sete. Esse erro não gera exceção nenhuma. Devolve um ranking errado com
+> cara de certo."
+
+---
+
+### 0:58 a 1:48 · Como o ranking é calculado ★
+
+**Mostrar:** a tabela do BTG Pactual CDB I (abaixo), ou `configs/profiles.yaml`
+
+> "O ranking é uma soma ponderada de percentis. Não somo taxa com retorno, porque são unidades
+> diferentes. Converto cada número na posição relativa do fundo dentro da categoria ANBIMA dele,
+> e só então aplico os pesos.
+>
+> Aqui está o primeiro colocado. Ele está no percentil 97 de custo, e isso sozinho traz 26 dos
+> 75 pontos da nota. A pior linha dele é pior queda, percentil 31.
+>
+> E o Top 5 não são os cinco de maior nota. Eu reconstruo o ranking mil vezes, reamostrando as
+> séries de retorno e sorteando os pesos dentro de uma faixa. Publico os cinco que mais
+> sobreviveram. Um fundo que só é primeiro na conta exata, e some quando você sacode os dados,
+> não é uma boa recomendação."
+
+| Critério | Percentil | Peso | Contribuição |
+|---|---:|---:|---:|
+| Taxa de administração | 0,971 | 27 | 26,2 |
+| Oscilação | 0,824 | 22 | 18,1 |
+| Tamanho e estabilidade | 0,941 | 17 | 16,0 |
+| Ganho sobre o CDI | 0,559 | 17 | 9,5 |
+| Pior queda | 0,309 | 17 | 5,3 |
+| **Nota** | | **100** | **75,1** |
+
+---
+
+### 1:48 a 2:37 · A taxa não é lida, é medida
+
+**Mostrar:** `docs/04-investigacao-taxa.md`, a tabela de três anos
+
+> "Custo é o maior peso, então é o número que menos posso errar. Comparei minha lista com as que
+> o mercado publica e a taxa de dois fundos meus divergia por dez vezes.
+>
+> A CVM não está errada, e minha leitura também não. Depois da Resolução 175, algumas casas
+> passaram a declarar no extrato uma taxa de camada, não o preço do cliente. A mesma classe
+> declarava 0,90% em 2024 e declara 0,040% hoje. No arquivo, 235 foram parar em exatamente
+> 0,040%, algumas vindas de 2,60%.
+>
+> Então parei de ler a taxa e passei a medi-la na cota. O fundo que era o número dois das minhas
+> listas declarava 0,040% e cobra 1,81%. Ele saiu."
+
+---
+
+### 2:37 a 3:17 · Funciona?
+
+**Mostrar:** `saida/validacao.md`
+
+> "Testei fora da amostra. Reconstruí o ranking em três datas de 2025 usando nada publicado
+> depois de cada uma, e medi o que os escolhidos fizeram até dezembro contra mil carteiras de
+> cinco fundos sorteados do mesmo universo. O critério estava commitado antes de eu rodar.
+>
+> Passou nas seis medições. E digo o resto da tabela antes que me perguntem: a vantagem sobre a
+> mediana é de 8 a 22 pontos-base, que é pouco, e o Top 5 ficou **abaixo do CDI nos seis
+> recortes**. Percentil 95 numa distribuição estreita significa ganhar de quase todo mundo por
+> muito pouco."
+
+---
+
+### 3:17 a 3:59 · A decisão de que menos tenho certeza ★
+
+**Mostrar:** o bloco `weights` em `configs/profiles.yaml`
+
+> "São os pesos. Não tenho demonstração de que sejam os melhores, e o dado até me contraria em
+> parte: medi a dispersão, e o ganho sobre o CDI espalha mais que a taxa, 2,75 pontos contra
+> 1,60. O que sustenta o peso da taxa não é ela distinguir mais, é a distinção dela persistir.
+>
+> O que eu garanto não é que os pesos estejam certos. É que estão num arquivo de configuração,
+> que os aplicados saem publicados ao lado dos declarados, e que a simulação os sorteia mil
+> vezes, de modo que fundo que só vence com um conjunto exato de pesos não chega à lista."
+
+---
+
+### 3:59 a 4:22 · O que o projeto não vê
+
+**Mostrar:** a seção "What this does not do" do README
+
+> "A maior limitação: não olho o que os fundos têm dentro. Meço resultado, não carteira. Dois
+> fundos com o mesmo retorno e a mesma oscilação são gêmeos para mim, mesmo que um tenha título
+> público e o outro dívida de uma empresa em dificuldade. A CVM publica esse dado, e lê-lo é o
+> primeiro item do trabalho futuro."
+
+---
+
+### 4:22 a 4:56 · Caminho para produção ★
+
+**Mostrar:** o commit `76102a4`, autor `github-actions[bot]`
+
+> "O caminho para produção não é promessa, é um commit. Este foi escrito por um robô: o GitHub
+> ligou uma máquina limpa, baixou a CVM ao vivo, rodou o pipeline e publicou, sem ninguém
+> olhando. O agendamento está comentado enquanto vocês avaliam, para o entregável não ser
+> sobrescrito.
+>
+> Para virar rotina faltariam quatro coisas pequenas: data móvel, guarda de frescor do dado,
+> saída versionada fora do git, e commit que diga o que mudou. O pipeline não muda: já é uma
+> função que recebe uma data."
+
+---
+
+### Como gravar
+
+Grave em blocos, um por seção, e junte depois. Errar aos 4:30 e ter que refazer cinco minutos é
+o que faz a quinta tentativa sair pior que a segunda.
+
+As três seções marcadas com ★ são obrigatórias pelo enunciado. Se estourar o tempo, o corte é
+por esta ordem: 0:29 (a armadilha), depois 3:59 (o que não vê), depois 2:37 (funciona).
 
 ### Frases prontas
 
 - *"Só 40% dos fundos de renda fixa bateram o CDI em 2025. É por isso que a taxa pesa mais que
   a rentabilidade passada no meu ranking, e isso não é teoria, é o dado."*
+- *"Parei de ler a taxa no formulário e passei a medi-la na cota. O erro chegava a 45 vezes."*
 - *"Doze meses são 252 dias úteis. Se o meu número não bater com o que o fundo publica, o
-  errado sou eu. Por isso a janela sai no JSON como duas datas, e não como uma contagem de
-  meses."*
+  errado sou eu."*
 - *"Correlação não identifica fundo repetido em renda fixa: todo pós-fixado correlaciona acima
   de 0,99 com todo pós-fixado. A pergunta certa é quanto os dois discordam."*
 - *"O Top 5 ficou abaixo do CDI nos seis recortes. Está na tabela porque é a comparação que o
   cliente faz de cabeça, e esconder isso seria o mesmo que não ter testado."*
 - *"Criei um guardrail para pegar junção quebrada. Ele não pegou a minha, porque 2% cabia na
   tolerância de 3%."*
-- *"Um fundo cuja cota não se move não é um fundo sem risco. É um fundo que parou de ser
-  precificado. Por isso ele é excluído, não premiado."*
 - *"Os cinco primeiros não são distinguíveis entre si. Eu digo isso na entrega em vez de fingir
   precisão que os dados não têm."*
 - *"Se eu tivesse encontrado cinco por cento de vantagem em renda fixa, o certo seria desconfiar
