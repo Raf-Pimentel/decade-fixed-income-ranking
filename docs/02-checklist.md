@@ -38,7 +38,7 @@ sucesso não se moveu, e a regra foi escrita antes desta execução. Ver D-047.
 
 ### O que falta, e é tudo do Rafael
 
-- [ ] **Gravar o vídeo de 5 min.** Roteiro minutado e frases prontas em `docs/03-guia-de-defesa.md`.
+- [ ] **Gravar o vídeo de 5 min.**
 - [ ] **Colocar o link do vídeo no README** depois de gravado.
 - [ ] **Conferir 3 fundos na planilha.** Cota de 02/01/2025 e 30/12/2025 contra o
       `ranking.json`. Única verificação do cálculo que não passa por mim.

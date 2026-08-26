@@ -34,3 +34,6 @@ Thumbs.db
 
 # Material for the video, which is not part of the delivery.
 images/
+
+# Preparation for the video walkthrough, which is mine and not part of the work.
+docs/03-guia-de-defesa.md
