@@ -31,9 +31,9 @@ antes de fechar a fase.
 
 ## 3. Checklist
 
-Abra `docs/02-checklist.md`, marque o que foi concluído nesta fase, e liste o
-que ficou por fazer e por quê. Item não feito é item declarado, não item
-esquecido.
+Abra `docs/02-checklist.md` e atualize o estado. Se algo ficou de fora nesta
+fase, acrescente à seção de desvios declarados, com o motivo ao lado. Item não
+feito é item declarado, não item esquecido.
 
 ## 4. Diário de decisões
 

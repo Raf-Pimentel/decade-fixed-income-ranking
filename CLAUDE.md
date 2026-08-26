@@ -12,7 +12,8 @@ cliente (varejo e qualificado), a partir de dados públicos da CVM e da ANBIMA.
 Entrega: repositório GitHub + `ranking.md` + `ranking.json` + README + vídeo de 5 min.
 Prazo: **28/08/2026, 20h**.
 
-Desenho completo: `docs/01-solution-design.md`. Checklist executável: `docs/02-checklist.md`.
+Desenho completo: `docs/01-solution-design.md`. Estado e desvios declarados:
+`docs/02-checklist.md`.
 Diário de decisões: `docs/decisoes.md`.
 
 **Fases:** 1 ✓ · 2 ✓ · 3 ✓ · 4 ✓ · 5 ✓ · 5.5 teste no passado ✓ (liquidez 3/3,
@@ -26,7 +27,7 @@ Esses números eram 2 de 6 até 24/08, quando a taxa deixou de ser lida no extra
 ser medida contra o fundo que cada classe compra. O critério de sucesso não se moveu, e a
 regra foi escrita antes desta execução. Ver D-047.
 
-Estado detalhado e decisão pendente: topo de `docs/02-checklist.md`.
+Estado detalhado e o que foi deixado de fora: `docs/02-checklist.md`.
 
 ---
 
