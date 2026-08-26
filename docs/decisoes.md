@@ -1339,7 +1339,7 @@ títulos diretamente não tem contra o que ser comparado. E quando a alimentador
 ao lado do master, a diferença carrega também essa parcela, o que faz da medida um teto e
 não um valor exato. O corte de 95% é o que limita esse erro.
 
-Trilha completa, com origem e hash de cada arquivo, em `docs/04-investigacao-taxa.md`.
+Evidência e conferência externa em `docs/04-a-taxa-e-a-conferencia.md`.
 
 
 ---

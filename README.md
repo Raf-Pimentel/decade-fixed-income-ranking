@@ -270,8 +270,7 @@ why, is recorded in [`configs/sources.yaml`](configs/sources.yaml).
 | --- | --- |
 | [`docs/01-solution-design.md`](docs/01-solution-design.md) | the design, in Portuguese |
 | [`docs/decisoes.md`](docs/decisoes.md) | every decision taken, including the ones later reversed |
-| [`docs/04-investigacao-taxa.md`](docs/04-investigacao-taxa.md) | why the declared fee is not the price the client pays, with every source |
-| [`docs/05-conferencia-externa.md`](docs/05-conferencia-externa.md) | the delivered ranking checked against what the market publishes |
+| [`docs/04-a-taxa-e-a-conferencia.md`](docs/04-a-taxa-e-a-conferencia.md) | why the declared fee is not the price the client pays, and the ranking checked against outside sources |
 | [`docs/02-checklist.md`](docs/02-checklist.md) | what was done, and what was deliberately not |
 | `CLAUDE.md` | the working agreement: rules, the thirteen data traps, the quality baseline |
 

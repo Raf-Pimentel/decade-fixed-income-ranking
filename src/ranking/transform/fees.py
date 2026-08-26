@@ -11,7 +11,7 @@ now file a nominal class-level figure there rather than what the investor
 actually gives up. Measured against the delivered ranking of 31/12/2025, four
 Itaú classes filed 0.040% while charging between 0.45% and 1.81%. The same
 classes filed 0.400%, 0.900% and 0.450% a year earlier, and nobody cuts a fee
-from 0.900% to 0.040%. See docs/04-investigacao-taxa.md for the full trail.
+from 0.900% to 0.040%. See docs/04-a-taxa-e-a-conferencia.md for the evidence.
 
 So the fee is measured instead. A feeder puts nearly all of its money into one
 master fund, which means the two quota series are the same portfolio priced

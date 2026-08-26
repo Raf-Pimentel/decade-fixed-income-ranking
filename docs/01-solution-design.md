@@ -755,7 +755,7 @@ cotistas e dezenas de bilhões, e faz isso. Não pega um fundo com 1.360 cotista
 é o mesmo veículo com outro tamanho. A pergunta certa não é quantos cotistas há, é se quem
 está lá dentro é varejo, e patrimônio por cotista responde melhor. Não foi implementado porque
 a escolha do limite viria depois de eu já saber quais fundos ele removeria, o que a regra 11
-proíbe. Ver `docs/05-conferencia-externa.md`.
+proíbe. Ver `docs/04-a-taxa-e-a-conferencia.md`.
 
 **Eu ranqueio os fundos pelo resultado, não pelo que eles têm dentro.**
 

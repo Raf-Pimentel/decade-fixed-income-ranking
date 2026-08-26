@@ -46,7 +46,7 @@ sucesso não se moveu, e a regra foi escrita antes desta execução. Ver D-047.
 
 Aberto e declarado, não pendente: o corte de 500 cotistas não pega veículo institucional com
 1.360 cotistas e R$ 23 bi de patrimônio. Um corte de patrimônio por cotista resolveria, e não
-foi feito porque eu já vi quais fundos ele tiraria. Ver `docs/05-conferencia-externa.md`.
+foi feito porque eu já vi quais fundos ele tiraria. Ver `docs/04-a-taxa-e-a-conferencia.md`.
 
 ---
 
