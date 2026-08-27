@@ -78,8 +78,10 @@ Given a reference date, the pipeline:
 2. **validates** every row against a declared schema. Rows that fail go to quarantine with a
    written reason, and the run stops altogether if more than 5% of a file is unusable;
 3. **selects** the funds a retail investor can actually buy, which takes 36,594 registered
-   classes down to 514, and checks the count at each step against a baseline measured in
-   advance;
+   classes down to 472, and checks the count at each step against a baseline measured in
+   advance. The last step asks who is inside a fund rather than what the fund is: a class with
+   no individual and no distributor among its shareholders is not a product a person buys,
+   whatever its regulation permits;
 4. **measures** return, risk, cost and liquidity for each fund over a window that is exactly
    as long as its label says, using the daily quota, which already comes net of fees. The
    fee itself is measured too, against the fund each class holds, rather than read off the
@@ -104,7 +106,7 @@ and someone saving for three years.
 | --- | --- | --- |
 | Redemption | up to D+1 | up to D+30 |
 | Minimum investment | ≤ R$ 5,000 | ≤ R$ 50,000 |
-| Eligible funds | 195 | 348 |
+| Eligible funds | 165 | 313 |
 | Heaviest weight | admin fee | admin fee |
 | Then | volatility, worst fall | excess over CDI, return per unit of risk |
 
@@ -180,11 +182,11 @@ five-fund portfolios drawn from that same universe.
 
 | Profile | Beat 1,000 random five-fund portfolios on | Edge over the median |
 | --- | --- | --- |
-| Emergency reserve | 3 of 3 dates (p92, p96, p95) | +9 to +22 bp |
-| Two years or more | 3 of 3 dates (p86, p95, p94) | +8 to +18 bp |
+| Emergency reserve | 3 of 3 dates (p90, p98, p97) | +11 to +26 bp |
+| Two years or more | 3 of 3 dates (p88, p95, p93) | +8 to +22 bp |
 
 **The verdict passes and the result is still modest.** The top five beat the median of its
-universe in all six cuts, by margins between eight and twenty-two basis points, and it
+universe in all six cuts, by margins between eight and twenty-six basis points, and it
 underperformed the CDI in all six. Post-fixed funds all return close to the CDI, so the whole
 distribution is only a few dozen basis points wide, and three cuts inside a single year
 cannot separate method from luck. Outcomes are read from the full validated panel rather than
@@ -200,7 +202,7 @@ not moved since it was committed.
 ## Development
 
 ```bash
-uv run pytest                     # 305 tests
+uv run pytest                     # 315 tests
 uv run pytest -m trap             # the CVM data-trap regressions
 uv run pytest -m invariant        # the financial invariants
 uv run ruff check . && uv run mypy src
@@ -261,6 +263,7 @@ why, is recorded in [`configs/sources.yaml`](configs/sources.yaml).
 | CVM registry (RCVM 175) | classification, target investor, open or closed, exclusive |
 | CVM statement and factsheet | admin fee, redemption terms, minimum investment |
 | CVM portfolio composition (CDA) | which fund each class holds, which is what makes the fee measurable |
+| CVM monthly investor profile | the shareholder base of each class by kind of holder, which is what says whether an individual is inside |
 | Central Bank series 12 | daily CDI |
 | ANBIMA | the fund classification that defines peer groups, which arrives inside the CVM registry |
 

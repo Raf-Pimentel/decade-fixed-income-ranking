@@ -75,6 +75,18 @@ sources:
     # pays for a whole family of classes. See decision D-047.
     member: "cda_fi_BLC_2_{yyyymm}.csv"
 
+  investor_profile:
+    label: "CVM monthly investor profile (who holds each class)"
+    url: "https://dados.cvm.gov.br/dados/FI/DOC/PERFIL_MENSAL/DADOS/perfil_mensal_fi_{yyyymm}.csv"
+    filename: "perfil_mensal_fi_{yyyymm}.csv"
+    granularity: monthly
+    encoding: latin-1
+    separator: ";"
+    # The shareholder base of every class, split by kind of holder. This is the
+    # only place the CVM says whether a person is inside a fund: the registry's
+    # target-investor field records qualification, not whether the holder is an
+    # individual or a company. See decision D-050.
+
   cdi:
     label: "Central Bank CDI daily rate (series 12)"
     url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados?formato=json&dataInicial={start}&dataFinal={end}"

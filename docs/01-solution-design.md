@@ -37,9 +37,10 @@ Todos os números abaixo foram medidos nos arquivos reais.
 | Pelo menos 200 observações | 2.924 |
 | Patrimônio ≥ R$ 10 milhões | 2.690 |
 | Pelo menos 500 cotistas | 787 |
-| **Taxa e prazo verificáveis** | **514** |
+| Taxa e prazo verificáveis | 514 |
+| **Alcançáveis por pessoa física** | **472** |
 
-Destes, 496 são acessíveis ao varejo, 17 restritos a qualificado e 1 a profissional. O funil é
+Destes, 455 são acessíveis ao varejo e 17 restritos a qualificado. O funil é
 impresso a cada execução e conferido contra este baseline: se algum passo sair mais de 3% do
 esperado, o programa **para** em vez de publicar.
 
@@ -49,6 +50,19 @@ Dois cortes merecem explicação.
 em quantos dias o dinheiro volta. A palavra é *verificáveis* e não *publicados*, porque para
 classes que investem através de outros fundos o valor publicado não é o preço que o cliente
 paga. Ver a seção 6.1.
+
+**Alcançáveis por pessoa física.** O campo `Publico_Alvo` da CVM classifica a *qualificação* do
+investidor, não a *natureza* dele: um fundo vendido apenas a empresas é "Público Geral" para a
+CVM. Quatro dos dez fundos publicados antes desta regra eram restritos a pessoa jurídica pelo
+próprio regulamento, e um quinto era corporativo na prática apesar de a cláusula permitir
+pessoa física.
+
+A correção mede em vez de ler. O perfil mensal da CVM traz a base de cotistas de cada classe
+quebrada por tipo de detentor, com cobertura de 514 em 514, e a pergunta deixa de ser *quem
+pode entrar* para ser **quem está dentro**. Classe sem nenhuma pessoa física e sem nenhum
+cotista por distribuidor sai. Cotista por distribuidor conta a favor, porque é uma linha opaca
+que esconde justamente o varejo; classe sem o arquivo entregue fica, porque ausência do
+relatório não é ausência de pessoas. Não há limiar: uma pessoa basta. Ver a seção 6.2 e a D-050.
 
 **Quinhentos cotistas.** O corte começou em 10, e o primeiro ranking trouxe fundos com 17, 31 e
 70 cotistas e dezenas de bilhões de patrimônio: veículos institucionais rotulados "Público
@@ -67,6 +81,7 @@ Tudo público, sem credencial.
 | CVM, registro de fundos e classes | classificação, público-alvo, aberto ou fechado, exclusivo |
 | CVM, extrato e lâmina | taxa de administração, prazo de resgate, aplicação mínima |
 | CVM, composição de carteira (CDA) | qual fundo cada classe compra |
+| CVM, perfil mensal | a base de cotistas de cada classe, por tipo de detentor |
 | Banco Central, série 12 | CDI de cada dia |
 | ANBIMA | a classificação que define os grupos de comparação, que chega dentro do registro da CVM |
 
@@ -174,7 +189,7 @@ varejo, e o universo elegível cai para 17 fundos.
 |---|---|---|
 | Aplicação mínima aceita | até R$ 5 mil | até R$ 50 mil |
 | Prazo de resgate aceito | até D+1 | até D+30 |
-| Fundos elegíveis | 195 | 348 |
+| Fundos elegíveis | 165 | 313 |
 
 Os universos se sobrepõem de propósito: quem tem horizonte longo pode comprar um fundo D+0,
 porque liquidez sobrando não é defeito.
@@ -215,6 +230,15 @@ fica sem taxa e sai pelo corte da seção 2. Todo o resto mantém o que declarou
 
 Os dois números são publicados lado a lado. Evidência e conferência externa em
 `docs/04-a-taxa-e-a-conferencia.md`.
+
+### 6.2 Quem está dentro, e não quem pode entrar
+
+Pela mesma razão da taxa, o acesso de pessoa física é medido e não lido. O detalhe está na
+seção 2, junto do corte que ele implementa; o que importa aqui é que as duas correções têm a
+mesma forma. O projeto perguntava ao formulário e passou a perguntar ao dado.
+
+Resta um terceiro caso do mesmo padrão, ainda aberto: o corte de cotistas, que quer saber se
+quem investe é varejo e responde com quantos cotistas existem. A seção 12 o declara.
 
 ### Comparação só entre iguais
 
@@ -413,8 +437,8 @@ explicação estava incompleta.** Aquelas classes declaravam 0,040% e cobravam d
 Quando a taxa passou a ser medida, o Itaú saiu inteiro da lista de liquidez e sobraram nomes de
 sete casas diferentes.
 
-O `manager_share` continua publicado e continua útil: essa gestora responde por 26,2% dos 195
-fundos do perfil de liquidez e por 19,2% dos 348 do de prazo. O que a história ensina é que um
+O `manager_share` continua publicado e continua útil: essa gestora responde por 28,5% dos 165
+fundos do perfil de liquidez e por 19,5% dos 313 do de prazo. O que a história ensina é que um
 número que explica um resultado incômodo merece a mesma desconfiança que um número que o
 contradiz.
 

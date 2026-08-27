@@ -116,6 +116,13 @@ expected_funnel:
     # The number below is restated because the definition changed, not because
     # the tolerance was inconvenient.
     with_fee_and_redemption: 514
+    # 472. The last step is the only one that asks about the holder rather than
+    # about the fund: a class with no individual and no distributor among its
+    # shareholders is not a product a person buys, whatever its regulation
+    # permits. Forty-two classes leave here, and four of them had reached the
+    # published top five. The rule has no threshold, so there is nothing in it
+    # that could be tuned towards a result. See D-050.
+    reachable_by_individuals: 472
   by_target_investor:
-    retail: 496      # was 559 before the fee was measured rather than read
-    qualified: 17    # same reason
+    retail: 455      # was 496 before the holder mix was read
+    qualified: 17    # unchanged: none of the 42 removed were qualified-only

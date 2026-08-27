@@ -92,12 +92,57 @@ def blank_undisclosed_fees(funds: pl.DataFrame) -> pl.DataFrame:
     )
 
 
+def reachable_by_individuals(funds: pl.DataFrame, profile: pl.DataFrame) -> pl.DataFrame:
+    """Keep the classes that a person is actually inside.
+
+    The delivery is a list for a retail individual, and the CVM's
+    target-investor field cannot support that claim. It records whether a class
+    is open to non-qualified investors, not whether it admits a person rather
+    than a company, so a class sold only to companies, pension schemes and
+    insurers passes every formal filter and is still not a product a person
+    buys. Four such classes reached the published top five before this rule
+    existed, and one of them permits individuals in its own regulation while
+    holding none. See decision D-050.
+
+    What settles it is a count rather than a clause. The CVM publishes the
+    shareholder base of every class broken down by kind, so the question stops
+    being "who is allowed in" and becomes "who is in".
+
+    Two choices keep the rule from removing more than it should. Money held
+    through a distributor is reported as one opaque line rather than as the
+    people behind it, and those people are the retail investor this delivery is
+    written for, so that line counts in favour of the class. And a class with
+    no filing at all is kept: absence of the report is not evidence of absence
+    of people.
+
+    There is no threshold. A single individual is enough, which is what makes
+    the rule impossible to tune towards a result.
+    """
+    if profile.is_empty() or "cnpj_classe" not in profile.columns:
+        return funds
+
+    reachable = (
+        profile.filter((pl.col("cotistas_pf") > 0) | (pl.col("cotistas_distribuidor") > 0))
+        .select("cnpj_classe")
+        .unique()
+    )
+    filed = profile.select("cnpj_classe").unique()
+    return funds.join(
+        pl.concat(
+            [reachable, funds.select("cnpj_classe").join(filed, on="cnpj_classe", how="anti")]
+        ).unique(),
+        on="cnpj_classe",
+        how="semi",
+    )
+
+
 def build(
     registry: pl.DataFrame,
     series: pl.DataFrame,
     terms: pl.DataFrame,
     filters: Filters,
     reference_date: dt.date,
+    investor_profile: pl.DataFrame | None = None,
 ) -> UniverseResult:
     """Apply every eligibility rule in order, counting as we go."""
     counts: dict[str, int] = {}
@@ -148,5 +193,11 @@ def build(
     else:
         frame = frame.join(unique_terms, on="cnpj_classe", how="left")
     counts["with_fee_and_redemption"] = len(frame)
+
+    # Last, because it is the only step that asks about the holder rather than
+    # about the fund, and because a class removed here passed everything else.
+    if investor_profile is not None:
+        frame = reachable_by_individuals(frame, investor_profile)
+    counts["reachable_by_individuals"] = len(frame)
 
     return UniverseResult(funds=blank_undisclosed_fees(frame), counts=counts)

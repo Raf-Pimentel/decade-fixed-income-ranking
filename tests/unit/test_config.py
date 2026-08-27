@@ -132,7 +132,11 @@ def test_expected_funnel_matches_what_was_measured(universe) -> None:
     # fee could not be measured against the fund it holds counts as not having
     # disclosed one. See D-047.
     assert steps["with_fee_and_redemption"] == 514
-    assert universe.expected_funnel.by_target_investor == {"retail": 496, "qualified": 17}
+    # 472: the last step asks who is inside the fund, not what the fund is. A
+    # class with no individual and no distributor among its shareholders is not
+    # a product a person buys. See D-050.
+    assert steps["reachable_by_individuals"] == 472
+    assert universe.expected_funnel.by_target_investor == {"retail": 455, "qualified": 17}
 
 
 def test_lookback_window_is_configurable_not_hard_coded(universe) -> None:

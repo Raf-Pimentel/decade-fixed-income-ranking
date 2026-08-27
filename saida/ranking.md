@@ -6,57 +6,57 @@ Duas listas, porque a resposta depende de quando você precisa do dinheiro de vo
 
 ## Retail: emergency reserve
 
-Escolhidos entre **195 fundos** que um investidor de varejo consegue de fato comprar.
+Escolhidos entre **165 fundos** que um investidor de varejo consegue de fato comprar.
 
 | # | Fundo | Gestor | Taxa a.a. | Resgate | Rendeu em 12m | vs CDI |
 |---:|---|---|---:|---:|---:|---:|
-| 1 | BTG PACTUAL CDB I FUNDO DE INVESTIMENTO RENDA  | BTG PACTUAL ASSET MANA | 0.150% | D+0 | 14.26% | -0.06% |
-| 2 | BB PREVIDENCIÁRIO RENDA FIXA REFERENCIADO DI L | BB GESTAO DE RECURSOS  | 0.202% | D+0 | 14.42% | 0.09% |
-| 3 | BNP PARIBAS MATCH CLASSE DE INVESTIMENTO DE RE | BNP PARIBAS ASSET MANA | 0.350% | D+0 | 14.39% | 0.06% |
+| 1 | BNP PARIBAS MATCH CLASSE DE INVESTIMENTO DE RE | BNP PARIBAS ASSET MANA | 0.350% | D+0 | 14.39% | 0.06% |
+| 2 | BTG PACTUAL CDB I FUNDO DE INVESTIMENTO RENDA  | BTG PACTUAL ASSET MANA | 0.150% | D+0 | 14.26% | -0.06% |
+| 3 | TREND DI FUNDO DE INVESTIMENTO EM COTAS RENDA  | XP VISTA ASSET MANAGEM | 0.011% | D+0 | 14.35% | 0.03% |
 | 4 | TIVIO INSTITUCIONAL RENDA FIXA CRED PRIV FUNDO | TIVIO CAPITAL DISTRIBU | 0.200% | D+0 | 14.71% | 0.39% |
-| 5 | ITAÚ EMPRESA TRUST RF REFERENCIADO DI FIF DA C | ITAU UNIBANCO ASSET MA | 0.248% | D+0 | 14.35% | 0.02% |
+| 5 | BRADESCO FIF - CLASSE DE INVESTIMENTO RENDA FI | BANCO BRADESCO S.A. | 0.150% | D+0 | 13.93% | -0.39% |
 
 ### Por que cada um
 
-**1. BTG PACTUAL CDB I FUNDO DE INVESTIMENTO RENDA FIXA.** Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.06% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 6.8 bi. Apareceu no top 5 em 61% das simulações.
+**1. BNP PARIBAS MATCH CLASSE DE INVESTIMENTO DE RENDA FIXA REFERENCIADA DI  CP RESPONSABILIDADE LIMITADA.** Taxa de 0.350% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.06% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 8.7 bi. Apareceu no top 5 em 71% das simulações.
 
-**2. BB PREVIDENCIÁRIO RENDA FIXA REFERENCIADO DI LONGO PRAZO PERFIL FIC FIF RESPONSABILIDADE LIMITADA.** Taxa de 0.202% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.09% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 22.7 bi. Apareceu no top 5 em 51% das simulações.
+**2. BTG PACTUAL CDB I FUNDO DE INVESTIMENTO RENDA FIXA.** Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.06% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 6.8 bi. Apareceu no top 5 em 68% das simulações.
 
-**3. BNP PARIBAS MATCH CLASSE DE INVESTIMENTO DE RENDA FIXA REFERENCIADA DI  CP RESPONSABILIDADE LIMITADA.** Taxa de 0.350% ao ano, mediana do grupo; resgate no mesmo dia; 0.06% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 8.7 bi. Apareceu no top 5 em 50% das simulações.
+**3. TREND DI FUNDO DE INVESTIMENTO EM COTAS RENDA FIXA SIMPLES RESPONSABILIDADE LIMITADA.** Taxa de 0.011% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.03% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 3.4 bi. Apareceu no top 5 em 59% das simulações.
 
-**4. TIVIO INSTITUCIONAL RENDA FIXA CRED PRIV FUNDO DE INVESTIMENTO FINANCEIRO - RESP LIMITADA.** Taxa de 0.200% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.39% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 2.2 bi. Apareceu no top 5 em 44% das simulações.
+**4. TIVIO INSTITUCIONAL RENDA FIXA CRED PRIV FUNDO DE INVESTIMENTO FINANCEIRO - RESP LIMITADA.** Taxa de 0.200% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.39% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 2.2 bi. Apareceu no top 5 em 48% das simulações.
 
-**5. ITAÚ EMPRESA TRUST RF REFERENCIADO DI FIF DA CLASSE DE INVESTIMENTO EM COTAS RESP LIMITADA.** Taxa de 0.248% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.02% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 37.4 bi. Apareceu no top 5 em 42% das simulações.
+**5. BRADESCO FIF - CLASSE DE INVESTIMENTO RENDA FIXA REFERENCIADA DI FEDERAL EXTRA -RESP LIMITADA.** Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.39% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 11.5 bi. Apareceu no top 5 em 44% das simulações.
 
-> **De onde vem a concentração.** A maior gestora deste universo é Itau Unibanco Asset Management Ltda., com **26.2%** dos 195 fundos elegíveis. Uma lista que a repete não está concentrando mais do que o universo de onde ela saiu. Ela está refletindo o mercado que o investidor de varejo tem.
+> **De onde vem a concentração.** A maior gestora deste universo é Itau Unibanco Asset Management Ltda., com **28.5%** dos 165 fundos elegíveis. Uma lista que a repete não está concentrando mais do que o universo de onde ela saiu. Ela está refletindo o mercado que o investidor de varejo tem.
 
 **Peso redistribuído.** `redemption_days` não separa nada dentro deste universo. A elegibilidade já filtrou por esse critério, e quase todos os fundos que sobraram empatam nele. O peso foi para os critérios que ainda distinguem, e os pesos de fato aplicados são `admin_fee` 27 · `volatility` 22 · `max_drawdown` 17 · `size` 17 · `excess_return` 17.
 
 ## Retail: two years or more
 
-Escolhidos entre **348 fundos** que um investidor de varejo consegue de fato comprar.
+Escolhidos entre **313 fundos** que um investidor de varejo consegue de fato comprar.
 
 | # | Fundo | Gestor | Taxa a.a. | Resgate | Rendeu em 12m | vs CDI |
 |---:|---|---|---:|---:|---:|---:|
-| 1 | SICREDI - FIF RENDA FIXA LIQUIDEZ EMPRESARIAL  | Sicredi Asset Manageme | 0.150% | D+0 | 14.24% | -0.08% |
-| 2 | SULAMÉRICA EXCLUSIVE FIF RENDA FIXA REFERENCIA | SUL AMÉRICA INVESTIMEN | 0.150% | D+0 | 14.24% | -0.08% |
-| 3 | BB RENDA FIXA LONGO PRAZO CORPORATE FIC FIF CR | BB GESTAO DE RECURSOS  | 0.202% | D+0 | 14.83% | 0.51% |
-| 4 | ABSOLUTE ATENAS SELEÇÃO FIF DA CIC RENDA FIXA  | ITAU UNIBANCO ASSET MA | 0.194% | D+0 | 14.66% | 0.34% |
-| 5 | SICREDI - FIF INSTITUCIONAL RENDA FIXA IRF-M L | Sicredi Asset Manageme | 0.180% | D+2 | 17.78% | 3.45% |
+| 1 | SULAMÉRICA EXCLUSIVE FIF RENDA FIXA REFERENCIA | SUL AMÉRICA INVESTIMEN | 0.150% | D+0 | 14.24% | -0.08% |
+| 2 | ABSOLUTE ATENAS SELEÇÃO FIF DA CIC RENDA FIXA  | ITAU UNIBANCO ASSET MA | 0.194% | D+0 | 14.66% | 0.34% |
+| 3 | TIVIO INSTITUCIONAL RENDA FIXA CRED PRIV FUNDO | TIVIO CAPITAL DISTRIBU | 0.200% | D+0 | 14.71% | 0.39% |
+| 4 | BB RENDA FIXA LONGO PRAZO TESOURO PREFIXADO FI | BB GESTAO DE RECURSOS  | 0.320% | D+0 | 17.36% | 3.04% |
+| 5 | ITAÚ KINEA ANDES RENDA FIXA CRÉDITO PRIVADO FU | ITAU UNIBANCO ASSET MA | 0.080% | D+0 | 15.32% | 0.99% |
 
 ### Por que cada um
 
-**1. SICREDI - FIF RENDA FIXA LIQUIDEZ EMPRESARIAL DI - RESPONSABILIDADE LIMITADA.** Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.08% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 4.8 bi. Apareceu no top 5 em 97% das simulações.
+**1. SULAMÉRICA EXCLUSIVE FIF RENDA FIXA REFERENCIADO DI DE RESPONSABILIDADE LIMITADA.** Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.08% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 2.3 bi. Apareceu no top 5 em 84% das simulações.
 
-**2. SULAMÉRICA EXCLUSIVE FIF RENDA FIXA REFERENCIADO DI DE RESPONSABILIDADE LIMITADA.** Taxa de 0.150% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.08% abaixo do CDI na janela; nunca caiu no período; patrimônio de R$ 2.3 bi. Apareceu no top 5 em 82% das simulações.
+**2. ABSOLUTE ATENAS SELEÇÃO FIF DA CIC RENDA FIXA CRÉDITO PRIVADO RESPONSABILIDADE LIMITADA.** Taxa de 0.194% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.34% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 2.6 bi. Apareceu no top 5 em 62% das simulações.
 
-**3. BB RENDA FIXA LONGO PRAZO CORPORATE FIC FIF CRÉDITO PRIVADO RESPONSABILIDADE LIMITADA.** Taxa de 0.202% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.51% acima do CDI na janela; pior queda de 0.03%; patrimônio de R$ 16.1 bi. Apareceu no top 5 em 77% das simulações.
+**3. TIVIO INSTITUCIONAL RENDA FIXA CRED PRIV FUNDO DE INVESTIMENTO FINANCEIRO - RESP LIMITADA.** Taxa de 0.200% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.39% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 2.2 bi. Apareceu no top 5 em 43% das simulações.
 
-**4. ABSOLUTE ATENAS SELEÇÃO FIF DA CIC RENDA FIXA CRÉDITO PRIVADO RESPONSABILIDADE LIMITADA.** Taxa de 0.194% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.34% acima do CDI na janela; nunca caiu no período; patrimônio de R$ 2.6 bi. Apareceu no top 5 em 42% das simulações.
+**4. BB RENDA FIXA LONGO PRAZO TESOURO PREFIXADO FIC FIF RESPONSABILIDADE LIMITADA.** Taxa de 0.320% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 3.04% acima do CDI na janela; pior queda de 1.02%; patrimônio de R$ 948 mi. Apareceu no top 5 em 38% das simulações.
 
-**5. SICREDI - FIF INSTITUCIONAL RENDA FIXA IRF-M LP - RESPONSABILIDADE LIMITADA.** Taxa de 0.180% ao ano, entre as mais baratas do grupo; resgate em D+2; 3.45% acima do CDI na janela; pior queda de 1.07%; patrimônio de R$ 445 mi. Apareceu no top 5 em 40% das simulações.
+**5. ITAÚ KINEA ANDES RENDA FIXA CRÉDITO PRIVADO FUNDO DE INVESTIMENTO FINANCEIRO DA CIC LP RESP LIMITADA.** Taxa de 0.080% ao ano, entre as mais baratas do grupo; resgate no mesmo dia; 0.99% acima do CDI na janela; pior queda de 0.01%; patrimônio de R$ 5.2 bi. Apareceu no top 5 em 37% das simulações.
 
-> **Concentração, de novo.** Como no perfil anterior, Itau Unibanco Asset Management Ltda. é a maior gestora deste universo, com **19.2%** dos 348 fundos elegíveis.
+> **Concentração, de novo.** Como no perfil anterior, Itau Unibanco Asset Management Ltda. é a maior gestora deste universo, com **19.5%** dos 313 fundos elegíveis.
 
 ---
 
@@ -94,16 +94,16 @@ O ranking foi reconstruído **1.000 vezes**, reamostrando as séries de retorno 
 
 | Fundo | Perfil | Nota no grupo | Nota no universo | Apareceu no top 5 | Só pelo desempenho |
 |---|---|---:|---:|---:|---:|
-| BTG PACTUAL CDB I FUNDO DE INVESTIMENTO  | varejo_liquidez | 75.1 | 71.0 | 61% | 5% |
-| BB PREVIDENCIÁRIO RENDA FIXA REFERENCIAD | varejo_liquidez | 74.9 | 73.6 | 51% | 4% |
-| BNP PARIBAS MATCH CLASSE DE INVESTIMENTO | varejo_liquidez | 72.3 | 70.2 | 50% | 49% |
-| TIVIO INSTITUCIONAL RENDA FIXA CRED PRIV | varejo_liquidez | 70.4 | 65.9 | 44% | 1% |
-| ITAÚ EMPRESA TRUST RF REFERENCIADO DI FI | varejo_liquidez | 71.5 | 71.9 | 42% | 6% |
-| SICREDI - FIF RENDA FIXA LIQUIDEZ EMPRES | varejo_prazo | 82.3 | 63.6 | 97% | 0% |
-| SULAMÉRICA EXCLUSIVE FIF RENDA FIXA REFE | varejo_prazo | 82.6 | 63.0 | 82% | 0% |
-| BB RENDA FIXA LONGO PRAZO CORPORATE FIC  | varejo_prazo | 89.4 | 82.5 | 77% | 19% |
-| ABSOLUTE ATENAS SELEÇÃO FIF DA CIC RENDA | varejo_prazo | 79.7 | 77.1 | 42% | 0% |
-| SICREDI - FIF INSTITUCIONAL RENDA FIXA I | varejo_prazo | 84.3 | 80.5 | 40% | 5% |
+| BNP PARIBAS MATCH CLASSE DE INVESTIMENTO | varejo_liquidez | 75.4 | 72.5 | 71% | 59% |
+| BTG PACTUAL CDB I FUNDO DE INVESTIMENTO  | varejo_liquidez | 75.0 | 71.8 | 68% | 13% |
+| TREND DI FUNDO DE INVESTIMENTO EM COTAS  | varejo_liquidez | 73.3 | 73.3 | 59% | 20% |
+| TIVIO INSTITUCIONAL RENDA FIXA CRED PRIV | varejo_liquidez | 70.0 | 67.3 | 48% | 10% |
+| BRADESCO FIF - CLASSE DE INVESTIMENTO RE | varejo_liquidez | 74.9 | 74.9 | 44% | 1% |
+| SULAMÉRICA EXCLUSIVE FIF RENDA FIXA REFE | varejo_prazo | 81.0 | 62.5 | 84% | 0% |
+| ABSOLUTE ATENAS SELEÇÃO FIF DA CIC RENDA | varejo_prazo | 80.4 | 77.1 | 62% | 0% |
+| TIVIO INSTITUCIONAL RENDA FIXA CRED PRIV | varejo_prazo | 79.5 | 77.4 | 43% | 0% |
+| BB RENDA FIXA LONGO PRAZO TESOURO PREFIX | varejo_prazo | 81.4 | 81.1 | 38% | 2% |
+| ITAÚ KINEA ANDES RENDA FIXA CRÉDITO PRIV | varejo_prazo | 80.5 | 86.9 | 37% | 0% |
 
 **Duas notas, porque o percentil é sempre relativo a alguma coisa.** A primeira compara o fundo com os pares da mesma categoria ANBIMA, que é a pergunta certa para não premiar quem simplesmente tomou mais risco de crédito. Ela é também silenciosa sobre a qualidade da categoria: ser o primeiro de dezoito vale 1 num grupo forte e num grupo fraco. A segunda nota refaz a conta contra **todo o universo elegível do perfil**. Quando as duas se afastam, o fundo é o melhor de um grupo que não é bom, e quem lê tem o direito de saber disso antes de comprar.
 

@@ -65,6 +65,7 @@ As reversões são a parte mais valiosa deste arquivo.
 | [D-047](#d-047) | 24/08 | 6 | **A taxa declarada não é o preço do cliente. Passa a ser medida** | 🔄🎥📊 |
 | [D-048](#d-048) | 24/08 | 6 | Peso da taxa revisto para 25 e 23 | 📊 |
 | [D-049](#d-049) | 24/08 | 6 | Uma lista de dez ao lado da de cinco, para comparação | |
+| [D-050](#d-050) | 26/08 | 6 | **Quatro dos dez publicados não podiam ser comprados por uma pessoa** | 🔄🎥📊 |
 
 ---
 
@@ -1409,6 +1410,89 @@ entregue.
 **O sexto ao décimo não são recomendação**, e o arquivo marca cada um deles. Cinco é o tamanho
 que o método afirma sustentar, e a taxa de aparição da coluna final mostra por quê: no perfil
 de liquidez ela cai de 42% no quinto para 20% no décimo.
+
+
+---
+
+## D-050: Quatro dos dez publicados não podiam ser comprados por uma pessoa 🔄🎥📊
+
+**Quando:** 26/08, Fase 6 · **Corrige:** o filtro de público-alvo de D-032
+
+**O que me fez olhar.** O Rafael desconfiou do primeiro colocado do perfil de prazo, o Sicredi
+Liquidez Empresarial, dizendo que era preciso ter CNPJ para comprá-lo. Fui conferir. O
+regulamento de 2021, arquivado na CVM, dizia exatamente isso: *"O FUNDO destina-se a
+investidores pessoas jurídicas em geral."* A demonstração financeira de 2024 já dizia *"pessoas
+físicas ou jurídicas"*, então a restrição formal tinha caído. Se eu tivesse parado ali, teria
+concluído que estava tudo bem.
+
+**A pergunta certa era outra.** Não é o que o regulamento permite, é quem está lá dentro. Fui
+ler o regulamento dos dez publicados, um a um, e encontrei **quatro** restritos a pessoa
+jurídica pela própria cláusula: BB Previdenciário, Itaú Empresa Trust, BB Corporate e Sicredi
+Institucional IRF-M. Quatro de dez, numa lista escrita para pessoa física.
+
+**Por que o pipeline não via.** O campo `Publico_Alvo` do registro da CVM tem três valores,
+Público Geral, Qualificado e Profissional, e os três descrevem **qualificação** do investidor,
+não **natureza**. O extrato repete a mesma coisa. Um fundo vendido só para empresas é "Público
+Geral" para a CVM, passa em todos os filtros formais, e chega ao topo de uma lista de varejo.
+
+**A fonte que resolve, e que o projeto não usava.** Antes de raspar 514 regulamentos em PDF,
+fui ver o que a CVM publica em massa. O conjunto `PERFIL_MENSAL` traz a base de cotistas de
+cada classe **quebrada por tipo de detentor**: `NR_COTST_PF_VAREJO`, `NR_COTST_PF_PB`,
+`NR_COTST_DISTRIB`, além das categorias de pessoa jurídica, RPPS, seguradora e fundo de pensão.
+Cobertura: **514 de 514** classes elegíveis.
+
+Isso troca a pergunta de "quem pode entrar", que só o regulamento responde, por **"quem está
+dentro"**, que é medido. É a mesma virada da taxa em D-047: parar de ler o que foi declarado e
+passar a medir o que aconteceu.
+
+**Decisão:** classe sem nenhuma pessoa física e sem nenhum cotista por distribuidor sai do
+universo.
+
+A validação contra os regulamentos foi exata. Os quatro fundos que a cláusula restringe a
+pessoa jurídica têm **zero** pessoa física e **zero** distribuidor. Nenhum falso positivo,
+nenhum falso negativo.
+
+E revelou um quinto que o regulamento não pegava: o **Sicredi Liquidez Empresarial**, cuja
+cláusula permite pessoa física desde 2024, tem 6.476 cotistas pessoa jurídica e **nenhuma
+pessoa física**. Legalmente aberto, praticamente corporativo. A desconfiança que abriu esta
+investigação estava certa; a prova é que estava no cotista e não na cláusula.
+
+**Duas escolhas que impedem a regra de tirar demais.**
+
+Cotista por distribuidor conta **a favor** do fundo. Dinheiro que entra por corretora é
+reportado como uma linha opaca em vez das pessoas por trás dela, e essas pessoas são
+exatamente o investidor de varejo para quem esta entrega é escrita. O BNP Paribas Match tem 4
+pessoas físicas diretas e 132.524 por distribuidor: tirá-lo seria absurdo.
+
+Classe sem o arquivo entregue **fica**. Ausência do relatório não é evidência de ausência de
+pessoas. Nesta execução isso não removeu ninguém, porque a cobertura foi total, mas a regra
+precisa valer para o mês em que não for.
+
+**A regra não tem limiar.** Uma pessoa física basta. Não existe número para calibrar, e
+portanto não existe número que eu pudesse ter escolhido olhando para quais fundos ele remove.
+Isso é o que a separa de um ajuste proibido pela regra 11: eu escolhi **o que medir**, não
+**onde cortar**.
+
+**O efeito.** O funil ganha uma etapa e cai de 514 para **472**, com 42 classes saindo. Os
+perfis vão de 195 e 348 para **165 e 313**. Metade das dez posições publicadas muda.
+
+No perfil de liquidez entra o **Trend DI**, que tem 132.875 cotistas e é um dos 25 fundos de
+renda fixa mais populares do país. Era a primeira vez que um fundo daquela lista chegava ao
+nosso Top 5, e ele chegou porque os quatro veículos corporativos que estavam à frente dele
+saíram.
+
+**O que isso ensina, e vale mais que a correção.** É o terceiro caso do mesmo padrão neste
+projeto: um filtro construído sobre o campo que existe, e não sobre a coisa que se quer medir.
+
+| O que eu queria saber | O campo que eu usava | Como ficou |
+|---|---|---|
+| quanto o fundo cobra | taxa declarada no extrato | medido contra o fundo master (D-047) |
+| se o cliente é pessoa física | `Publico_Alvo` | medido na base de cotistas (D-050) |
+| se quem investe é varejo | número de cotistas | **ainda aberto** |
+
+Os dois primeiros foram corrigidos do mesmo jeito, trocando declaração por medição. O terceiro
+continua declarado como limitação, e agora eu sei que o `PERFIL_MENSAL` provavelmente também o
+resolve, porque ele traz o percentual do patrimônio que cabe a cada tipo de detentor.
 
 ---
 

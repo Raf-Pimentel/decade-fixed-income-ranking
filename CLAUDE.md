@@ -82,6 +82,7 @@ Cada linha tem teste de regressão em `tests/unit/test_traps.py`, `test_readers.
 | 10 | **Aspas duplas soltas em texto livre.** 194 no `extrato_fi_2025.csv`; o leitor engolia quebras de linha e morria com "CSV malformed" | `quote_char=None`: a CVM não usa aspas como delimitador |
 | 11 | **Prazo de resgate vem em dias úteis ou corridos**, misturados (`TP_DIA_PAGTO_RESGATE`) | Converter tudo para dias corridos na leitura. É o 2º maior peso do varejo |
 | 12 | **Extrato e lâmina nomeiam as mesmas colunas de forma diferente** (`QT_DIA_CONVERSAO_COTA` vs `QT_DIA_CONVERSAO_COTA_RESGATE`) | Dois mapeamentos separados; nunca reaproveitar um nome do outro arquivo |
+| 15 | **O campo `Publico_Alvo` não diz se uma pessoa física pode comprar.** Ele classifica qualificação (Público Geral, Qualificado, Profissional), não natureza do investidor. Fundo vendido só para empresa é "Público Geral" para a CVM, passa em todos os filtros formais e chega ao topo de uma lista de varejo. Quatro dos dez publicados eram assim, e um quinto era corporativo na prática apesar de a cláusula permitir PF | Medir quem está dentro, no `PERFIL_MENSAL`: classe sem nenhuma pessoa física e sem nenhum cotista por distribuidor sai. Sem limiar, uma pessoa basta. Caso de teste: `24634187000143` (regulamento permite PF, tem 6.476 PJ e zero PF). Ver D-050 |
 | 14 | **A taxa declarada no extrato não é o preço que o cliente paga**, para classes que investem através de outros fundos. A mesma classe declarava 0,400% em 2024 e declara 0,040% em 2025; há classes que declaravam 2,60% e hoje declaram 0,040%. No arquivo, 580 de 2.655 classes tiveram a taxa cair 3x ou mais entre os dois anos, e 235 foram parar em exatamente 0,040%. **Ler o campo e acreditar nele coloca no topo do ranking justamente quem preenche assim**, porque custo é o maior peso | Taxa **medida** contra o fundo master, via CDA: `1 − (crescimento da classe ÷ crescimento do master) ^ (1 ÷ anos)`. Onde os dois números existem, vence o maior. Alimentadora sem medição fica sem taxa e sai do universo. Caso de teste: `51998694000139` (declara 0,040%, cobra 0,396%). Ver D-047 e `docs/04-a-taxa-e-a-conferencia.md` |
 | 13 | **Uma carteira aparece no registro como vários fundos.** Uma gestora vende a mesma carteira por várias classes de distribuição, e a Caixa tem 12 sobre uma só. CNPJs diferentes, nomes diferentes, notas quase iguais: um Top 5 sem tratamento devolve a mesma exposição duas vezes. **Correlação não identifica isso** em pós-fixado, porque todo fundo segue a mesma curva e correlaciona acima de 0,99 | Mesma gestora **e** volatilidade anualizada da diferença entre as séries abaixo de 0,10% a.a. Caso de teste: `52239457000157` e `52239793000108` (Itaú Janeiro e Itaú Private Janeiro, 0,062% a.a.) |
 
@@ -103,8 +104,9 @@ Se o pipeline produzir números diferentes, ou a CVM mudou algo ou eu quebrei al
 | ≥ 200 observações | 2.924 | ±3% |
 | PL ≥ R$ 10 mi | 2.690 | ±3% |
 | ≥ 500 cotistas | 787 | ±3% |
-| Com taxa e prazo **verificáveis** | **514** | ±3% |
-| dos quais Público Geral | 496 | ±3% |
+| Com taxa e prazo **verificáveis** | 514 | ±3% |
+| **Alcançáveis por pessoa física** | **472** | ±3% |
+| dos quais Público Geral | 455 | ±3% |
 | dos quais Qualificado | 17 | ±5% |
 
 Reproduzido em 20/08/2026 pelo pipeline contra os arquivos completos, com desvio
@@ -204,7 +206,7 @@ minha e manual.** Nunca declarar "pronto" sem ter rodado e colado a saída.
 
 ```bash
 uv sync                                  # instalar
-uv run pytest -q                         # 305 testes
+uv run pytest -q                         # 315 testes
 uv run pytest --cov=src --cov-report=term-missing
 uv run ruff check . && uv run mypy src   # qualidade
 uv run ranking --reference-date 2025-12-31             # o ranking
@@ -220,5 +222,6 @@ uv run ranking --reference-date 2025-12-31 --validate  # + o teste fora da amost
 | Extrato | `https://dados.cvm.gov.br/dados/FI/DOC/EXTRATO/DADOS/extrato_fi_YYYY.csv` |
 | Lâmina | `https://dados.cvm.gov.br/dados/FI/DOC/LAMINA/DADOS/lamina_fi_YYYYMM.zip` |
 | Composição de carteira (CDA) | `https://dados.cvm.gov.br/dados/FI/DOC/CDA/DADOS/cda_fi_YYYYMM.zip`. Só o bloco `BLC_2`, que nomeia o fundo por trás de cada classe |
+| Perfil mensal | `https://dados.cvm.gov.br/dados/FI/DOC/PERFIL_MENSAL/DADOS/perfil_mensal_fi_YYYYMM.csv`. A base de cotistas por tipo de detentor |
 | CDI (BCB série 12) | `https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados?formato=json` |
 | ANBIMA IMA | `https://www.anbima.com.br/informacoes/ima/arqs/ima_completo.xls` |

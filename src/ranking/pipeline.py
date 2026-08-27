@@ -86,6 +86,10 @@ class Inputs:
     # which leaves every fee as declared rather than stopping the run: a
     # ranking without measured fees is worse, not unusable.
     holdings: pl.DataFrame = field(default_factory=pl.DataFrame)
+    # Who holds each class, split by kind. Empty when the filing is absent,
+    # which leaves every class in the universe rather than removing what the
+    # CVM happened not to publish.
+    investor_profile: pl.DataFrame = field(default_factory=pl.DataFrame)
     manifest: dict[str, object] = field(default_factory=dict)
 
 
@@ -182,8 +186,10 @@ def _load_offline(input_dir: Path) -> Inputs:
         "statement.csv",
         "cdi.json",
         "holdings.csv",
+        "investor_profile.csv",
     ]
     holdings_path = input_dir / "holdings.csv"
+    profile_path = input_dir / "investor_profile.csv"
     return Inputs(
         daily=readers.read_daily_report(input_dir / "daily_report.csv"),
         registry=readers.read_registry(
@@ -192,6 +198,17 @@ def _load_offline(input_dir: Path) -> Inputs:
         statement=readers.read_statement(input_dir / "statement.csv"),
         factsheet=readers.read_factsheet(factsheet_path) if factsheet_path.exists() else empty,
         cdi=readers.read_cdi(input_dir / "cdi.json"),
+        investor_profile=(
+            readers.read_investor_profile(profile_path)
+            if profile_path.exists()
+            else pl.DataFrame(
+                schema={
+                    "cnpj_classe": pl.String,
+                    "cotistas_pf": pl.Float64,
+                    "cotistas_distribuidor": pl.Float64,
+                }
+            )
+        ),
         holdings=(
             readers.read_holdings(holdings_path)
             if holdings_path.exists()
@@ -310,6 +327,30 @@ def _download(
         )
     )
 
+    # The holder mix of the last month in the window. Who is inside a fund
+    # does not turn over week to week, so one file answers the question.
+    profile_stem = f"perfil_mensal_fi_{last_year}{last_month:02d}"
+    profile_file = fetch("investor_profile", year=last_year, month=last_month)
+    profile_part = _parsed(
+        cache_dir,
+        profile_stem,
+        entries[
+            http.resolve_url(sources["investor_profile"].filename, year=last_year, month=last_month)
+        ],
+        partial(readers.read_investor_profile, profile_file),
+    )
+    investor_profile = (
+        pl.read_parquet(profile_part)
+        if profile_part is not None
+        else pl.DataFrame(
+            schema={
+                "cnpj_classe": pl.String,
+                "cotistas_pf": pl.Float64,
+                "cotistas_distribuidor": pl.Float64,
+            }
+        )
+    )
+
     cdi = readers.read_cdi(fetch("cdi", start=start, end=end, year=end.year))
 
     manifest.write(entries, cache_dir / "manifest.json")
@@ -320,6 +361,7 @@ def _download(
         factsheet=factsheet,
         cdi=cdi,
         holdings=holdings,
+        investor_profile=investor_profile,
         manifest={name: entry.sha256 for name, entry in entries.items()},
     )
 
@@ -403,7 +445,12 @@ def run(
         update={"min_observations": round(universe_config.filters.min_observations * months / 12)}
     )
     built = universe.build(
-        inputs.registry, series, terms, filters=filters, reference_date=reference_date
+        inputs.registry,
+        series,
+        terms,
+        filters=filters,
+        reference_date=reference_date,
+        investor_profile=inputs.investor_profile,
     )
     funnel = quality.compare_funnel(
         built.counts,

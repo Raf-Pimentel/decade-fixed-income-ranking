@@ -354,6 +354,43 @@ def read_factsheet(path: Path) -> pl.DataFrame:
     return _with_redemption_days(frame)
 
 
+_INVESTOR_PROFILE = {
+    "CNPJ_FUNDO_CLASSE": "cnpj_classe",
+    "NR_COTST_PF_VAREJO": "cotistas_pf_varejo",
+    "NR_COTST_PF_PB": "cotistas_pf_private",
+    "NR_COTST_DISTRIB": "cotistas_distribuidor",
+}
+
+
+def read_investor_profile(path: Path) -> pl.DataFrame:
+    """Who actually holds each class, counted rather than declared.
+
+    Only the three columns that answer one question: is a person inside this
+    fund? Individuals are reported in two buckets, retail and private banking,
+    and money that arrives through a broker is reported as one distributor
+    line rather than as the people behind it. Those three added together are
+    the evidence; the remaining hundred columns describe companies, pension
+    schemes and insurers, and are not read.
+    """
+    frame = _select_and_rename(read_latin1_csv(path), _INVESTOR_PROFILE)
+    frame = _cast_present(
+        frame,
+        {
+            "cnpj_classe": _clean_cnpj("cnpj_classe"),
+            "cotistas_pf_varejo": pl.col("cotistas_pf_varejo").cast(pl.Float64, strict=False),
+            "cotistas_pf_private": pl.col("cotistas_pf_private").cast(pl.Float64, strict=False),
+            "cotistas_distribuidor": pl.col("cotistas_distribuidor").cast(pl.Float64, strict=False),
+        },
+    )
+    return frame.with_columns(
+        (
+            pl.col("cotistas_pf_varejo").fill_null(0.0)
+            + pl.col("cotistas_pf_private").fill_null(0.0)
+        ).alias("cotistas_pf"),
+        pl.col("cotistas_distribuidor").fill_null(0.0).alias("cotistas_distribuidor"),
+    ).select("cnpj_classe", "cotistas_pf", "cotistas_distribuidor")
+
+
 _HOLDINGS = {
     "CNPJ_FUNDO_CLASSE": "cnpj_classe",
     "CNPJ_FUNDO_CLASSE_COTA": "cnpj_investido",

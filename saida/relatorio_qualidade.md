@@ -14,3 +14,4 @@ Tolerance: 3%. Verdict: **within baseline**.
 | above_min_assets | 2,690 | 2,690 | +0.00% | ok |
 | above_min_shareholders | 787 | 787 | +0.00% | ok |
 | with_fee_and_redemption | 514 | 514 | +0.00% | ok |
+| reachable_by_individuals | 472 | 472 | +0.00% | ok |

@@ -9,17 +9,17 @@ o que ainda falta. O histórico de execução fase a fase vive no diário de dec
 
 | | |
 |---|---|
-| Suíte | **309 testes verdes** · cobertura 93% nos módulos de cálculo |
+| Suíte | **315 testes verdes** · cobertura 93% nos módulos de cálculo |
 | `ruff`, `ruff format`, `mypy` | limpos |
 | Funil de qualidade | dentro do baseline |
-| Universo | **514 fundos** de 36.594 classes · 496 varejo |
-| Perfis | 195 elegíveis na reserva de emergência · 348 no de dois anos |
+| Universo | **472 fundos** de 36.594 classes · 455 varejo |
+| Perfis | 165 elegíveis na reserva de emergência · 313 no de dois anos |
 | Janela | 12 meses, **01/01/2025 a 31/12/2025**, 252 dias úteis, CDI 14,3242% |
 | Execução | `uv run ranking --reference-date 2025-12-31`, cerca de 40 s |
 | Validação | acrescentar `--validate`, alguns minutos |
 | Automação | construída e comprovada pelo commit `76102a4`, agendamento comentado |
 | Teste no passado | **validado**, 3/3 nos dois perfis contra o critério de 2/3 |
-| Decisões registradas | 49, com 6 reversões preservadas |
+| Decisões registradas | 50, com 6 reversões preservadas |
 | Tag | `v1.0.0` |
 
 Entregáveis versionados em `saida/`: `ranking.md` · `ranking.json` · `ranking.html` ·
@@ -77,6 +77,8 @@ manual continua valendo.
 
 Duas limitações de método que também são escolhas, e estão explicadas no desenho: **os pesos
 são declarados e não deduzidos**, e **o corte de cotistas não separa varejo de institucional**.
+Esta última é a única das três do mesmo padrão que continua aberta: a taxa e o acesso de pessoa
+física deixaram de ser lidos e passaram a ser medidos, em D-047 e D-050.
 
 ---
 
