@@ -13,7 +13,7 @@ It was built for a case study with a reference period of **31 December 2025**.
 ## Video walkthrough
 
 <!-- Replace with: [Watch the 5-minute walkthrough](URL) -->
-**Link to be added.** Five minutes covering the design, the decision I am least sure about,
+**[Link](https://www.youtube.com/watch?v=c7FcTKU88tU)** Five minutes covering the design, the decision I am least sure about,
 and the path to production.
 
 The decision I am least sure about is **the weights**. Cost carries the heaviest weight in
