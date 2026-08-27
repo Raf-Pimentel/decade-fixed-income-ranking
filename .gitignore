@@ -37,3 +37,7 @@ images/
 
 # Preparation for the video walkthrough, which is mine and not part of the work.
 docs/03-guia-de-defesa.md
+
+# Local editor settings for this machine, not part of the delivery.
+# `.claude/commands/` stays versioned: the /fim-de-fase command is part of the method.
+.claude/settings.json

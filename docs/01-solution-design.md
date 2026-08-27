@@ -178,8 +178,8 @@ como data, e não só a contagem de meses.
 ## 6. Como se decide o que é "melhor"
 
 O corte é **quando o cliente precisa do dinheiro de volta**, e sai do próprio dado: 58% do
-universo de varejo devolve no mesmo dia, então uma lista única entregaria os mesmos cinco fundos
-para quem guarda para uma viagem e para quem guarda para três anos.
+universo de varejo devolve em até um dia (D+0 ou D+1), então uma lista única entregaria os mesmos
+cinco fundos para quem guarda para uma viagem e para quem guarda para três anos.
 
 O enunciado sugere varejo contra investidor qualificado, e eu comecei por aí. **O dado não
 sustentou:** só 28% dos fundos restritos a qualificado publicam taxa e prazo, contra 64% no

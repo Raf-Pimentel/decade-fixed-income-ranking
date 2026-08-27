@@ -22,9 +22,9 @@ metrics:
 profiles:
 
   # Two profiles, both retail, separated by when the client needs the money
-  # back. See decision D-032: 58% of the retail universe redeems at D+0, so a
-  # single retail ranking would hand the same five funds to someone who needs
-  # the money tomorrow and to someone investing for three years.
+  # back. See decision D-032: 58% of the retail universe redeems within a day
+  # (D+0 or D+1), so a single retail ranking would hand the same five funds to
+  # someone who needs the money tomorrow and to someone investing for three years.
   #
   # The universes overlap on purpose. Someone with a long horizon can happily
   # buy a same-day fund, since spare liquidity is not a defect, so the horizon

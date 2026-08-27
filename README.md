@@ -12,9 +12,8 @@ It was built for a case study with a reference period of **31 December 2025**.
 
 ## Video walkthrough
 
-<!-- Replace with: [Watch the 5-minute walkthrough](URL) -->
-**[Link](https://www.youtube.com/watch?v=c7FcTKU88tU)** Five minutes covering the design, the decision I am least sure about,
-and the path to production.
+[**Watch the 5-minute walkthrough**](https://www.youtube.com/watch?v=c7FcTKU88tU) — the design,
+the decision I am least sure about, and the path to production.
 
 The decision I am least sure about is **the weights**. Cost carries the heaviest weight in
 both profiles, and the argument for it is real: the fee is the only number known with
@@ -98,9 +97,9 @@ The design is written up in [`docs/01-solution-design.md`](docs/01-solution-desi
 
 ## The two profiles
 
-The split is by when the client needs the money back. 58% of the retail universe pays out the
-same day, and a single list would hand the same five funds to someone saving for a holiday
-and someone saving for three years.
+The split is by when the client needs the money back. 58% of the retail universe pays out
+within a day (D+0 or D+1), and a single list would hand the same five funds to someone saving
+for a holiday and someone saving for three years.
 
 | | Emergency reserve | Two years or more |
 | --- | --- | --- |
