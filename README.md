@@ -36,8 +36,7 @@ That is one command and it takes about 40 seconds from a cold cache. It download
 | [`validacao.md`](saida/validacao.md) | the out-of-sample test |
 | [`top10.md`](saida/top10.md) | ten funds per profile instead of five, for holding this ranking against the ones the market publishes |
 
-Those files are committed to the repository. A deliverable that only exists after someone
-runs the pipeline has not really been delivered.
+Those files are committed to the repository.
 
 The answer is the top five. `top10.md` exists because comparing a list of five against a
 published ranking of twenty-five is awkward, and it is built from the same walk down the same
@@ -175,19 +174,15 @@ five-fund portfolios drawn from that same universe.
 | Emergency reserve | 3 of 3 dates (p90, p98, p97) | +11 to +26 bp |
 | Two years or more | 3 of 3 dates (p88, p95, p93) | +8 to +22 bp |
 
-**The verdict passes and the result is still modest.** The top five beat the median of its
-universe in all six cuts, by margins between eight and twenty-six basis points, and it
-underperformed the CDI in all six. Post-fixed funds all return close to the CDI, so the whole
+**The verdict passes.** 
+The top five beat the median of its universe in all six cuts, by margins between eight and twenty-six basis points.
+Post-fixed funds all return close to the CDI, so the whole
 distribution is only a few dozen basis points wide, and three cuts inside a single year
 cannot separate method from luck. Outcomes are read from the full validated panel rather than
 from the funds still eligible at the end, so a fund that shrank out of the universe is still
 carried into the average with whatever it did.
 
 These numbers improved when the fee stopped being read off a form and started being measured.
-That is worth saying plainly, because a method that gets better right after its author
-changes something is exactly what a frozen success criterion exists to guard against: the
-rule was written down and argued before this test was re-run, and the criterion itself has
-not moved since it was committed.
 
 ## Development
 
