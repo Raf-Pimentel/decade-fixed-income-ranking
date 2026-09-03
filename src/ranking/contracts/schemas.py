@@ -199,6 +199,35 @@ class Displaced(BaseModel):
     )
 
 
+class CostExcluded(BaseModel):
+    """A finalist the score reached and the cost gate struck for being too
+    expensive to publish (D-051)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    cnpj_classe: str
+    name: str
+    taxa_adm_declarada: float | None = None
+    taxa_adm_medida: float | None = None
+    custo_porteiro: float = Field(
+        description="the cost the gate judged this fund by: the reliable of the two figures"
+    )
+
+
+class PerformanceExcluded(BaseModel):
+    """A finalist the score reached and the performance floor struck for sitting
+    well below its own peer group on excess return (D-055)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    cnpj_classe: str
+    name: str
+    excesso: float | None = None
+    excess_percentile: float = Field(
+        description="the fund's excess-return percentile within its peer group, 0 worst to 1 best"
+    )
+
+
 class ProfileRanking(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -221,6 +250,14 @@ class ProfileRanking(BaseModel):
     displaced: list[Displaced] = Field(
         default_factory=list,
         description="funds excluded from the list for duplicating a fund already in it",
+    )
+    cost_excluded: list[CostExcluded] = Field(
+        default_factory=list,
+        description="funds the score reached but the cost gate struck for being too expensive",
+    )
+    performance_excluded: list[PerformanceExcluded] = Field(
+        default_factory=list,
+        description="funds the score reached but the performance floor struck for lagging peers",
     )
     manager_share: dict[str, float] = Field(
         default_factory=dict,

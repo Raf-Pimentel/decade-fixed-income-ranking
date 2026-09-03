@@ -166,6 +166,17 @@ def build(
         frame = frame.filter(pl.col("exclusivo") != "S")
     counts["non_exclusive"] = len(frame)
 
+    # A "zeragem" fund zeroes out end-of-day cash inside a structure; it is an
+    # operational vehicle, not a product a client buys, so it is cut the same
+    # way an exclusive fund is. Decade confirmed one such fund sat outside the
+    # universe they evaluate. Named markers, config-driven. See decision D-052.
+    if filters.exclude_name_markers and "denominacao_social" in frame.columns:
+        pattern = "|".join(filters.exclude_name_markers)
+        frame = frame.filter(
+            ~pl.col("denominacao_social").str.to_uppercase().str.contains(pattern).fill_null(False)
+        )
+    counts["not_cash_sweep"] = len(frame)
+
     summary = summarise_series(series, reference_date)
     frame = frame.join(summary, on="cnpj_classe", how="inner")
     counts["with_quota_series"] = len(frame)

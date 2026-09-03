@@ -19,7 +19,7 @@ o que ainda falta. O histórico de execução fase a fase vive no diário de dec
 | Validação | acrescentar `--validate`, alguns minutos |
 | Automação | construída e comprovada pelo commit `76102a4`, agendamento comentado |
 | Teste no passado | **validado**, 3/3 nos dois perfis contra o critério de 2/3 |
-| Decisões registradas | 50, com 6 reversões preservadas |
+| Decisões registradas | 51, com 7 reversões preservadas |
 | Tag | `v1.0.0` |
 
 Entregáveis versionados em `saida/`: `ranking.md` · `ranking.json` · `ranking.html` ·
@@ -28,13 +28,14 @@ Entregáveis versionados em `saida/`: `ranking.md` · `ranking.json` · `ranking
 ### O que o veredito de "validado" quer dizer, e o que não quer
 
 Passou no critério congelado antes de rodar. E, na mesma tabela: o Top 5 bateu a mediana dos
-elegíveis em **6 de 6** recortes, com vantagem entre **+8 e +22 pontos-base**, e ficou **abaixo
+elegíveis em **6 de 6** recortes, com vantagem entre **+9 e +23 pontos-base**, e ficou **abaixo
 do CDI nos 6**. As medições saem do painel validado inteiro, não do universo elegível no fim,
 justamente para que fundo que saiu do universo entre na conta.
 
-Esses números eram 2 de 6, com vantagem de −15 a +21 pontos-base, até 24/08. O que mudou foi a
-taxa deixar de ser lida no extrato e passar a ser medida contra o fundo que cada classe compra.
-O critério de sucesso não se moveu, e a regra foi escrita antes daquela execução. Ver D-047.
+Este é o resultado do desenho da D-051: a taxa saiu do score e virou porteiro de custo, o peso
+liberado foi para o risco, e o backtest foi rodado uma vez com o critério congelado, passando
+3/3 nos dois perfis (o desenho anterior era 2/3 e 3/3). O critério de sucesso não se moveu, e o
+corte de custo e os pesos foram escritos antes desta execução. Ver D-051.
 
 ---
 

@@ -30,9 +30,10 @@ def describe(fund: RankedFund) -> str:
 
     fee = numbers.get("taxa_adm")
     if isinstance(fee, float):
-        cheap = fund.percentiles.get("admin_fee", 0.5)
-        how = "entre as mais baratas" if cheap >= 0.75 else "cara" if cheap <= 0.25 else "mediana"
-        parts.append(f"taxa de {_percent(fee, 3)} ao ano, {how} do grupo")
+        # Reported plainly, not ranked: the fee no longer scores a fund (D-051),
+        # it only gates the finalists, so there is no cost percentile to place it
+        # against.
+        parts.append(f"taxa de {_percent(fee, 3)} ao ano")
     elif numbers.get("taxa_zero_declarada"):
         # Reported, not scored: the fee is charged somewhere we cannot see.
         parts.append("taxa declarada de zero, provavelmente cobrada no fundo investidor")
@@ -118,6 +119,35 @@ def _profile_footnotes(profile: ProfileRanking, explained: set[str]) -> list[str
             lines += [
                 f"- *{item.name}* (nota {item.score:.1f}) repete **{item.duplicate_of}**. "
                 f"As duas séries diferem em {item.tracking_difference:.4%} ao ano.",
+            ]
+        lines += [""]
+
+    if profile.cost_excluded:
+        lines += [
+            "**Fundos que a nota alcançou e o porteiro de custo barrou.** A taxa não pontua o "
+            "fundo (ela é medida com incerteza), mas um custo alto demais tira o fundo da "
+            "lista. O custo usado é o número confiável de cada caso: a taxa declarada, ou a "
+            "medida quando a declarada é a baixa demais para ser verdade.",
+            "",
+        ]
+        for gated in profile.cost_excluded:
+            lines += [
+                f"- *{gated.name}* barrado por custo de {gated.custo_porteiro:.3%} ao ano "
+                "(acima do teto).",
+            ]
+        lines += [""]
+
+    if profile.performance_excluded:
+        lines += [
+            "**Fundos que a nota alcançou e o piso de performance barrou.** Um fundo batido pela "
+            "maioria dos próprios pares no ganho sobre o CDI sai da lista, por mais barato, "
+            "antigo ou estável que seja. É a bandeira vermelha que nenhuma outra virtude cobre.",
+            "",
+        ]
+        for flagged in profile.performance_excluded:
+            lines += [
+                f"- *{flagged.name}* barrado por ficar no percentil "
+                f"{flagged.excess_percentile:.0%} de ganho sobre o CDI dentro do próprio grupo.",
             ]
         lines += [""]
 
@@ -211,17 +241,17 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
         "",
         "### E três coisas que valem ser ditas",
         "",
-        "**Os pesos são uma escolha, não uma dedução.** Custo pesa mais que rentabilidade "
-        "passada por dois motivos: a taxa é o único número que se sabe com certeza sobre o "
-        "ano que vem, e apenas 40% dos fundos bateram o CDI em 2025. Ainda assim, não há "
-        "demonstração de que esses pesos sejam os melhores possíveis. O que o projeto "
-        "garante é que, informados outros pesos, o resultado sai coerente com eles. Os pesos "
-        "ficam em um arquivo de configuração.",
+        "**Os pesos são uma escolha, não uma dedução.** O risco lidera os dois perfis: a taxa "
+        "saiu do score e virou porteiro, porque ela é medida com incerteza e um peso fino "
+        "sobre ela ranqueava fundos no ruído (ver D-051). Ainda assim, não há demonstração de "
+        "que esses pesos sejam os melhores possíveis. O que o projeto garante é que, "
+        "informados outros pesos, o resultado sai coerente com eles. Os pesos ficam em um "
+        "arquivo de configuração.",
         "",
-        "**A lista concentra em poucas gestoras.** É consequência coerente do critério: as "
-        "gestoras dos grandes bancos praticam taxas muito baixas nos fundos de casa, e custo "
-        "é o maior peso. Isso não é uma recomendação de concentrar. É o que o critério "
-        "devolve.",
+        "**A lista pode concentrar em poucas gestoras.** É consequência do universo, não uma "
+        "recomendação de concentrar: quando uma casa responde por boa parte dos fundos "
+        "elegíveis, uma lista tirada dele a repete. A concentração de cada perfil está dita "
+        "ao lado da própria lista.",
         "",
         f"**A ordem entre os cinco não é forte.** Com {payload.lookback_months} meses de dados "
         "diários, a incerteza sobre o retorno ajustado ao risco é maior que a distância entre "
@@ -244,7 +274,7 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
         "sobrevivência de cada um:",
         "",
         "| Fundo | Perfil | Nota no grupo | Nota no universo | Apareceu no top 5 "
-        "| Só pelo desempenho |",
+        "| Só desempenho e risco |",
         "|---|---|---:|---:|---:|---:|",
     ]
     for profile in payload.profiles:
@@ -271,15 +301,13 @@ def write_markdown(payload: RankingOutput, path: Path, notes: list[str] | None =
     lines += [
         "",
         "**A última coluna responde outra pergunta:** este fundo continuaria no top 5 se "
-        "fosse pontuado **só pelo desempenho**, ou seja, por retorno, ganho sobre o CDI, "
-        "oscilação e pior queda, ignorando taxa e prazo de resgate?",
+        "fosse pontuado **só por desempenho e risco** — retorno, ganho sobre o CDI, oscilação "
+        "e pior queda — ignorando o tamanho e o prazo de resgate?",
         "",
-        "Para a maioria, a resposta é não. Isso não é defeito: é a consequência deliberada "
-        "de dar à taxa o maior peso, porque ela é o único número que se sabe com certeza "
-        "sobre o ano que vem, e porque apenas 40% dos fundos bateram o CDI em 2025. "
-        "**Mas quem lê esta lista tem o direito de saber que ela é, em grande parte, um "
-        "ranking de custo e liquidez**, e que os fundos escolhidos não seriam os mesmos se "
-        "o critério fosse desempenho passado.",
+        "A taxa já não está no score: ela saiu de vez e virou porteiro (ver D-051), então a "
+        "lista não é mais, como era antes, em grande parte um ranking de custo. Esta coluna "
+        "mostra o que sobra quando também se ignora o tamanho do fundo. Onde ela acompanha a "
+        "coluna anterior, a posição vem do desempenho e do risco, e não de o fundo ser grande.",
         "",
         "Todos os números por fundo estão em `ranking.json`.",
         "",

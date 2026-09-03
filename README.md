@@ -96,11 +96,14 @@ for a holiday and someone saving for three years.
 | Redemption | up to D+1 | up to D+30 |
 | Minimum investment | ≤ R$ 5,000 | ≤ R$ 50,000 |
 | Eligible funds | 165 | 313 |
-| Heaviest weight | admin fee | admin fee |
-| Then | volatility, worst fall | excess over CDI, return per unit of risk |
+| Heaviest weight | volatility | return per unit of risk |
+| Then | worst fall, size | worst fall, excess over CDI |
+| Cost | a gate above 1%/yr, not a weight | a gate above 1%/yr, not a weight |
 
-Cost outweighs past return in both profiles. The fee is the only number we know with
-certainty about next year, and only 40% of funds beat the CDI in 2025.
+Risk leads both profiles. The fee no longer scores a fund: it is measured with uncertainty, so
+it became a gate that strikes any finalist above 1% a year rather than a fine weight (D-051).
+The concern about cost is still real — only 40% of funds beat the CDI in 2025 — which is why the
+gate keeps the egregiously expensive out.
 
 The weights are a declared choice rather than something derived, and the ones actually
 applied are published next to the ones declared. A criterion that every eligible fund ties on
@@ -109,9 +112,10 @@ cannot separate anything, so its weight moves to the criteria that still can, an
 
 ## The fee is measured, not read
 
-Cost decides more of this ranking than anything else, which makes it the number the project
-can least afford to get wrong. The CVM statement carries a declared administration fee, and
-for one family of classes that figure is not the price the client pays.
+Cost still matters to a retail client, but it is measured with uncertainty, so it gates the
+finalists rather than scoring them (see the note above and D-051). The CVM statement carries a
+declared administration fee, and for one family of classes that figure is not the price the
+client pays.
 
 Under RCVM 175 a manager runs one portfolio and sells it through feeder classes, each filing
 its own statement. Some houses now file a nominal class-level figure there. In the file, 580
@@ -131,6 +135,14 @@ The link between class and master comes from the CVM's portfolio composition fil
 else is needed, and nothing depends on a form being filled in correctly. Checked against an
 outside source, the two funds where this mattered most measure 0.396% and 0.511% here,
 against 0.37% and 0.42% reported by Economática.
+
+But the measurement is only a coarse signal. Across the whole universe it runs above the
+declared fee (median gap +0.27 pt) and is noisy year to year (2024-vs-2025 correlation 0.615),
+so the project does not trust its exact value. The fee therefore **does not score a fund**. It
+gates the finalists: a fund whose cost — the declared fee, or the measured one where the
+declared is suspiciously low — exceeds **1% a year** is struck and the next distinct fund
+promoted. See [`docs/04-a-taxa-e-a-conferencia.md`](docs/04-a-taxa-e-a-conferencia.md) and
+decision D-051.
 
 Three rules settle the number, and each costs a fund rather than rewards it. Where both
 figures exist, the **higher** wins: a class does not charge less than its manager filed, so a
@@ -187,7 +199,7 @@ These numbers improved when the fee stopped being read off a form and started be
 ## Development
 
 ```bash
-uv run pytest                     # 315 tests
+uv run pytest                     # 325 tests
 uv run pytest -m trap             # the CVM data-trap regressions
 uv run pytest -m invariant        # the financial invariants
 uv run ruff check . && uv run mypy src

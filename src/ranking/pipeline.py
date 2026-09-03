@@ -30,7 +30,7 @@ from ranking.contracts import quality, schemas
 from ranking.extract import http, manifest, readers
 from ranking.publish import html, writers
 from ranking.rank import eligibility, robustness, scoring, selection
-from ranking.transform import fees, metrics, panel, universe
+from ranking.transform import fees, metrics, normalize, panel, universe
 
 BUSINESS_DAYS_PER_YEAR = 252
 
@@ -466,7 +466,9 @@ def run(
     measured = panel.build(eligible_series, benchmark_rate=benchmark, reference_date=reference_date)
     funds = built.funds.join(measured, on="cnpj_classe", how="inner").with_columns(
         pl.col("patrimonio_medio").log1p().alias("size"),
-        pl.col("taxa_adm").alias("admin_fee"),
+        # The fee no longer feeds the score (D-051). taxa_adm still travels for
+        # the finalist cost gate and for the delivered output, but it is not
+        # aliased into a scored metric.
         pl.col("dias_resgate").alias("redemption_days"),
         pl.col("excesso").alias("excess_return"),
         pl.col("retorno_por_risco").alias("return_per_risk"),
@@ -474,6 +476,11 @@ def run(
         pl.col("pior_queda").alias("max_drawdown"),
         pl.col("dias_negativos").alias("negative_days"),
         pl.col("estabilidade_fluxo").alias("flow_stability"),
+        # Two peer criteria added to line up with how Decade evaluates a fund
+        # against its category (D-054): how long it has run, and whether its
+        # vehicle escapes the come-cotas that a direct instrument avoids.
+        _track_record_expr(reference_date).alias("track_record"),
+        _tax_efficiency_expr().alias("tax_efficiency"),
     )
 
     # Resample the histories once and share the draws across profiles: the
@@ -643,6 +650,39 @@ def _tax_regime(name: str | None, peer_group: str | None, long_term: str | None)
     return "tabela_regressiva_longo_prazo" if long_term == "S" else "tabela_regressiva"
 
 
+def _tax_efficiency_expr() -> pl.Expr:
+    """How tax-efficient the vehicle is, 0 to 1, as a peer criterion (D-054).
+
+    An infrastructure-incentivised fund is exempt for individuals and pays no
+    come-cotas, so it keeps more of the same gross return than a fund on the
+    regressive table. A long-term regressive fund (come-cotas at 15%) sits above
+    a short-term one. Where every fund in a category pays come-cotas the
+    criterion ties and its weight is redistributed, which is the honest way to
+    say no fund there is more efficient than another.
+    """
+    haystack = (
+        pl.col("denominacao_social").fill_null("")
+        + pl.lit(" ")
+        + pl.col("classificacao_anbima").fill_null("")
+    ).str.to_uppercase()
+    exempt = haystack.str.contains("INCENTIVAD") | haystack.str.contains("INFRA")
+    long_term = pl.col("tributacao_longo_prazo") == "S"
+    return (
+        pl.when(exempt).then(pl.lit(1.0)).when(long_term).then(pl.lit(0.5)).otherwise(pl.lit(0.0))
+    )
+
+
+def _track_record_expr(reference_date: dt.date) -> pl.Expr:
+    """A fund's age in years, the length of its track record (D-054).
+
+    From the constitution date, falling back to the first observed quota, and
+    never from the registry's `Data_Inicio`, which is the RCVM 175 adaptation
+    date and would call a thirty-year-old fund a newborn (trap 3).
+    """
+    started = pl.coalesce("data_constituicao", "primeira_data")
+    return (pl.lit(reference_date).cast(pl.Date) - started).dt.total_days() / normalize.DAYS_IN_YEAR
+
+
 def _latest_date(series: pl.DataFrame, fallback: dt.date) -> dt.date:
     """The last day actually used, for the point-in-time assertion at the top."""
     if series.is_empty():
@@ -800,20 +840,77 @@ def _rank_profile(
     # classes of one portfolio are two rows here and one exposure in a client's
     # account. See decisions D-011 and D-040.
     ordered = scored.sort(["appearance_rate", "score"], descending=True)
-    # Two walks down the same order, which is cheap because the walk is the
-    # cheap part. The delivery gets its own, so that what it reports as passed
-    # over is what was passed over while choosing five: walking further to build
-    # the comparison list meets more duplicates, and those belong to that list
-    # and not to this one. Because the walk is a prefix, the longer list still
-    # opens with exactly the five that were delivered.
     identifiers = ordered["cnpj_classe"].to_list()
-    _, displaced = selection.pick_distinct(identifiers, duplicates, top_n=top_n)
-    list_size = max(top_n, profiles_config.robustness.comparison_size)
-    extended, _ = selection.pick_distinct(identifiers, duplicates, top_n=list_size)
     names = dict(
         zip(ordered["cnpj_classe"].to_list(), ordered["denominacao_social"].to_list(), strict=True)
     )
     scores = dict(zip(ordered["cnpj_classe"].to_list(), ordered["score"].to_list(), strict=True))
+
+    # The cost gate (D-051). The fee no longer scores a fund; it returns here as
+    # a coarse filter on the finalists. A fund whose cost passes the ceiling is
+    # struck and the next distinct fund promoted. The reliable number is used
+    # per fund: the declared fee, or the measured one where the declared is the
+    # suspiciously low value D-047 found.
+    gate = profiles_config.cost_gate
+    declared_of = dict(zip(identifiers, ordered["taxa_adm_declarada"].to_list(), strict=True))
+    measured_of = dict(zip(identifiers, ordered["taxa_adm_medida"].to_list(), strict=True))
+    cost_of = {
+        cnpj: fees.gate_cost(declared_of[cnpj], measured_of[cnpj], gate.declared_trusted_above)
+        for cnpj in identifiers
+    }
+    gated_out = {
+        cnpj for cnpj, cost in cost_of.items() if cost is not None and cost > gate.max_annual_cost
+    }
+
+    # The performance floor (D-055). A finalist beaten by most of its own peer
+    # group on excess return is struck, however cheap or long-lived it is, which
+    # is how Decade treats a fund well below its peers: a red flag that no other
+    # virtue rescues. The percentile is the one the scoring already computed
+    # against the peer group.
+    floor = profiles_config.selection.performance_floor
+    excess_of = dict(zip(identifiers, ordered["excesso"].to_list(), strict=True))
+    excess_pct_of: dict[str, float | None] = (
+        dict(zip(identifiers, ordered["excess_return_pct"].to_list(), strict=True))
+        if "excess_return_pct" in ordered.columns
+        else {}
+    )
+    below_floor = {
+        cnpj for cnpj, pct in excess_pct_of.items() if pct is not None and pct < floor
+    }
+    vetoed = gated_out | below_floor
+
+    list_size = max(top_n, profiles_config.robustness.comparison_size)
+    # One walk applies every rule: the cost gate drops what is too expensive, the
+    # performance floor drops what lags its peers, and the distinctness rule drops
+    # what repeats a fund already chosen. The delivered five are the first five
+    # that survive all of them, and the longer list is a prefix extension.
+    extended, displaced, excluded_ids = selection.gated_top(
+        identifiers, duplicates, vetoed, top_n, list_size
+    )
+    cost_excluded: list[schemas.CostExcluded] = []
+    performance_excluded: list[schemas.PerformanceExcluded] = []
+    for cnpj in excluded_ids:
+        cost = cost_of[cnpj]
+        pct = excess_pct_of.get(cnpj)
+        if cnpj in gated_out and cost is not None:
+            cost_excluded.append(
+                schemas.CostExcluded(
+                    cnpj_classe=cnpj,
+                    name=names.get(cnpj) or cnpj,
+                    taxa_adm_declarada=declared_of.get(cnpj),
+                    taxa_adm_medida=measured_of.get(cnpj),
+                    custo_porteiro=float(cost),
+                )
+            )
+        elif cnpj in below_floor and pct is not None:
+            performance_excluded.append(
+                schemas.PerformanceExcluded(
+                    cnpj_classe=cnpj,
+                    name=names.get(cnpj) or cnpj,
+                    excesso=excess_of.get(cnpj),
+                    excess_percentile=float(pct),
+                )
+            )
     best = ordered.filter(pl.col("cnpj_classe").is_in(extended)).sort(
         pl.col("cnpj_classe").replace_strict(
             {c: i for i, c in enumerate(extended)}, default=len(extended)
@@ -858,6 +955,10 @@ def _rank_profile(
                     "observacoes",
                     "fonte_taxa",
                     "taxa_zero_declarada",
+                    # Track record in years, and the vehicle's tax efficiency:
+                    # the two peer criteria added in D-054.
+                    "track_record",
+                    "tax_efficiency",
                 )
             }
             | {
@@ -894,6 +995,8 @@ def _rank_profile(
                 )
                 for item in displaced
             ],
+            cost_excluded=cost_excluded,
+            performance_excluded=performance_excluded,
             manager_share=_manager_share(pool),
             top=ranked[:top_n],
             top_n=top_n,
@@ -939,20 +1042,23 @@ _NOTES = [
     "ordem por excesso. O que ele altera é o retorno por unidade de risco, que divide esse "
     "excesso por volatilidades diferentes. Afeta 8% do universo e uma das duas métricas de "
     "desempenho.",
-    "**O imposto de renda fica de fora, e isso não é neutro para todo mundo.** A maioria dos "
-    "fundos segue a mesma tabela regressiva, e entre eles a ordem relativa se mantém. Fundos "
-    "incentivados de infraestrutura são **isentos para pessoa física**, então o que o "
-    "cliente leva para casa é maior do que a tabela mostra, e a comparação bruta os "
-    "subestima. O regime de cada fundo está no `ranking.json`, no campo `regime_tributario`.",
+    "**O imposto fica de fora do ranking, e para uma reserva isso importa muito.** Entre os "
+    "fundos a ordem relativa se mantém, mas o come-cotas — o IR semestral que come cotas em "
+    "maio e novembro — faz um fundo DI perder, depois do imposto, para um CDB 100% CDI ou para "
+    "o Tesouro Selic direto, que só pagam IR na saída. `docs/05-come-cotas-e-o-veiculo.md` "
+    "quantifica: contra o CDB, os cinco de liquidez perdem em todo horizonte. Para parquear "
+    "caixa perto do CDI, o veículo eficiente muitas vezes não é fundo. Fundos incentivados de "
+    "infraestrutura são **isentos** (sem come-cotas), e o regime de cada fundo está no "
+    "`ranking.json`, no campo `regime_tributario`.",
     "**Fundos que fecharam não estão na base.** O universo é, por construção, otimista: quem "
     "quebrou em 2025 não aparece para ser comparado.",
     "**A oscilação dos fundos de crédito é subestimada.** Dívida privada no Brasil não é "
     "remarcada todo dia como uma ação, o que faz esses fundos parecerem mais tranquilos do "
     "que são e melhora artificialmente a nota de quem carrega mais risco.",
-    "**A taxa é contada duas vezes, de propósito.** A cota do informe diário já vem "
-    "líquida, então o retorno em excesso ali dentro já pune o fundo caro. Dar à taxa o maior "
-    "peso conta o mesmo custo de novo. A segunda contagem é a que fala sobre 2026, enquanto "
-    "a primeira fala sobre 2025. É escolha, e não descuido.",
+    "**A taxa não pontua o fundo; ela é um porteiro.** A cota do informe diário já vem "
+    "líquida, então o retorno em excesso ali dentro já pune o fundo caro. Em vez de contar o "
+    "custo de novo com um peso fino sobre um número medido com incerteza, a taxa só barra o "
+    "finalista gritantemente caro, acima de 1% ao ano. Ver D-051.",
     "**Cada fundo é avaliado sozinho**, não como parte de uma carteira. Não há restrição de "
     "diversificação além de não repetir a mesma carteira duas vezes, então os cinco escolhidos "
     "podem ser parecidos entre si sem serem idênticos.",

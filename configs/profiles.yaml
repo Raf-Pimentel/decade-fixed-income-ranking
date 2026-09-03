@@ -18,6 +18,9 @@ metrics:
   redemption_days:    {direction: low,  label: "Days until the money arrives"}
   size:               {direction: high, label: "Assets and shareholders"}
   flow_stability:     {direction: high, label: "Not bleeding redemptions"}
+  # Added to line up with how Decade evaluates a fund against its peers (D-054).
+  track_record:       {direction: high, label: "Track record, in years"}
+  tax_efficiency:     {direction: high, label: "Vehicle tax efficiency (exempt of come-cotas)"}
 
 profiles:
 
@@ -34,50 +37,55 @@ profiles:
   varejo_liquidez:
     label: "Retail: emergency reserve"
     description: >
-      Money that may be needed at any moment. Capital preservation and cost
-      dominate; return is a secondary criterion.
+      Money that may be needed at any moment. Capital preservation dominates;
+      return is a secondary criterion. Cost is enforced as a gate on the
+      finalists, not as a scored weight. See D-051.
     eligibility:
       target_investor: ["Público Geral"]
       max_minimum_investment_brl: 5_000
       max_redemption_days: 1
-    weights:            # must sum to 100
-      admin_fee:        25    # D-012: the only number we know for sure about 2026
-      volatility:       20
-      max_drawdown:     15
-      size:             15
-      excess_return:    15
-      redemption_days:  10
+    weights:            # must sum to 100. D-051 (fee is a gate) + D-054 (track record, tax)
+      volatility:       28
+      max_drawdown:     22
+      track_record:     12
+      excess_return:    12
+      size:             12
+      redemption_days:   8
+      tax_efficiency:    6
     jitter:             # +/- range explored in the robustness simulation
-      admin_fee:        5
       volatility:       5
       max_drawdown:     3
-      size:             3
+      track_record:     3
       excess_return:    3
+      size:             3
       redemption_days:  3
+      tax_efficiency:   2
 
   varejo_prazo:
     label: "Retail: two years or more"
     description: >
-      Money with a horizon. Risk-adjusted return matters properly here, but
-      cost still carries the single largest weight. Every fund the liquidity
-      profile can reach, plus everything up to D+30.
+      Money with a horizon. Risk-adjusted return leads here. Cost is enforced as
+      a gate on the finalists, not as a scored weight (D-051). Every fund the
+      liquidity profile can reach, plus everything up to D+30.
     eligibility:
       target_investor: ["Público Geral"]
       max_minimum_investment_brl: 50_000
       max_redemption_days: 30
-    weights:
-      admin_fee:        23
-      excess_return:    22
-      return_per_risk:  20
-      max_drawdown:     15
-      size:             15
-      redemption_days:   5
+    weights:            # D-051 (fee is a gate) + D-054 (track record, tax efficiency)
+      return_per_risk:  28
+      max_drawdown:     20
+      excess_return:    18
+      track_record:     12
+      size:             12
+      tax_efficiency:    6
+      redemption_days:   4
     jitter:
-      admin_fee:        5
-      excess_return:    5
       return_per_risk:  5
       max_drawdown:     3
+      excess_return:    5
+      track_record:     3
       size:             3
+      tax_efficiency:   2
       redemption_days:  3
 
   # Not delivered: funds restricted to qualified investors. Only 79 of the 278
@@ -122,6 +130,27 @@ selection:
   # marks half the universe as duplicated.
   max_tracking_difference: 0.001   # 0.10% a.a.
   min_overlap_days: 60             # below this, two series have not met enough
+  # A finalist beaten by 80% of its own peer group on excess return is a
+  # performance laggard and is struck, however cheap or long-lived it is
+  # (D-055). Mirrors Decade's high-gravity attention point: no other virtue
+  # rescues a fund well below its peers. Fixed a priori, not tuned to a result.
+  performance_floor: 0.20
+
+# The cost gate (decision D-051). The fee no longer scores a fund: the measured
+# number tracks the declared one only coarsely and runs biased high, so a fine
+# weight on it ranked funds on noise. It returns here as a coarse filter on the
+# finalists. A finalist whose cost passes the ceiling is struck and the next
+# distinct fund promoted.
+cost_gate:
+  # 1.0% a.a. A renda fixa DI de varejo raramente passa de 0,5%, então 1% é
+  # onde o produto deixa de ser barato. Fixado pelo limite externo do que é
+  # caro no varejo, não por quais fundos ele remove (regra 11).
+  max_annual_cost: 0.01
+  # At or below this the declared field is the RCVM 175 misfiling signature
+  # (0.040%), not a real fee, so the measurement is used instead. Above it the
+  # declared value is believed, which keeps a genuinely cheap fund whose
+  # measurement ran high from being struck.
+  declared_trusted_above: 0.0005   # 0.05% a.a.
 
 # How we test whether the ranking is real or noise (decision D-011).
 robustness:

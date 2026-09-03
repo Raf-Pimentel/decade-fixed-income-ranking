@@ -141,11 +141,11 @@ def write_html(payload: RankingOutput, path: Path, validation: str | None = None
   <p><span class="flag">Doze meses não dizem o que acontece em 2026.</span> O método foi
      testado fora da amostra e funcionou em 2025, mas 2025 teve um único regime de juros.
      É evidência, não garantia.</p>
-  <p><strong>Os pesos são uma escolha, não uma dedução.</strong> Custo pesa mais que
-     rentabilidade passada porque a taxa é o único número que se sabe com certeza sobre o ano
-     que vem, e porque apenas 40% dos fundos bateram o CDI em 2025. Não há demonstração de
-     que sejam ótimos. Eles ficam em um arquivo de configuração, e o resultado acompanha
-     quem os mudar.</p>
+  <p><strong>Os pesos são uma escolha, não uma dedução.</strong> O risco lidera os dois
+     perfis; a taxa saiu do score e virou porteiro, porque é medida com incerteza e um peso
+     fino sobre ela ranqueava fundos no ruído. Não há demonstração de que os pesos sejam
+     ótimos. Eles ficam em um arquivo de configuração, e o resultado acompanha quem os
+     mudar.</p>
   <p><strong>A ordem entre os cinco não é forte.</strong> A incerteza sobre o retorno
      ajustado ao risco é maior que a distância entre os primeiros colocados. A lista afirma
      que estes cinco se sustentam, não que o primeiro é melhor que o segundo.</p>

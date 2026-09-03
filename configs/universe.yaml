@@ -30,6 +30,10 @@ filters:
   min_shareholders: 500
   min_observations: 200            # business days of quota in the window
   require_fee_and_redemption: true # decision D-013: no recommendation without a price tag
+  # Operational cash-zeroing vehicles, not products a client buys. Decade
+  # confirmed a "zeragem" fund sat outside the universe they evaluate. Cut the
+  # same way an exclusive fund is. See decision D-052.
+  exclude_name_markers: ["ZERAGEM"]
 
 # The administration fee carries the heaviest weight of any criterion, and for
 # feeder classes the declared value is not what the client pays. It is measured

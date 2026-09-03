@@ -176,3 +176,43 @@ def test_everything_past_the_delivered_five_is_marked_as_such(payload) -> None:
         rank = line.split("|")[1].strip()
         if rank.rstrip(" *").isdigit() and int(rank.rstrip(" *")) > delivered:
             assert rank.endswith("*")
+
+
+# ---------------------------------------------------------------------------
+# The cost gate actually holds on the delivered list
+# ---------------------------------------------------------------------------
+
+
+def test_no_published_fund_exceeds_the_cost_gate(payload) -> None:
+    """D-051: the fee left the score and returns as a gate on the finalists, so
+    no fund in a delivered list may sit above the ceiling. Each is judged by the
+    reliable of its two fee figures, exactly as the pipeline judged it."""
+    from ranking import config
+    from ranking.transform import fees
+
+    gate = config.load_profiles(
+        Path(__file__).parents[2] / "configs" / "profiles.yaml"
+    ).cost_gate
+    for profile in payload["profiles"]:
+        for fund in profile["top"]:
+            numbers = fund["metrics"]
+            cost = fees.gate_cost(
+                numbers.get("taxa_adm_declarada"),
+                numbers.get("taxa_adm_medida"),
+                gate.declared_trusted_above,
+            )
+            assert cost is None or cost <= gate.max_annual_cost, fund["name"]
+
+
+def test_no_published_fund_is_below_the_performance_floor(payload) -> None:
+    """D-055: a fund beaten by most of its peers on excess return is struck,
+    however cheap or long-lived. No delivered fund may sit below the floor."""
+    from ranking import config
+
+    floor = config.load_profiles(
+        Path(__file__).parents[2] / "configs" / "profiles.yaml"
+    ).selection.performance_floor
+    for profile in payload["profiles"]:
+        for fund in profile["top"]:
+            pct = fund["percentiles"].get("excess_return")
+            assert pct is None or pct >= floor, fund["name"]

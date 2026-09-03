@@ -21,7 +21,7 @@ disagree* rather than *do they move together*. See D-040.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, Sequence, Set
 from dataclasses import dataclass
 
 
@@ -70,3 +70,32 @@ def pick_distinct(
             )
         )
     return chosen, displaced
+
+
+def gated_top(
+    ordered: Sequence[str],
+    duplicates: Mapping[str, Mapping[str, float]],
+    gated: Set[str],
+    top_n: int,
+    comparison_size: int,
+) -> tuple[list[str], list[Displacement], list[str]]:
+    """Apply the cost gate and the distinctness rule to one ranked order.
+
+    The fee no longer scores a fund (D-051); it returns here as a coarse gate.
+    A fund in `gated` is too expensive to publish, so it is dropped from the
+    order before the distinct list is built and the next distinct fund takes
+    its place. The order itself is never rearranged, exactly as in
+    `pick_distinct`: a struck fund is skipped, not demoted.
+
+    Returns the comparison list, the funds displaced for duplicating one already
+    chosen, and the funds the gate cost the delivery — those that would have
+    been in the top `top_n` had the gate not struck them, so the reader sees
+    what was removed and not only what was kept. Displacement is measured on the
+    delivered five, matching what `pick_distinct` reports on its own.
+    """
+    kept = [candidate for candidate in ordered if candidate not in gated]
+    _, displaced = pick_distinct(kept, duplicates, top_n)
+    extended, _ = pick_distinct(kept, duplicates, comparison_size)
+    ungated, _ = pick_distinct(list(ordered), duplicates, top_n)
+    cost_excluded = [candidate for candidate in ungated if candidate in gated]
+    return extended, displaced, cost_excluded

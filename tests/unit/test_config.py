@@ -57,18 +57,27 @@ def test_every_metric_declares_a_direction(profiles) -> None:
 
 
 @pytest.mark.parametrize("profile_id", ["varejo_liquidez", "varejo_prazo"])
-def test_cost_outweighs_past_return_in_both_profiles(profiles, profile_id: str) -> None:
-    """Decision D-012, encoded so that it cannot be quietly reversed: the fee is
-    the only number we actually know about next year, and only 37% of funds beat
-    the CDI in 2025."""
+def test_the_fee_is_not_a_scored_metric(profiles, profile_id: str) -> None:
+    """Decision D-051, reverting D-012 and D-048, encoded so it cannot be
+    quietly reversed. The measured fee tracks the declared one only coarsely and
+    runs biased high, so it no longer carries a fine weight in the score. It
+    returns as a gate on the finalists instead."""
+    assert "admin_fee" not in profiles.profiles[profile_id].weights
+
+
+@pytest.mark.parametrize(
+    "profile_id,expected",
+    [("varejo_liquidez", "volatility"), ("varejo_prazo", "return_per_risk")],
+)
+def test_a_risk_metric_carries_the_heaviest_weight(
+    profiles, profile_id: str, expected: str
+) -> None:
+    """The weight freed from the fee went to risk on purpose (D-051), so the
+    ranking is not tilted toward whoever took the most risk in a single good
+    year now that cost no longer pulls boring, low-risk funds up."""
     weights = profiles.profiles[profile_id].weights
-    assert weights["admin_fee"] > weights["excess_return"]
-
-
-def test_the_fee_is_the_single_largest_weight(profiles) -> None:
-    for profile in profiles.profiles.values():
-        heaviest = max(profile.weights, key=lambda name: profile.weights[name])
-        assert heaviest == "admin_fee", profile.label
+    heaviest = max(weights, key=lambda name: weights[name])
+    assert heaviest == expected, profiles.profiles[profile_id].label
 
 
 def test_the_liquidity_profile_is_the_stricter_one(profiles) -> None:

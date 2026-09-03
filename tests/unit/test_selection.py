@@ -170,3 +170,41 @@ class TestALongerListContainsTheShortOne:
         ten, _ = selection.pick_distinct(ordered, duplicates, top_n=10)
         assert ten[:5] == five
         assert "a_twin" not in ten and "c_twin" not in ten
+
+
+# ---------------------------------------------------------------------------
+# The cost gate strikes a finalist and the next distinct one is promoted (D-051)
+# ---------------------------------------------------------------------------
+
+
+def test_the_gate_removes_a_struck_fund_and_promotes_the_next() -> None:
+    extended, displaced, cost_excluded = selection.gated_top(
+        ["a", "b", "c", "d", "e"], duplicates={}, gated={"b"}, top_n=3, comparison_size=5
+    )
+    assert extended[:3] == ["a", "c", "d"]  # b struck, d promoted into the five
+    assert cost_excluded == ["b"]  # and named as what the gate cost the list
+    assert displaced == []
+
+
+def test_the_gate_and_the_distinctness_rule_compose() -> None:
+    # c duplicates a, and b is struck by the gate. The delivered three are the
+    # first three that are both distinct and cheap enough.
+    extended, displaced, cost_excluded = selection.gated_top(
+        ["a", "b", "c", "d", "e"],
+        duplicates={"c": {"a": 0.0}},
+        gated={"b"},
+        top_n=3,
+        comparison_size=5,
+    )
+    assert extended[:3] == ["a", "d", "e"]
+    assert cost_excluded == ["b"]
+    assert [d.cnpj_classe for d in displaced] == ["c"]
+
+
+def test_no_gate_reduces_to_pick_distinct() -> None:
+    extended, displaced, cost_excluded = selection.gated_top(
+        ["a", "b", "c"], duplicates={}, gated=set(), top_n=2, comparison_size=3
+    )
+    assert extended[:2] == ["a", "b"]
+    assert cost_excluded == []
+    assert displaced == []

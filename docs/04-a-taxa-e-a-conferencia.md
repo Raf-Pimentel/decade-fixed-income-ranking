@@ -1,8 +1,10 @@
 # Por que a taxa é medida, e não lida
 
-A taxa de administração é o maior peso do ranking, então é o número que menos se pode errar.
-A CVM publica uma taxa declarada no extrato. Para uma família de classes, ela não é o preço
-que o cliente paga.
+A taxa já foi o maior peso do ranking. Não é mais: ela saiu do score e virou **porteiro de
+custo** (D-051), porque a medição, embora acerte a direção, é grossa e enviesada para cima.
+Ainda assim ela precisa estar certa como "caro vs. barato", e este documento mostra por que a
+taxa declarada não serve, como a medida é obtida, e quão confiável ela é. A CVM publica uma taxa
+declarada no extrato. Para uma família de classes, ela não é o preço que o cliente paga.
 
 ## A evidência
 
@@ -67,6 +69,36 @@ se o resultado faz o mínimo de sentido.
 Taxa medida, taxa declarada, retorno, patrimônio e classificação batem por caminhos
 independentes. O prospecto da família Absolute também confirma, de fora, o corte de 95% que
 `universe.yaml` usa: essas classes aplicam no mínimo 95% do patrimônio no fundo master.
+
+## Quão confiável é a medida (conferência interna, Fase 1 da D-051)
+
+A conferência externa acima olha cinco fundos. A interna olha o universo, por dois caminhos.
+
+**Declarada × medida.** Sobre 3.281 feeders com os dois números, a medida corre **acima** da
+declarada na maioria: mediana +0,27 ponto, p90 +3 pontos. Só 11% batem de perto (gap ≤ 0,05
+ponto), e 40% têm a medida inflada em mais de 0,5 ponto. Dos gaps grandes, só metade é o cluster
+do 0,040%; a outra metade é fundo de taxa normal com medição inflada pelo atrito estrutural. A
+medida não é uma leitura fina da taxa.
+
+**Estabilidade entre anos.** Uma taxa real é pegajosa. Medindo o mesmo fundo em 2024 e em 2025, a
+correlação é 0,615 e a deriva mediana é 0,15 ponto, com cauda gorda (p90 de 2,85 pontos). Há
+sinal real, mas ruidoso — e o 2024 do cache é parcial (abr–dez), então 0,615 é piso.
+
+O veredito é o que decide o desenho: a medida é confiável como **caro vs. barato** e não como
+valor exato. Por isso ela não pontua o fundo.
+
+## Como a taxa é usada: porteiro, não peso
+
+A taxa saiu do score e da simulação. Depois do ranking, um passo grosso risca o finalista cujo
+custo passa de **1,0% a.a.** e promove o próximo distinto. O corte foi fixado pelo limite externo
+do que é caro no varejo — RF DI raramente passa de 0,5% — e antes de se saber quais fundos ele
+remove (regra 11).
+
+O porteiro usa o **número confiável de cada caso**: a declarada, exceto quando ela é ≤ 0,05% (a
+assinatura do preenchimento errado), quando usa a medida. Isso evita o falso positivo que o
+`max(declarada, medida)` teria, já que a medida infla fundos de taxa normal. Em dados reais o
+porteiro barra o Itaú Janeiro (declara 0,040%, medido 1,53%) e deixa passar os genuinamente
+baratos. Ver D-051.
 
 ## O que a conferência expôs e continua em aberto
 

@@ -42,6 +42,30 @@ import polars as pl
 LINK_COLUMNS = ["cnpj_classe", "cnpj_master", "share"]
 
 
+def gate_cost(
+    declared: float | None, measured: float | None, declared_trusted_above: float
+) -> float | None:
+    """The cost to judge a finalist by, choosing the reliable number per fund.
+
+    The measurement tracks the declared fee only coarsely and runs biased high,
+    so it is not used as a value where the declared fee is already believable.
+    The declared fee is trusted unless it is at or below `declared_trusted_above`
+    — the suspiciously low figure the RCVM 175 refiling produces, which D-047
+    showed is not the price the client pays — in which case the measured fee
+    replaces it. This keeps a genuinely cheap fund whose measurement ran high
+    from being struck, while still catching a fund that files 0.040% and charges
+    far more.
+
+    Returns ``None`` only when neither number exists, which is a fund the
+    eligibility step would already have removed for having no verifiable cost.
+    """
+    if declared is not None and declared > declared_trusted_above:
+        return declared
+    if measured is not None:
+        return measured
+    return declared
+
+
 def master_of(holdings: pl.DataFrame, min_share: float) -> pl.DataFrame:
     """The single fund a class is a wrapper for, where there is one.
 

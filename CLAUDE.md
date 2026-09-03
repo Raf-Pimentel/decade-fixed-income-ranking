@@ -16,16 +16,24 @@ Desenho completo: `docs/01-solution-design.md`. Estado e desvios declarados:
 `docs/02-checklist.md`.
 Diário de decisões: `docs/decisoes.md`.
 
-**Fases:** 1 ✓ · 2 ✓ · 3 ✓ · 4 ✓ · 5 ✓ · 5.5 teste no passado ✓ (liquidez 3/3,
-prazo 3/3, contra critério de 2/3 por perfil) · 6 documentação ✓. **A entrega está pronta** e
-falta só o vídeo.
+**Fases:** 1 ✓ · 2 ✓ · 3 ✓ · 4 ✓ · 5 ✓ · 5.5 teste no passado ✓ · 6 documentação ✓.
+Depois da entrega, melhorias motivadas por feedback da Decade: a taxa virou **porteiro de custo**
+(D-051); fundos de **zeragem** saíram do universo (D-052); o **come-cotas** foi quantificado
+(D-053, `docs/05`); entraram dois critérios do método deles, **track record** e **eficiência
+tributária** (D-054); e um **piso de performance** (D-055) — que, fixado a priori, não removeu os
+fundos que a Decade apontou e revelou que o descompasso é de definição de pares, não de veto (não
+foi ajustado para forçar, regra 11). O teste fora da amostra foi rodado uma vez a cada mudança e
+passou **3/3 nos dois perfis**. **A entrega está pronta** e falta só o vídeo.
 
-Ler "validado" junto com o resto da tabela: o Top 5 bateu a mediana dos elegíveis em 6 de 6
-recortes, com vantagem entre +8 e +22 pontos-base, e ficou abaixo do CDI nos 6. Ver D-044.
+Por que a taxa mudou de papel: ela é medida com incerteza — a medida corre acima da declarada
+na maioria dos feeders e a estabilidade entre anos é ruidosa (Fase 1 da D-051) — então um peso
+fino sobre ela ranqueava fundos no ruído. Agora ela só barra o finalista gritantemente caro,
+acima de 1% a.a., usando a medida onde a declarada é baixa demais para ser verdade. Ver D-051 e
+`docs/04-a-taxa-e-a-conferencia.md`.
 
-Esses números eram 2 de 6 até 24/08, quando a taxa deixou de ser lida no extrato e passou a
-ser medida contra o fundo que cada classe compra. O critério de sucesso não se moveu, e a
-regra foi escrita antes desta execução. Ver D-047.
+Ler "validado" junto com o resto da tabela, agora com o desenho da D-051: o Top 5 bateu a
+mediana dos elegíveis em 6 de 6 recortes, com vantagem entre +9 e +23 pontos-base, e ficou
+abaixo do CDI nos 6. Ver D-044 e `saida/validacao.md`.
 
 Estado detalhado e o que foi deixado de fora: `docs/02-checklist.md`.
 
@@ -80,10 +88,10 @@ Cada linha tem teste de regressão em `tests/unit/test_traps.py`, `test_readers.
 | 8 | **Amortização derruba a cota sem prejuízo real** | Variação diária > 20% é marcada, **não descartada** |
 | 9 | **`registro_fundo.csv` repete chaves.** 89.749 linhas para 88.617 ids; o join inflava o universo em 2% e a tolerância do funil **não pegou** | Colapsar chave antes de juntar; `read_registry` falha se a junção mudar a contagem |
 | 10 | **Aspas duplas soltas em texto livre.** 194 no `extrato_fi_2025.csv`; o leitor engolia quebras de linha e morria com "CSV malformed" | `quote_char=None`: a CVM não usa aspas como delimitador |
-| 11 | **Prazo de resgate vem em dias úteis ou corridos**, misturados (`TP_DIA_PAGTO_RESGATE`) | Converter tudo para dias corridos na leitura. É o 2º maior peso do varejo |
+| 11 | **Prazo de resgate vem em dias úteis ou corridos**, misturados (`TP_DIA_PAGTO_RESGATE`) | Converter tudo para dias corridos na leitura. Separa os dois perfis de varejo (D+1 vs D+30) e ainda entra com peso pequeno |
 | 12 | **Extrato e lâmina nomeiam as mesmas colunas de forma diferente** (`QT_DIA_CONVERSAO_COTA` vs `QT_DIA_CONVERSAO_COTA_RESGATE`) | Dois mapeamentos separados; nunca reaproveitar um nome do outro arquivo |
 | 15 | **O campo `Publico_Alvo` não diz se uma pessoa física pode comprar.** Ele classifica qualificação (Público Geral, Qualificado, Profissional), não natureza do investidor. Fundo vendido só para empresa é "Público Geral" para a CVM, passa em todos os filtros formais e chega ao topo de uma lista de varejo. Quatro dos dez publicados eram assim, e um quinto era corporativo na prática apesar de a cláusula permitir PF | Medir quem está dentro, no `PERFIL_MENSAL`: classe sem nenhuma pessoa física e sem nenhum cotista por distribuidor sai. Sem limiar, uma pessoa basta. Caso de teste: `24634187000143` (regulamento permite PF, tem 6.476 PJ e zero PF). Ver D-050 |
-| 14 | **A taxa declarada no extrato não é o preço que o cliente paga**, para classes que investem através de outros fundos. A mesma classe declarava 0,400% em 2024 e declara 0,040% em 2025; há classes que declaravam 2,60% e hoje declaram 0,040%. No arquivo, 580 de 2.655 classes tiveram a taxa cair 3x ou mais entre os dois anos, e 235 foram parar em exatamente 0,040%. **Ler o campo e acreditar nele coloca no topo do ranking justamente quem preenche assim**, porque custo é o maior peso | Taxa **medida** contra o fundo master, via CDA: `1 − (crescimento da classe ÷ crescimento do master) ^ (1 ÷ anos)`. Onde os dois números existem, vence o maior. Alimentadora sem medição fica sem taxa e sai do universo. Caso de teste: `51998694000139` (declara 0,040%, cobra 0,396%). Ver D-047 e `docs/04-a-taxa-e-a-conferencia.md` |
+| 14 | **A taxa declarada no extrato não é o preço que o cliente paga**, para classes que investem através de outros fundos. A mesma classe declarava 0,400% em 2024 e declara 0,040% em 2025; há classes que declaravam 2,60% e hoje declaram 0,040%. No arquivo, 580 de 2.655 classes tiveram a taxa cair 3x ou mais entre os dois anos, e 235 foram parar em exatamente 0,040%. **Ler o campo e acreditar nele coloca no topo justamente quem preenche assim** | Taxa **medida** contra o fundo master, via CDA: `1 − (crescimento da classe ÷ crescimento do master) ^ (1 ÷ anos)`. A medida é grossa e enviesada para cima (Fase 1 da D-051), então a taxa **não pontua** o fundo: ela vira **porteiro** que barra o finalista acima de 1% a.a., usando a medida onde a declarada é ≤ 0,05% (baixa demais para ser verdade). Alimentadora sem medição fica sem taxa e sai do universo. Caso de teste: `51998694000139` (declara 0,040%, cobra 0,396%). Ver D-047, D-051 e `docs/04-a-taxa-e-a-conferencia.md` |
 | 13 | **Uma carteira aparece no registro como vários fundos.** Uma gestora vende a mesma carteira por várias classes de distribuição, e a Caixa tem 12 sobre uma só. CNPJs diferentes, nomes diferentes, notas quase iguais: um Top 5 sem tratamento devolve a mesma exposição duas vezes. **Correlação não identifica isso** em pós-fixado, porque todo fundo segue a mesma curva e correlaciona acima de 0,99 | Mesma gestora **e** volatilidade anualizada da diferença entre as séries abaixo de 0,10% a.a. Caso de teste: `52239457000157` e `52239793000108` (Itaú Janeiro e Itaú Private Janeiro, 0,062% a.a.) |
 
 ---

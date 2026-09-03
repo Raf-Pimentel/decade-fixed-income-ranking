@@ -417,10 +417,10 @@ def to_markdown(outcomes: list[Outcome], result: Verdict, end_date: dt.date) -> 
         "",
         "### Contra os baratos: separando o que é seleção do que é aritmética",
         "",
-        "A taxa de administração já sai da cota antes de qualquer medição. Como ela é o maior "
-        "peso dos dois perfis, parte da vantagem sobre a mediana **não é escolha, é "
-        "subtração**: fundo mais barato entrega mais do mesmo retorno bruto, e isso se sabia "
-        "antes de rodar qualquer teste.",
+        "A taxa de administração já sai da cota antes de qualquer medição, e o porteiro de "
+        "custo ainda tira os fundos caros da lista. Então parte da vantagem sobre a mediana "
+        "**não é escolha, é subtração**: fundo mais barato entrega mais do mesmo retorno "
+        "bruto, e isso se sabia antes de rodar qualquer teste.",
         "",
         "A coluna **contra os baratos** repete o sorteio usando apenas o quartil mais barato "
         f"do mesmo universo. O Top 5 ficou entre **p{min(cheap):.0%} e p{max(cheap):.0%}** "

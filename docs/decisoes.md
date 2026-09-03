@@ -1496,6 +1496,230 @@ resolve, porque ele traz o percentual do patrimônio que cabe a cada tipo de det
 
 ---
 
+## D-051: A taxa sai do score e vira porteiro, porque o número não sustenta o peso que tinha 🔄🎥📊
+
+**Quando:** 02/09, pós-entrega · **Reverte:** o peso da taxa em D-048 e D-012 · **Ajusta:** o uso da medição de D-047
+
+**O que me fez olhar.** Um engenheiro da Decade cutucou a taxa em duas frentes. A cota do
+informe diário já vem líquida, então o retorno em excesso já pune o fundo caro; dar à taxa o
+maior peso conta o mesmo custo de novo. E, mais fundo: eu não conseguia garantir que o número
+da taxa fizesse o mínimo de sentido. Fui reabrir o meu próprio cálculo no modo cético, sem
+defender o que já estava feito.
+
+**Três problemas que a medição tem, e que eu não tinha nomeado.**
+
+1. **Não é "taxa de administração".** A medida `1 − (crescimento da classe ÷ crescimento do
+   master) ^ (1 ÷ anos)` captura tudo o que a classe retém em relação ao master e que aparece
+   na cota: administração **mais performance** (se a alimentadora cobrar) **mais atrito
+   estrutural** (caixa, segundo sleeve, timing de marcação). A declarada, do outro lado do
+   `max()`, é administração pura — o leitor até lê `TAXA_PERFM` e joga fora. Então eu estava
+   comparando duas definições diferentes sob o mesmo rótulo, e a de performance nem sequer é
+   "conhecida sobre 2026", que era o argumento inteiro da D-012.
+2. **É frágil.** O crescimento sai de dois pontos por fundo, a primeira e a última cota. Uma
+   amortização ou uma cota estale num dos extremos contamina a taxa toda. E `anos` vem da
+   **contagem** de dias em comum, não do intervalo de calendário: fundo com buraco na série tem
+   `anos` subestimado e taxa inflada. Quem tem dado pior parece mais caro.
+3. **Só sabe empurrar para cima.** O passo descarta as medições negativas e a reconciliação faz
+   `max(declarada, medida)`. As duas coisas juntas fazem o ruído da medição não ser neutro: ele
+   só aumenta o custo, nunca o diminui. Toda taxa medida deveria ser lida como "no máximo isto".
+
+**A conclusão cética.** O número acerta o **sinal grosso** — o Itaú que declara 0,040% é caro,
+ponto, e bate com a Economática por caminho independente. O que ele não merece é confiança no
+**valor fino**, 1,53% vs 1,81% vs 0,40%. E era exatamente no valor fino que eu pendurava 25 e
+23 de peso, num percentil contínuo.
+
+**O engenheiro tem razão no diagnóstico e não na cura.** Rodei o ranking sem a taxa para
+testar a dica dele de largá-la. Sem a taxa, sobe para o **#2 do perfil de prazo o Itaú
+Janeiro**, que rende bem num ano bom mas cobra ~1,5% escondido atrás de um 0,040% declarado, e
+entra no liquidez o **Inter**, com campo de 25%. Largar a taxa não simplifica o ranking: ele
+readmite justamente o caro que a medição existia para remover. Então não é jogar fora — é usar
+grosso.
+
+**Decisão: a taxa sai do score e da simulação, e vira porteiro sobre os finalistas.** O ranking
+fino roda em desempenho, risco, liquidez e tamanho — tudo o que vem da cota, que é o lado
+sólido da medição. Depois do ranking e da simulação, um passo grosso risca o finalista cujo
+custo passa de **1,0% a.a.**, e promove o próximo distinto. A taxa nunca decide entre dois
+fundos próximos; ela só barra o gritantemente caro, que é a única pergunta que um número frágil
+responde com folga. Isso mata o double-counting: o custo de 2025 fica no retorno líquido, e a
+taxa só reentra para pegar o caro que um ano bom mascarou.
+
+**Qual número o porteiro usa, e por que não é o `max`.** A primeira ideia foi barrar pela maior
+entre declarada e medida. A conferência da Fase 1 mostrou que isso teria falso positivo: sobre
+3.281 feeders com os dois números, a medida corre **acima** da declarada na maioria (mediana
++0,27pp, p90 +3pp), e só metade dos gaps grandes é o cluster do 0,040% — a outra metade é fundo
+de taxa normal com medição inflada. Usar o `max` barraria um fundo que cobra de verdade ~0,4%
+só porque a medição dele inflou. Então o porteiro usa o **número confiável de cada caso**: a
+declarada, a menos que ela seja **≤ 0,05%**, a assinatura do preenchimento errado, quando aí
+sim usa a medida. A estabilidade entre anos confirma que a medida é sinal real mas ruidoso
+(correlação 2024×2025 de 0,615, deriva mediana de 0,15pp), o que sustenta usá-la como grosso e
+não como valor fino.
+
+**Por que 1,0%, e por que a priori.** Fundo de renda fixa DI de varejo raramente passa de
+~0,5% a.a., então 1% é onde esse produto deixa de ser normal. Como contexto, não como régua: a
+D-048 mediu a mediana do universo de liquidez em ~0,50% e o p90 em ~1,80%, então 1% fica acima
+da faixa comum e abaixo da cauda cara. Escolhi 1% pelo limite externo do que é caro no varejo,
+**não** por quais fundos ele remove. Isso é o que o separa de um ajuste proibido pela regra 11.
+
+**O peso liberado vai para o risco, não para o retorno.** A taxa segurava, sem querer, o
+ranking longe dos caça-riscos: fundo barato de porta também é de baixo risco. Tirá-la e jogar o
+peso no retorno inverteria isso. Então os 25 e 23 vão para as métricas de risco, para carregar
+esse lastro de propósito.
+
+| Perfil | Pesos novos |
+|---|---|
+| **Liquidez** (reserva) | volatilidade 30 · pior queda 25 · tamanho 15 · excesso 15 · resgate 15 |
+| **Prazo** (dois anos+) | retorno/risco 30 · pior queda 23 · excesso 22 · tamanho 20 · resgate 5 |
+
+A história de cada perfil fica limpa: na reserva, o que importa é não oscilar e não cair; no
+horizonte, o líder passa a ser retorno **por unidade de risco**, não retorno cru.
+
+**Isso inverte a D-048.** Os dois testes em `test_config.py` que exigem "a taxa é o maior peso
+individual" vão falhar de propósito, e serão reescritos para guardar a propriedade nova: risco
+lidera, e a taxa não está no score. As duas taxas seguem viajando para a saída, agora rotuladas
+honestamente — onde a medida vence, é **custo estimado do invólucro**, não taxa de
+administração.
+
+**Limite declarado.** Isso conserta o tratamento da taxa, não a natureza dos dados. Doze meses
+num único regime de juros continua sendo um seletor fraco de desempenho, e essa é a limitação
+de cabeça do projeto, com ou sem taxa no score. O que muda é que eu parei de apoiar a resposta
+num número frágil confiando no dígito dele.
+
+**Disciplina.** Mudança de desenho: o corte e os pesos foram fixados aqui, antes de rodar. O
+teste no passado roda **uma vez** com o desenho novo, e o que ele disser eu reporto, sem mexer
+até passar.
+
+---
+
+## D-052: Fundos de zeragem saem do universo — não são produto de cliente 🔄🎥📊
+
+**Quando:** 03/09, pós-entrega · **Segue de:** D-050 · **Motivado por:** feedback da Decade
+
+**O que me fez olhar.** A Decade revisou a lista pós-D-051 e apontou o Itaú Zeragem: "não
+encontrei uma avaliação nossa pra esse fundo — ele parece estar fora do universo que avaliamos".
+Um fundo de zeragem existe para zerar o caixa de fim de dia dentro de uma estrutura; é
+encanamento operacional, não um produto que um cliente compra.
+
+**Por que o filtro que já existia não pegou.** A regra de "quem está dentro" (D-050) tira classe
+sem nenhuma pessoa física e sem distribuidor. O zeragem tem algum cotista que passa nesse crivo,
+então sobrevivia. E ele não é caro nem ilíquido — as métricas de cota não têm como saber que é
+um veículo de tesouraria.
+
+**Decisão:** fundo cujo nome marca um veículo de zeragem sai na elegibilidade, do mesmo jeito
+que fundo exclusivo sai. O marcador é declarado em `universe.yaml` (`exclude_name_markers`), é
+config-driven, e é uma exclusão de **categoria** — não um corte ajustado a um resultado. É a
+mesma natureza dos cortes de exclusivo e de condomínio fechado: o veículo, não o desempenho.
+
+**Limite honesto.** É por nome, o que o projeto evita como regra. Justifica-se porque "zeragem"
+é uma categoria de fundo (zeragem automática de caixa), não um nome arbitrário, e porque o sinal
+estrutural que separaria um zeragem de um fundo de taxa baixa legítimo — como o BEM, que a
+Decade trata como avaliado — exigiria a base de cotistas por tipo, que não inspecionei a tempo.
+Um zeragem sem "zeragem" no nome escaparia.
+
+**Efeito.** O funil cai de 165 para 164 na liquidez e de 313 para 312 no prazo, dentro do
+baseline. O Itaú Zeragem, que era o 1º do prazo, sai; entra o Itaú RF Diferenciado. O backtest
+seguiu 3/3.
+
+---
+
+## D-053: O come-cotas quantificado — quando o fundo é o veículo errado 🎥📊
+
+**Quando:** 03/09, pós-entrega · **Motivado por:** feedback da Decade
+
+**O que a Decade disse.** Nenhum dos cinco entra na lista de aprovados deles, e a razão de fundo
+é a mesma: são fundos que perseguem o CDI, cobram taxa por isso, e sofrem **come-cotas** — o IR
+semestral que come cotas em maio e novembro e mata a composição. Para parquear caixa perto do
+CDI, um CDB direto ou o Tesouro Selic quase sempre ganham depois do imposto, porque só pagam IR
+na saída.
+
+**Por que o ranking não via.** A cota da CVM é pré-imposto, e o come-cotas mexe na quantidade de
+cotas do investidor, não no valor da cota. Então o ranking, que lê a cota, não enxerga a mordida.
+E o CDB e o Tesouro Selic não são fundos — estão fora do universo que o case fixou.
+
+**Decisão:** não trago instrumento direto para dentro do ranking (mudaria o universo do case),
+mas quantifico a limitação por fora e a declaro. `docs/05-come-cotas-e-o-veiculo.md` projeta o
+retorno líquido de IR de cada fundo de liquidez contra Tesouro Selic e CDB, em 1, 2 e 3 anos.
+
+**O que os números dizem.** Contra um CDB 100% CDI, os cinco perdem depois do IR em todo
+horizonte. Contra o Tesouro Selic, perdem a partir de ~2 anos, quando o come-cotas composto
+supera a custódia da LFT; em 1 ano a custódia de 0,20% da LFT segura alguns por poucos
+pontos-base, uma inversão que some abaixo de R$ 10 mil, onde a custódia é zero. O BB Tesouro
+Selic é o pior: cobra 0,30% para entregar Selic e perde para a LFT direta em todo horizonte.
+
+**O que isso ensina, e é o mais valioso.** O ranking responde "melhor fundo a partir de dados
+públicos". A Decade responde "para uma reserva, não use fundo". As duas não competem: a segunda
+é um insight de mandato, e o lugar honesto dela é declarada, não escondida. Para o perfil de
+prazo, onde entram incentivados de infra isentos (sem come-cotas), o imposto de fato
+reordenaria — é o próximo passo real.
+
+---
+
+## D-054: Dois critérios a mais — track record e eficiência tributária 🎥📊
+
+**Quando:** 03/09, pós-entrega · **Segue de:** D-053 · **Motivado por:** o método da Decade
+
+**O que me fez olhar.** A Decade descreveu como avalia um fundo, em duas camadas: a tese (a
+categoria presta?) e um filtro quantitativo que compara o fundo com os pares por custo,
+desempenho ajustado ao risco, **histórico**, liquidez e **eficiência estrutural** — incluindo a
+eficiência tributária do veículo. Meu ranking já era um bom filtro dessa Camada 2, mas faltavam
+dois dos critérios deles: track record e imposto.
+
+**Decisão: dois critérios novos, pontuados nos dois perfis.**
+
+*Track record* é a idade do fundo, da data de constituição, com a 1ª cota como fallback — nunca
+do `Data_Inicio` do registro, que é a data de adaptação à RCVM 175 (armadilha #3). Fundo com
+mais estrada, mais peso. Peso 12.
+
+*Eficiência tributária* é 1 para um fundo incentivado de infra (isento, sem come-cotas), 0,5 para
+um regressivo de longo prazo, 0 para um de curto. Peso 6. Onde toda a categoria paga come-cotas,
+o critério empata e o peso se redistribui — a forma honesta de dizer que ali nenhum fundo é mais
+eficiente que outro.
+
+**O que mudou na lista, e é o efeito que se queria.** Na liquidez, o track record levou o BTG
+Yield DI (30 anos, aparição de 95%) ao topo. No prazo, a eficiência tributária fez subir o
+**Inter Hedge Incentivado de Infra** — isento, sem come-cotas — ao 2º lugar. É a Camada 1 (a tese
+sobre o veículo) entrando pela porta da Camada 2: o fundo que o cliente leva mais para casa
+depois do imposto.
+
+**Ressalva que ficou mais visível.** O prazo passou a ter prefixados e IRF-M com excesso grande
+sobre o CDI (+3% a +7,6%). Parte disso é benchmark: eles não são fundos de CDI, e o projeto
+compara todo mundo com o CDI (a limitação do IMA-B, já declarada). A comparação intra-grupo
+absorve a maior parte, mas a leitura do excesso desses fundos precisa desse asterisco.
+
+**Backtest.** Rodado uma vez com os pesos novos, congelados antes: **3/3 nos dois perfis**. Funil
+dentro do baseline.
+
+---
+
+## D-055: Um piso de performance, e o que ele revelou sobre os pares 🎥📊
+
+**Quando:** 03/09, pós-entrega · **Motivado por:** os pontos de atenção da Decade, fundo a fundo
+
+**O que me fez olhar.** A Decade avaliou os cinco de liquidez um a um e deu gravidade **alta** de
+performance a dois deles — Bradesco e BB Tesouro Selic — por ficarem "bem abaixo dos pares",
+mesmo com custo e histórico bons. O modelo deles é de **veto por ponto de atenção**; o meu é de
+**compensação ponderada**, e deixava custo e track record resgatarem um fundo fraco em retorno.
+
+**Decisão: um piso de performance.** Finalista cujo percentil de excesso sobre o CDI, **dentro do
+próprio grupo de pares**, fica abaixo de **0,20** é barrado, por mais barato ou antigo que seja —
+a mesma bandeira vermelha que a Decade usa. O corte foi fixado a priori, por princípio (batido por
+80% dos pares é laggard), e não olhando quais fundos ele remove.
+
+**O resultado, e é o mais honesto do projeto.** O piso **não removeu** o Bradesco nem o BB Selic.
+A lista ficou idêntica. O motivo expõe algo mais fundo: a categoria ANBIMA específica dos dois tem
+menos de 20 fundos, então eles caem no grupo "(universo inteiro)" (`min_size`), e contra o
+universo todo o excesso de −0,39% do Bradesco é **mediano** (percentil 0,49). Ele não é laggard
+contra tudo; é laggard contra os **pares estreitos** dele, que é como a Decade compara.
+
+**O descompasso real não é o piso — é a definição de pares.** Agrupar categoria pequena no
+universo inteiro dilui o fundo e **esconde** a fraqueza frente aos pares verdadeiros. Corrigir
+isso seria mexer no `min_size` **depois** de saber que ele mudaria o Bradesco, que é a regra 11.
+Não fiz. O piso fica como guarda legítima — ele vai barrar um laggard de verdade num outro corte
+ou data — e a diferença que sobra com a Decade está nomeada, não consertada.
+
+**Backtest.** Rodado uma vez: **3/3 nos dois perfis**, lista inalterada.
+
+---
+
 # Material para a apresentação
 
 *Seção viva: vou alimentando conforme o projeto anda.*
@@ -1555,12 +1779,12 @@ resolve, porque ele traz o percentual do patrimônio que cabe a cada tipo de det
 | **12 invólucros, 1 carteira** | classes de distribuição que a Caixa oferece sobre uma única carteira de renda fixa |
 | **0,062% a.a.** | a distância entre Itaú Janeiro e Itaú Private Janeiro: mesma carteira, dois nomes, dois CNPJs sequenciais |
 | 0,99 para todo mundo | por que correlação não identifica gêmeo em renda fixa pós-fixada: todos seguem a mesma curva |
-| 288 testes verdes | incluindo os que abrem o `ranking.json` entregue e testam o produto, não a função |
-| **p68 · p99 · p22 / p71 · p94 · p72** | o Top 5 contra mil carteiras aleatórias, em três datas de corte, nos dois perfis |
-| **2 de 6 e 0 de 6** | recortes em que o Top 5 bateu a mediana dos elegíveis, e em que bateu o CDI |
-| −15 a +21 pontos-base | a vantagem real sobre a mediana: pequena nos dois sentidos, e é por isso que três cortes não distinguem método de sorte |
-| 83,2 no grupo, 66,9 no universo | o 1º do perfil de prazo é o melhor de uma categoria que não é boa, e as duas notas dizem isso |
-| 99% vs 1% | o mesmo fundo some do top 5 quando pontuado só por desempenho: a lista é de custo |
+| 325 testes verdes | incluindo os que abrem o `ranking.json` entregue e testam o produto, não a função |
+| **p84 · p97 · p98 / p88 · p94 · p94** | o Top 5 (desenho D-051) contra mil carteiras aleatórias, em três datas, nos dois perfis: 3/3 |
+| **6 de 6 e 0 de 6** | recortes em que o Top 5 bateu a mediana dos elegíveis, e em que bateu o CDI |
+| +9 a +23 pontos-base | a vantagem real sobre a mediana: pequena, e é por isso que três cortes não distinguem método de sorte |
+| 82,4 no grupo, 62,1 no universo | o 1º do perfil de prazo é o melhor de uma categoria que não é boa, e as duas notas dizem isso |
+| 87% → 1% | o Itaú Zeragem some do top 5 quando também se ignora o tamanho: a ordem vem do tamanho e do grupo de pares, não de um ano de retorno |
 
 ## Esqueleto do vídeo (5 min)
 
@@ -1568,7 +1792,7 @@ resolve, porque ele traz o percentual do patrimônio que cabe a cada tipo de det
 |---|---|---|
 | 0:00–0:35 | O problema, e o funil de 36.594 para 514 | `relatorio_qualidade.md` |
 | 0:35–1:35 | **Fui olhar o dado antes de codar.** As armadilhas que não geram erro nenhum | D-001, D-002, D-003 |
-| 1:35–2:15 | Como decido o que é "melhor": grupo de pares, perfil, e por que a **taxa pesa mais que a rentabilidade**, com o dado de que só 40% bateram o CDI | D-008, D-012 |
+| 1:35–2:15 | Como decido o que é "melhor": grupo de pares, perfil, risco no comando, e por que a **taxa virou porteiro em vez de peso** | D-008, D-051 |
 | 2:15–2:55 | **Funciona?** O teste no passado e o percentil contra carteiras aleatórias | D-017, `validacao.md` |
 | 2:55–3:35 | **A decisão que menos me convence** e o que a simulação não vê | D-011 |
 | 3:35–4:05 | Onde meu próprio guardrail falhou, e onde acertou | D-024 vs D-029 |
@@ -1580,8 +1804,8 @@ resolve, porque ele traz o percentual do patrimônio que cabe a cada tipo de det
 - *"Criei um guardrail para pegar junção quebrada. Ele não pegou a minha, porque 2% cabia na
   tolerância de 3%. Verificação por percentual não substitui invariante exata."*
 - *"Escrevi um teste que dizia 1.7069. O código disse 1.704814. O código estava certo."*
-- *"Só 40% dos fundos de renda fixa bateram o CDI em 2025. É por isso que a taxa pesa mais que
-  a rentabilidade passada no meu ranking, e isso não é teoria, é o dado."*
+- *"A taxa é medida com incerteza, então ela não pontua o ranking: virou porteiro. Tirei-a do
+  score, o peso foi para o risco, rodei o backtest uma vez e passou 3/3 — melhor que antes."*
 - *"Um fundo cuja cota não se move não é um fundo sem risco. É um fundo que parou de ser
   precificado. Por isso ele é excluído, não premiado."*
 - *"Os cinco primeiros não são distinguíveis entre si. Eu digo isso na entrega em vez de

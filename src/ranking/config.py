@@ -34,6 +34,11 @@ class Filters(_Strict):
     min_shareholders: int
     min_observations: int
     require_fee_and_redemption: bool
+    # Fund names that mark an operational cash-management vehicle rather than a
+    # product a client buys. A "zeragem" fund exists to zero out end-of-day cash
+    # inside a structure; it is not on a wealth manager's approved list. See
+    # decision D-052.
+    exclude_name_markers: list[str] = []
 
 
 class Fees(_Strict):
@@ -125,6 +130,24 @@ class Scoring(_Strict):
 class Selection(_Strict):
     max_tracking_difference: float
     min_overlap_days: int
+    # A finalist whose excess-return percentile within its own peer group falls
+    # below this is struck, however cheap or long-lived it is (D-055). It mirrors
+    # how Decade treats a fund well below its peers on performance: a red flag no
+    # other virtue rescues. Fixed a priori, by principle, not tuned to a result.
+    performance_floor: float = 0.0
+
+
+class CostGate(_Strict):
+    """The fee left the score (D-051) and returns as a coarse gate on the
+    finalists. A finalist whose cost exceeds `max_annual_cost` is struck and the
+    next distinct fund promoted. The gate reads the reliable number for each
+    fund: the declared fee, unless it is at or below `declared_trusted_above`,
+    the suspiciously low figure the RCVM 175 refiling produces, where the
+    measured fee is used instead. Both numbers are frozen before the run, as
+    rule 11 requires."""
+
+    max_annual_cost: float
+    declared_trusted_above: float
 
 
 class Robustness(_Strict):
@@ -156,6 +179,7 @@ class ProfilesConfig(_Strict):
     profiles: dict[str, Profile]
     scoring: Scoring
     selection: Selection
+    cost_gate: CostGate
     robustness: Robustness
     backtest: Backtest
 

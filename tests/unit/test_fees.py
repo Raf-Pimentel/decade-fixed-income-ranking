@@ -188,3 +188,33 @@ class TestReconcile:
         out = fees.reconcile(self._funds([0.005]), pl.DataFrame(schema={"cnpj_classe": pl.Utf8}))
         assert out["taxa_adm"].to_list() == [0.005]
         assert out["taxa_adm_medida"].to_list() == [None]
+
+
+class TestGateCost:
+    """The fee left the score (D-051) and returns as a gate on the finalists.
+    The gate reads the reliable number for each fund: the declared fee, unless
+    it is the suspiciously low value the misfiling produces, where the measured
+    fee replaces it. This is what keeps a genuinely cheap fund whose measurement
+    ran high (Fase 1) from being struck, while still catching a fund that files
+    0.040% and charges far more."""
+
+    floor = 0.0005
+
+    def test_a_normal_declared_fee_is_trusted_over_the_measurement(self) -> None:
+        # 0.4% filed, an inflated 1.2% measured: the declared value is
+        # plausible, so the measurement does not raise it. Without this, the
+        # upward bias of the measurement (Fase 1) would strike a cheap fund.
+        assert fees.gate_cost(0.004, 0.012, self.floor) == 0.004
+
+    def test_a_suspiciously_low_declared_fee_is_replaced_by_the_measurement(self) -> None:
+        # 0.040% filed, ~1.5% charged: the field is the misfiling of D-047.
+        assert fees.gate_cost(0.0004, 0.015, self.floor) == 0.015
+
+    def test_a_low_declared_fee_with_no_measurement_keeps_the_low_value(self) -> None:
+        assert fees.gate_cost(0.0004, None, self.floor) == 0.0004
+
+    def test_a_missing_declared_fee_falls_back_to_the_measurement(self) -> None:
+        assert fees.gate_cost(None, 0.02, self.floor) == 0.02
+
+    def test_no_number_at_all_is_none(self) -> None:
+        assert fees.gate_cost(None, None, self.floor) is None

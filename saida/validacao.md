@@ -8,18 +8,18 @@ O critério de sucesso e a regra do fundo descontinuado foram escritos em `confi
 
 | Corte | Perfil | Top 5 rendeu | CDI | Mediana dos elegíveis | Vantagem | Contra o acaso | Contra os baratos | Bateram a mediana |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
-| 31/03/2025 | varejo_liquidez | +10.90% | +11.00% | +10.65% | **+26 pb** | p90% ✅ | p53% | 5 de 5 |
-| 31/03/2025 | varejo_prazo | +10.86% | +11.00% | +10.64% | **+22 pb** | p88% ✅ | p54% | 5 de 5 |
-| 30/06/2025 | varejo_liquidez | +7.35% | +7.43% | +7.09% | **+26 pb** | p98% ✅ | p87% | 5 de 5 |
-| 30/06/2025 | varejo_prazo | +7.27% | +7.43% | +7.09% | **+18 pb** | p95% ✅ | p65% | 5 de 5 |
-| 30/09/2025 | varejo_liquidez | +3.49% | +3.59% | +3.38% | **+11 pb** | p97% ✅ | p68% | 5 de 5 |
-| 30/09/2025 | varejo_prazo | +3.46% | +3.59% | +3.38% | **+8 pb** | p93% ✅ | p65% | 4 de 5 |
+| 31/03/2025 | varejo_liquidez | +10.93% | +11.00% | +10.65% | **+28 pb** | p92% ✅ | p63% | 5 de 5 |
+| 31/03/2025 | varejo_prazo | +10.93% | +11.00% | +10.64% | **+29 pb** | p90% ✅ | p64% | 5 de 5 |
+| 30/06/2025 | varejo_liquidez | +7.36% | +7.43% | +7.09% | **+27 pb** | p98% ✅ | p93% | 5 de 5 |
+| 30/06/2025 | varejo_prazo | +7.34% | +7.43% | +7.09% | **+25 pb** | p97% ✅ | p80% | 5 de 5 |
+| 30/09/2025 | varejo_liquidez | +3.50% | +3.59% | +3.38% | **+12 pb** | p98% ✅ | p72% | 5 de 5 |
+| 30/09/2025 | varejo_prazo | +3.52% | +3.59% | +3.38% | **+14 pb** | p99% ✅ | p92% | 5 de 5 |
 
 **Contra o acaso** é a coluna que decide o veredito: em que percentil o Top 5 caiu numa distribuição de mil carteiras de cinco fundos sorteados do mesmo universo elegível naquela data. Bater a mediana dos pares é fácil; bater o sorteio não é.
 
 ### O que os números dizem, sem arredondar para cima
 
-A vantagem sobre a mediana dos elegíveis ficou entre **+8 e +26 pontos-base**, e o Top 5 ficou acima dessa mediana em **6 dos 6 recortes**. O saldo é positivo, mas por margens pequenas.
+A vantagem sobre a mediana dos elegíveis ficou entre **+12 e +29 pontos-base**, e o Top 5 ficou acima dessa mediana em **6 dos 6 recortes**. O saldo é positivo, mas por margens pequenas.
 
 Contra o CDI, o Top 5 ficou à frente em **0 dos 6 recortes**. Nenhum. Os fundos escolhidos renderam menos que o CDI em todos os cortes, o que não é surpresa num universo em que só 40% dos fundos bateram o CDI no ano, mas precisa estar escrito, porque é a comparação que o cliente faz de cabeça.
 
@@ -27,9 +27,9 @@ Isso convive com percentis altos contra o sorteio sem contradição: fundos de r
 
 ### Contra os baratos: separando o que é seleção do que é aritmética
 
-A taxa de administração já sai da cota antes de qualquer medição. Como ela é o maior peso dos dois perfis, parte da vantagem sobre a mediana **não é escolha, é subtração**: fundo mais barato entrega mais do mesmo retorno bruto, e isso se sabia antes de rodar qualquer teste.
+A taxa de administração já sai da cota antes de qualquer medição, e o porteiro de custo ainda tira os fundos caros da lista. Então parte da vantagem sobre a mediana **não é escolha, é subtração**: fundo mais barato entrega mais do mesmo retorno bruto, e isso se sabia antes de rodar qualquer teste.
 
-A coluna **contra os baratos** repete o sorteio usando apenas o quartil mais barato do mesmo universo. O Top 5 ficou entre **p53% e p87%** contra esse controle.
+A coluna **contra os baratos** repete o sorteio usando apenas o quartil mais barato do mesmo universo. O Top 5 ficou entre **p63% e p93%** contra esse controle.
 
 **Leia essa coluna com cuidado, porque ela não é um experimento limpo.** Segurar o custo aproximadamente constante também muda a composição do grupo de comparação: o quartil mais barato é dominado por fundos de título público, que rendem bruto menos que os de crédito. Um percentil mais alto contra os baratos é, em parte, o Top 5 sendo comparado com fundos de risco menor. A coluna é um segundo ângulo sobre o mesmo resultado, não uma decomposição entre custo e habilidade.
 

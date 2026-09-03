@@ -163,6 +163,36 @@ def test_counts_never_increase(filters) -> None:
     assert counts == sorted(counts, reverse=True)
 
 
+def test_cash_sweep_funds_are_excluded_by_name(filters) -> None:
+    """A zeragem fund zeroes out end-of-day cash inside a structure; it is an
+    operational vehicle, not a product a client buys. Decade confirmed one such
+    fund sat outside the universe they evaluate. See D-052."""
+    registry = _registry(
+        [
+            {"cnpj_classe": "00017024000153", "denominacao_social": "FUNDO RF NORMAL"},
+            {
+                "cnpj_classe": "00068305000135",
+                "denominacao_social": "ITAU ZERAGEM RF REFERENCIADO DI",
+            },
+        ]
+    )
+    series = _series(registry["cnpj_classe"].to_list(), 250, 50e6, 500)
+    terms = pl.DataFrame(
+        {
+            "cnpj_classe": registry["cnpj_classe"].to_list(),
+            "taxa_adm": [0.002, 0.0],
+            "dias_resgate": [1, 1],
+            "aplicacao_minima": [100.0, 100.0],
+        }
+    )
+
+    result = universe.build(registry, series, terms, filters=filters, reference_date=REFERENCE)
+
+    names = [n.upper() for n in result.funds["denominacao_social"].to_list()]
+    assert not any("ZERAGEM" in n for n in names)
+    assert result.counts["not_cash_sweep"] == 1
+
+
 def test_a_thin_series_is_excluded(filters) -> None:
     registry = _registry([{"cnpj_classe": "00017024000153"}])
     series = _series(["00017024000153"], 10, 50e6, 500)  # far below min_observations

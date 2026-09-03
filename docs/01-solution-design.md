@@ -198,20 +198,22 @@ porque liquidez sobrando não é defeito.
 
 | Número | Reserva de emergência | Dois anos ou mais |
 |---|---:|---:|
-| Taxa de administração | **25** | **23** |
-| Oscilação | 20 | |
-| Ganho sobre o CDI | 15 | 22 |
-| Retorno por unidade de risco | | 20 |
-| Pior queda | 15 | 15 |
-| Tamanho e estabilidade | 15 | 15 |
-| Prazo de resgate | 10 | 5 |
+| Oscilação | **28** | |
+| Retorno por unidade de risco | | **28** |
+| Pior queda | 22 | 20 |
+| Ganho sobre o CDI | 12 | 18 |
+| Track record | 12 | 12 |
+| Tamanho e estabilidade | 12 | 12 |
+| Prazo de resgate | 8 | 4 |
+| Eficiência tributária | 6 | 6 |
 | **Total** | **100** | **100** |
 
-A taxa é o maior peso individual nos dois perfis. Custo é o único número que se sabe com certeza
-sobre o ano que vem, e apenas 40% dos fundos bateram o CDI em 2025. Mas ele **não** é o que mais
-separa os fundos: medido no universo elegível, o excesso sobre o CDI vai de −2,46% a +0,29% entre
-o percentil 10 e o 90, amplitude de 2,75 pontos, contra 1,60 da taxa. O que sustenta o peso da
-taxa é a persistência dela, não a dispersão.
+A taxa **não** aparece nesta tabela: ela saiu do score (D-051). O risco lidera os dois perfis —
+oscilação na reserva, retorno por unidade de risco no horizonte — porque a taxa é medida com
+incerteza e um peso fino sobre ela ranqueava fundos no ruído. Ela reentra depois do ranking,
+como **porteiro** que barra o finalista caro, acima de 1% a.a. (ver 6.1). O **track record** (a
+idade real, armadilha #3) e a **eficiência tributária** (isento de come-cotas vale mais) foram
+acrescentados na D-054 para alinhar com os critérios que a Decade usa contra os pares.
 
 ### 6.1 A taxa é medida, não lida
 
@@ -224,9 +226,15 @@ cota são a mesma carteira precificada duas vezes, e o que as separa é o que a 
 
 > taxa = 1 − (crescimento da classe ÷ crescimento do master) ^ (1 ÷ anos)
 
-Três regras decidem o número, e cada uma custa ao fundo em vez de premiá-lo. Onde os dois valores
-existem, vence o **maior**. Classe que investe através de outros fundos e **não pôde** ser medida
-fica sem taxa e sai pelo corte da seção 2. Todo o resto mantém o que declarou.
+Três regras decidem o número reconciliado, e cada uma custa ao fundo em vez de premiá-lo. Onde os
+dois valores existem, vence o **maior**. Classe que investe através de outros fundos e **não
+pôde** ser medida fica sem taxa e sai pelo corte da seção 2. Todo o resto mantém o que declarou.
+
+Esse número reconciliado decide a **elegibilidade** — fundo sem custo conhecido sai — e é
+publicado. Ele **não pontua** mais o fundo: o custo saiu do score (D-051), porque a medida é
+grossa e enviesada para cima, e reentra depois do ranking como **porteiro** que barra o finalista
+acima de 1% a.a. O porteiro usa a declarada, exceto quando ela é ≤ 0,05% (baixa demais para ser
+verdade), quando usa a medida.
 
 Os dois números são publicados lado a lado. Evidência e conferência externa em
 `docs/04-a-taxa-e-a-conferencia.md`.
@@ -420,8 +428,9 @@ Por isso todo fundo publica `regime_tributario`.
 **9. A lista mistura categorias.** Ser o primeiro de dezoito vale 1 num grupo forte e num fraco.
 Publico `score` e `score_pool` e o leitor decide.
 
-**10. A taxa é contada duas vezes, de propósito.** A cota já vem líquida, então o excesso dentro
-dela já pune o fundo caro. A segunda contagem fala de 2026 enquanto a primeira fala de 2025.
+**10. A taxa não pontua o fundo; ela é um porteiro (D-051).** A cota já vem líquida, então o
+excesso dentro dela já pune o fundo caro. Em vez de contar o custo de novo com um peso fino sobre
+um número medido com incerteza, a taxa só barra o finalista acima de 1% a.a.
 
 **11. Cada fundo é avaliado isoladamente**, com a única restrição de não repetir a mesma carteira.
 
