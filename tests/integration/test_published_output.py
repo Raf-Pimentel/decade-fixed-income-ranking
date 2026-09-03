@@ -190,9 +190,7 @@ def test_no_published_fund_exceeds_the_cost_gate(payload) -> None:
     from ranking import config
     from ranking.transform import fees
 
-    gate = config.load_profiles(
-        Path(__file__).parents[2] / "configs" / "profiles.yaml"
-    ).cost_gate
+    gate = config.load_profiles(Path(__file__).parents[2] / "configs" / "profiles.yaml").cost_gate
     for profile in payload["profiles"]:
         for fund in profile["top"]:
             numbers = fund["metrics"]

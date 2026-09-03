@@ -874,9 +874,7 @@ def _rank_profile(
         if "excess_return_pct" in ordered.columns
         else {}
     )
-    below_floor = {
-        cnpj for cnpj, pct in excess_pct_of.items() if pct is not None and pct < floor
-    }
+    below_floor = {cnpj for cnpj, pct in excess_pct_of.items() if pct is not None and pct < floor}
     vetoed = gated_out | below_floor
 
     list_size = max(top_n, profiles_config.robustness.comparison_size)
